@@ -3,3 +3,9 @@ pipelines:
     - step:
         script: 
           - ./bin/build.sh
+        caches:
+          - nvm
+
+definitions:
+  caches:
+    nvm: "$HOME/.nvm"
