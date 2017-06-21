@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "forceConsistentCasingInFileNames": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noEmit": true,
+    "noImplicitAny": true,
+    "target": "es6"
+  },
+  "include": [
+    "lib/**/*",
+    "test/**/*"
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "name": "openapi-diff",
+  "version": "0.0.0",
+  "description": "A CLI tool to identify differences between Swagger/OpenAPI specs.",
+  "scripts": {
+    "test": "./node_modules/gulp/bin/gulp.js",
+    "watch": "./node_modules/gulp/bin/gulp.js watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@bitbucket.org/atlassian/openapi-diff.git"
+  },
+  "keywords": [
+    "diff",
+    "difference",
+    "OpenAPI",
+    "Swagger"
+  ],
+  "author": {
+    "name": "Mauri Edo (Atlassian)",
+    "email": "medo@atlassian.com"
+  },
+  "license": "Apache-2.0",
+  "homepage": "https://bitbucket.org/atlassian/openapi-diff",
+  "devDependencies": {
+    "@types/jasmine": "^2.5.52",
+    "del": "^3.0.0",
+    "gulp": "^3.9.1",
+    "gulp-clean": "^0.3.2",
+    "gulp-jasmine": "^2.4.2",
+    "gulp-tslint": "^8.1.1",
+    "gulp-typescript": "^3.1.7",
+    "run-sequence": "^1.2.2",
+    "tslint": "^5.4.3",
+    "typescript": "^2.3.4"
+  }
+}
