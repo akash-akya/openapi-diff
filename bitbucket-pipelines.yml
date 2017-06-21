@@ -4,8 +4,10 @@ pipelines:
         script: 
           - ./bin/build.sh
         caches:
+          - node-deps
           - nvm
 
 definitions:
   caches:
+    node-deps: "node_deps"
     nvm: "$HOME/.nvm"
