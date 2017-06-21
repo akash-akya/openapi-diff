@@ -42,7 +42,7 @@ gulp.task('lint', () => {
 });
 
 gulp.task('test', () => {
-    gulp.src('build-output/test/**/*[sS]pec.js')
+    return gulp.src('build-output/test/**/*[sS]pec.js')
         .pipe(jasmine())
 });
 
