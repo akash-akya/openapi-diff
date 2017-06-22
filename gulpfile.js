@@ -113,7 +113,7 @@ gulp.task('lint-typescript', () => {
 });
 
 gulp.task('push-changes', (callback) => {
-    git.push('origin', 'master', callback);
+    git.push('origin', 'master', {args: '--tags'}, callback);
 });
 
 gulp.task('release', (callback) => {
