@@ -1,6 +1,5 @@
 'use strict';
 
-const bump = require('gulp-bump');
 const conventionalChangelog = require('gulp-conventional-changelog');
 const del = require('del');
 const exec = require('child_process').exec;
@@ -24,12 +23,6 @@ const getBumpType = () => {
 };
 
 const tsProjectBuildOutput = ts.createProject('tsconfig.json', { noEmit: false });
-
-// gulp.task('bump-version', () => {
-//     return gulp.src('./package.json')
-//         .pipe(bump({type: getBumpType()}))
-//         .pipe(gulp.dest('./'))
-// });
 
 gulp.task('bump-version', (callback) => {
     return exec(`npm version ${getBumpType()} --message \"chore: release %s\"`, (err, stdout, stderr) => {
@@ -71,7 +64,7 @@ gulp.task('default', (callback) => {
 });
 
 gulp.task('lint-commits', (callback) => {
-    return exec('./node_modules/.bin/conventional-changelog-lint --edit', (err, stdout, stderr) => {
+    return exec('./node_modules/.bin/conventional-changelog-lint --from \"d9a3266\"', (err, stdout, stderr) => {
         console.log(stdout);
         console.log(stderr);
         callback(err);
