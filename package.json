@@ -6,8 +6,8 @@
     "release-major": "./node_modules/.bin/gulp release --type major",
     "release-minor": "./node_modules/.bin/gulp release --type minor",
     "release-patch": "./node_modules/.bin/gulp release --type patch",
-    "test": "./node_modules/gulp/.bin/gulp",
-    "watch": "./node_modules/gulp/.bin/gulp watch"
+    "test": "./node_modules/.bin/gulp",
+    "watch": "./node_modules/.bin/gulp watch"
   },
   "repository": {
     "type": "git",
