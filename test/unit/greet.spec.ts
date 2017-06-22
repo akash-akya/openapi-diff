@@ -1,4 +1,4 @@
-import { sayHello } from '../lib/greet';
+import { sayHello } from '../../lib/greet';
 
 describe('sayHello', () => {
 

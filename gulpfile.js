@@ -134,7 +134,12 @@ gulp.task('test', () => {
         .pipe(jasmine())
 });
 
+gulp.task('unit-test', () => {
+    return gulp.src('build-output/test/unit/**/*[sS]pec.js')
+        .pipe(jasmine())
+});
+
 gulp.task('watch', ['clean-copy-and-compile-build-output'], () => {
     gulp.watch(['lib/**/*.ts', 'test/**/*.ts'], ['compile-build-output']);
-    gulp.watch(['build-output/lib/**/*', 'build-output/test/**/*'], ['test']);
+    gulp.watch(['build-output/lib/**/*', 'build-output/test/unit/**/*'], ['unit-test']);
 });
