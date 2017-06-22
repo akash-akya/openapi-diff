@@ -25,7 +25,7 @@ const getBumpType = () => {
 const tsProjectBuildOutput = ts.createProject('tsconfig.json', { noEmit: false });
 
 gulp.task('bump-version', (callback) => {
-    return exec(`npm version ${getBumpType()} -f --no-git-tag-version`, (err, stdout, stderr) => {
+    return exec(`npm version ${getBumpType()} --no-git-tag-version`, (err, stdout, stderr) => {
         console.log(stdout);
         console.log(stderr);
         callback(err);
@@ -50,21 +50,23 @@ gulp.task('clean-copy-and-compile-build-output', (callback) => {
     );
 });
 
-gulp.task('compile-build-output', () => {
-    const tsResult = tsProjectBuildOutput.src().pipe(tsProjectBuildOutput());
-    return tsResult.js.pipe(gulp.dest('build-output'));
-});
-
-gulp.task('clean-dist', () => {
-    return del(['dist/*']);
-});
-
 gulp.task('clean-copy-and-compile-dist', (callback) => {
     runSequence(
         'clean-dist',
         'compile-dist',
         callback
     );
+});
+
+gulp.task('clean-dist', () => {
+    return del(['dist/*']);
+});
+
+
+
+gulp.task('compile-build-output', () => {
+    const tsResult = tsProjectBuildOutput.src().pipe(tsProjectBuildOutput());
+    return tsResult.js.pipe(gulp.dest('build-output'));
 });
 
 gulp.task('compile-dist', () => {
