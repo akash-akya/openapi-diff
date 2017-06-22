@@ -32,7 +32,7 @@ const tsProjectBuildOutput = ts.createProject('tsconfig.json', { noEmit: false }
 // });
 
 gulp.task('bump-version', (callback) => {
-    return exec(`npm version ${getBumpType()}`, (err, stdout, stderr) => {
+    return exec(`npm version ${getBumpType()} --message \"chore: release %s\"`, (err, stdout, stderr) => {
         console.log(stdout);
         console.log(stderr);
         callback(err);
