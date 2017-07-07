@@ -1,0 +1,17 @@
+{
+  "info": {
+    "title": "New Test API",
+    "description": "Test description",
+    "termsOfService": "some terms",
+    "contact": {
+      "name": "Test name",
+      "url": "http:/example.com",
+      "email": "mail@example.com"
+    },
+    "license": {
+      "name": "test license",
+      "url": "http://license.example.com"
+    },
+    "version": "1.0.0"
+  }
+}
