@@ -51,7 +51,7 @@ gulp.task('clean-build-output', () => {
 gulp.task('clean-copy-and-compile-build-output', (callback) => {
     runSequence(
         'clean-build-output',
-        'compile-build-output',
+        ['copy-build-output-package-json', 'compile-build-output'],
         callback
     );
 });
@@ -85,6 +85,10 @@ gulp.task('compile-dist', () => {
     return tsResult.js.pipe(gulp.dest('dist'));
 });
 
+gulp.task('copy-build-output-package-json', () => {
+    return gulp.src('package.json').pipe(gulp.dest('build-output'))
+});
+
 gulp.task('create-new-tag', (callback) => {
     const version = getPackageJsonVersion();
     git.tag(version, `Created Tag for version: ${version}`, callback);
@@ -96,6 +100,11 @@ gulp.task('default', (callback) => {
         ['lint-typescript', 'test'],
         callback
     );
+});
+
+gulp.task('e2e-test', () => {
+    return gulp.src('build-output/test/e2e/**/*.spec.js')
+        .pipe(jasmine())
 });
 
 gulp.task('lint-commits', (callback) => {
@@ -142,4 +151,8 @@ gulp.task('unit-test', () => {
 gulp.task('watch', ['clean-copy-and-compile-build-output'], () => {
     gulp.watch(['lib/**/*.ts', 'test/**/*.ts'], ['compile-build-output']);
     gulp.watch(['build-output/lib/**/*', 'build-output/test/unit/**/*'], ['unit-test']);
+});
+
+gulp.task('watch-e2e', ['clean-copy-and-compile-build-output'], () => {
+    gulp.watch(['build-output/lib/**/*', 'build-output/test/e2e/**/*', 'test/e2e/**/*.json'], ['e2e-test']);
 });
