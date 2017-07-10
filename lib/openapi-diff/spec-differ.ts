@@ -12,6 +12,7 @@ import {
 
 const diffSpecs = (oldSpec: OpenAPISpec, newSpec: OpenAPISpec): Diff => {
 
+    // TODO: this is a type
     let resultingDiff: {
         breakingChanges: DiffChange[],
         nonBreakingChanges: DiffChange[],
@@ -35,7 +36,8 @@ const processDiff = (rawDiff: IDiff[]): DiffChange[] => {
 
     const processedDiff: DiffChange[] = [];
 
-    if (!(_.isEmpty(rawDiff))) {
+    // TODO: why do I need this check?
+    if (!_.isEmpty(rawDiff)) {
         for (const entry of rawDiff) {
 
             const processedEntry: DiffChange = {
@@ -49,7 +51,12 @@ const processDiff = (rawDiff: IDiff[]): DiffChange[] => {
                 type: null
             };
 
-            if (entry.kind === 'E' && entry.path[0] === 'info' && !utils.isXProperty(entry.path[1])) {
+            const isEdit = entry.kind === 'E';
+            const isInfo = entry.path[0] === 'info';
+
+            const isInfoChange = isEdit && isInfo && !utils.isXProperty(entry.path[1]);
+
+            if (isInfoChange) {
                 processedEntry.type = 'non-breaking';
                 processedEntry.taxonomy = 'info.object.edit';
             } else {
@@ -85,7 +92,5 @@ const sortProcessedDiff = (processedDiff: DiffChange[], resultingDiff: Diff): Di
 };
 
 export default {
-    diff: (oldSpec: OpenAPISpec, newSpec: OpenAPISpec): Diff => {
-        return diffSpecs(oldSpec, newSpec);
-    }
+    diff: diffSpecs
 };

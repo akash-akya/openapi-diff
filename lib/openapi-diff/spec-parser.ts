@@ -19,6 +19,7 @@ const processTopLevelXProperties = (spec: OpenAPISpec, parsedSpec: ParsedSpec): 
     });
 };
 
+// TODO: do not mix inputs and outputs (Clean code)
 const parseSpec = (spec: OpenAPISpec): ParsedSpec => {
     const parsedSpec: ParsedSpec = {
         info: null
