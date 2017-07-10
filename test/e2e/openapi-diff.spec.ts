@@ -33,8 +33,7 @@ describe('openapi-diff', () => {
             oldSpecPath: `${currentDir}/test/e2e/fixtures/basic-old.json`
         }).then((result) => {
             expect(result).toEqual(jasmine.stringMatching('OpenAPI Diff'));
-            done();
-        });
+        }).then(done, done.fail);
     });
 
     it('should succeed when the provided specs are equal', (done) => {
@@ -45,8 +44,7 @@ describe('openapi-diff', () => {
             expect(result).toEqual(jasmine.stringMatching('0 breaking changes found.'));
             expect(result).toEqual(jasmine.stringMatching('0 non-breaking changes found.'));
             expect(result).toEqual(jasmine.stringMatching('0 unclassified changes found.'));
-            done();
-        });
+        }).then(done, done.fail);
     });
 
     it('should detect a non-breaking change when the provided specs have a different info object', (done) => {
@@ -60,8 +58,7 @@ describe('openapi-diff', () => {
 
             expect(result).toContain('Non-breaking: the path [info/title] was modified ' +
                                      'from \'Test API\' to \'New Test API\'');
-            done();
-        });
+        }).then(done, done.fail);
     });
 
     it('should detect multiple types of changes', (done) => {
@@ -87,8 +84,8 @@ describe('openapi-diff', () => {
 
             expect(result).toContain('Unclassified: the path [x-generic-property] was modified ' +
                                      'from \'some content\' to \'some new content\'');
-            done();
-        });
+
+        }).then(done, done.fail);
     });
 
     it('should be able to process real Swagger 2.0 files', (done) => {
@@ -105,7 +102,6 @@ describe('openapi-diff', () => {
 
             expect(result).toContain('Non-breaking: the path [info/license/name] was modified ' +
                                      'from \'Apache 2.0\' to \'Apache 2.1\'');
-            done();
-        });
+        }).then(done, done.fail);
     });
 });
