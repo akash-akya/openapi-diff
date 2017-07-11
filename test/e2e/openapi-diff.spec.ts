@@ -70,6 +70,16 @@ describe('openapi-diff', () => {
         }).then(done, done.fail);
     });
 
+    it('should error gently when unable to parse files as json from the local filesystem', (done) => {
+        invokeCommand({
+            newSpecLocation: 'test/e2e/fixtures/not-a-json.txt',
+            oldSpecLocation: 'test/e2e/fixtures/not-a-json.txt'
+        }).catch((error) => {
+            expect(error).toEqual(jasmine.stringMatching('ERROR: unable to parse ' +
+                                                         'test/e2e/fixtures/not-a-json.txt as a JSON file'));
+        }).then(done, done.fail);
+    });
+
     it('should work with URL locations', (done) => {
         invokeCommand({
             newSpecLocation: 'http://localhost:3000/basic-new.json',
@@ -96,7 +106,7 @@ describe('openapi-diff', () => {
         }).then(done, done.fail);
     });
 
-    it('should error gently when unable to fetch files over the internet', (done) => {
+    it('should error gently when unable to fetch files over http', (done) => {
         invokeCommand({
            newSpecLocation: 'http://localhost:3000/non-existing-new.json',
            oldSpecLocation: 'http://localhost:3000/non-existing-old.json'
@@ -106,6 +116,16 @@ describe('openapi-diff', () => {
                 error === 'ERROR: unable to fetch http://localhost:3000/non-existing-new.json. Response code: 404\n';
 
             expect(errorMessageExpected).toBeTruthy(error);
+        }).then(done, done.fail);
+    });
+
+    it('should error gently when unable to parse files as json over http', (done) => {
+        invokeCommand({
+            newSpecLocation: 'http://localhost:3000/not-a-json.txt',
+            oldSpecLocation: 'http://localhost:3000/not-a-json.txt'
+        }).catch((error) => {
+            expect(error).toEqual(jasmine.stringMatching('ERROR: unable to parse ' +
+                                                         'http://localhost:3000/not-a-json.txt as a JSON file'));
         }).then(done, done.fail);
     });
 

@@ -33,7 +33,11 @@ export default {
                 } else if (response.statusCode !== 200) {
                     deferred.reject(`ERROR: unable to fetch ${location}. Response code: ${response.statusCode}`);
                 } else {
-                    deferred.resolve(JSON.parse(body));
+                    try {
+                        deferred.resolve(JSON.parse(body));
+                    } catch (error) {
+                        deferred.reject(`ERROR: unable to parse ${location} as a JSON file`);
+                    }
                 }
             });
         } else {
@@ -43,7 +47,11 @@ export default {
                 if (error) {
                     deferred.reject(`ERROR: unable to read ${location}`);
                 } else {
-                    deferred.resolve(JSON.parse(fileContent));
+                    try {
+                        deferred.resolve(JSON.parse(fileContent));
+                    } catch (error) {
+                        deferred.reject(`ERROR: unable to parse ${location} as a JSON file`);
+                    }
                 }
             });
         }
