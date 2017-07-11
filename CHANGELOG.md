@@ -14,7 +14,7 @@
 
 ### Features
 
-* Say 'hello world!' from OpenAPI-diff :) ([fda73c8](https://bitbucket.org/atlassian/openapi-diff/commits/fda73c8))
+* say 'hello world!' from OpenAPI-diff :) ([fda73c8](https://bitbucket.org/atlassian/openapi-diff/commits/fda73c8))
 
 
 
