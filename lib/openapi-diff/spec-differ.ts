@@ -7,37 +7,14 @@ import utils from './utils';
 import {
     Diff,
     DiffChange,
-    OpenAPISpec
+    OpenAPISpec, ResultDiff
 } from './types';
-
-const diffSpecs = (oldSpec: OpenAPISpec, newSpec: OpenAPISpec): Diff => {
-
-    // TODO: this is a type
-    let resultingDiff: {
-        breakingChanges: DiffChange[],
-        nonBreakingChanges: DiffChange[],
-        unclassifiedChanges: DiffChange[]
-    };
-
-    resultingDiff = {
-        breakingChanges: null,
-        nonBreakingChanges: null,
-        unclassifiedChanges: null
-    };
-
-    const rawDiff: IDiff[] = deepDiff.diff(oldSpec, newSpec);
-    const processedDiff: DiffChange[] = processDiff(rawDiff);
-    sortProcessedDiff(processedDiff, resultingDiff);
-
-    return resultingDiff;
-};
 
 const processDiff = (rawDiff: IDiff[]): DiffChange[] => {
 
     const processedDiff: DiffChange[] = [];
 
-    // TODO: why do I need this check?
-    if (!_.isEmpty(rawDiff)) {
+    if (hasChanges(rawDiff)) {
         for (const entry of rawDiff) {
 
             const processedEntry: DiffChange = {
@@ -84,13 +61,24 @@ const processDiff = (rawDiff: IDiff[]): DiffChange[] => {
     return processedDiff;
 };
 
-const sortProcessedDiff = (processedDiff: DiffChange[], resultingDiff: Diff): Diff => {
-    resultingDiff.breakingChanges = _.filter(processedDiff, ['type', 'breaking']);
-    resultingDiff.nonBreakingChanges = _.filter(processedDiff, ['type', 'non-breaking']);
-    resultingDiff.unclassifiedChanges = _.filter(processedDiff, ['type', 'unclassified']);
-    return resultingDiff;
+const hasChanges = (rawDiff: IDiff[]): boolean => {
+    return !_.isUndefined(rawDiff);
+};
+
+const sortProcessedDiff = (processedDiff: DiffChange[]): ResultDiff => {
+    const results: ResultDiff = {
+        breakingChanges: _.filter(processedDiff, ['type', 'breaking']),
+        nonBreakingChanges: _.filter(processedDiff, ['type', 'non-breaking']),
+        unclassifiedChanges: _.filter(processedDiff, ['type', 'unclassified'])
+    };
+    return results;
 };
 
 export default {
-    diff: diffSpecs
+    diff: (oldSpec: OpenAPISpec, newSpec: OpenAPISpec): Diff => {
+        const rawDiff: IDiff[] = deepDiff.diff(oldSpec, newSpec);
+        const processedDiff: DiffChange[] = processDiff(rawDiff);
+        const resultingDiff = sortProcessedDiff(processedDiff);
+        return resultingDiff;
+    }
 };
