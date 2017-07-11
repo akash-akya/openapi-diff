@@ -1,6 +1,8 @@
 // Diff types
 
 import IDiff = deepDiff.IDiff;
+import * as q from 'q';
+
 export interface Diff {
     breakingChanges: DiffChange[];
     nonBreakingChanges: DiffChange[];
@@ -66,13 +68,26 @@ export interface ParsedSpec {
     [xProperty: string]: any;
 }
 
-// Various other types
+// Result types
 
-export interface OpenAPIDiff {
-    run: (oldSpecPath: string, newSpecPath: string) => ResultObject;
+export interface ResultDiff {
+    breakingChanges: DiffChange[];
+    nonBreakingChanges: DiffChange[];
+    unclassifiedChanges: DiffChange[];
 }
 
 export interface ResultObject {
     changeList: string[];
     summary: string[];
+}
+
+// Various other types
+
+export interface OpenAPIDiff {
+    run: (oldSpecPath: string, newSpecPath: string) => q.Promise<ResultObject>;
+}
+
+export interface XProperty {
+    key: string;
+    value: any;
 }

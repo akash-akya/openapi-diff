@@ -1,6 +1,8 @@
 import {
-    Diff, OpenAPIDiff, OpenAPISpec, ParsedSpec, ResultObject
+    OpenAPIDiff
 } from './openapi-diff/types';
+
+import * as q from 'q';
 
 import jsonLoader from './openapi-diff/json-loader';
 import resultReporter from './openapi-diff/result-reporter';
@@ -9,16 +11,17 @@ import specParser from './openapi-diff/spec-parser';
 
 const openApiDiff: OpenAPIDiff = {
     run: (oldSpecPath, newSpecPath) => {
-        const oldSpec: OpenAPISpec = jsonLoader.load(oldSpecPath);
-        const parsedOldSpec: ParsedSpec = specParser.parse(oldSpec);
+        const whenOldSpecPath = jsonLoader.load(oldSpecPath);
+        const whenParsedOldSpec = whenOldSpecPath.then(specParser.parse);
 
-        const newSpec: OpenAPISpec = jsonLoader.load(newSpecPath);
-        const parsedNewSpec: ParsedSpec = specParser.parse(newSpec);
+        const whenNewSpecPath = jsonLoader.load(newSpecPath);
+        const whenParsedNewSpec = whenNewSpecPath.then(specParser.parse);
 
-        const diffResult: Diff = specDiffer.diff(parsedOldSpec, parsedNewSpec);
+        const whenDiff = q.all([whenParsedOldSpec, whenParsedNewSpec]).spread(specDiffer.diff);
 
-        const results: ResultObject = resultReporter.print(diffResult);
-        return results;
+        const whenResults = whenDiff.then(resultReporter.build);
+
+        return whenResults;
     }
 };
 
