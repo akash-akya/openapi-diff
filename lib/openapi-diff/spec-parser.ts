@@ -4,33 +4,33 @@ import utils from './utils';
 
 import {
     OpenAPISpec,
-    ParsedSpec
+    ParsedInfoObject,
+    ParsedSpec,
+    XProperty
 } from './types';
 
-const processInfoObject = (spec: OpenAPISpec, parsedSpec: ParsedSpec): void => {
-    _.set(parsedSpec, 'info', spec.info);
+const parseInfoObject = (spec: OpenAPISpec): ParsedInfoObject => {
+    return spec.info;
 };
 
-const processTopLevelXProperties = (spec: OpenAPISpec, parsedSpec: ParsedSpec): void => {
+const parseTopLevelXProperties = (spec: OpenAPISpec): XProperty[] => {
+    const xPropertiesArray: XProperty[] = [];
     _.forIn(spec, (value, key) => {
         if (utils.isXProperty(key)) {
-            _.set(parsedSpec, key, value);
+            xPropertiesArray.push({key, value});
         }
     });
-};
-
-// TODO: do not mix inputs and outputs (Clean code)
-const parseSpec = (spec: OpenAPISpec): ParsedSpec => {
-    const parsedSpec: ParsedSpec = {
-        info: null
-    };
-    processInfoObject(spec, parsedSpec);
-    processTopLevelXProperties(spec, parsedSpec);
-    return parsedSpec;
+    return xPropertiesArray;
 };
 
 export default {
     parse: (spec: OpenAPISpec): ParsedSpec => {
-        return parseSpec(spec);
+        const parsedSpec: ParsedSpec = {
+            info: parseInfoObject(spec)
+        };
+        for (const entry of parseTopLevelXProperties(spec)) {
+            _.set(parsedSpec, entry.key, entry.value);
+        }
+        return parsedSpec;
     }
 };
