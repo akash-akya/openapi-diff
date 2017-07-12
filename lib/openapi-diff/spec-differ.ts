@@ -18,47 +18,33 @@ const processDiff = (rawDiff: IDiff[]): DiffChange[] => {
         for (const entry of rawDiff) {
 
             const processedEntry: DiffChange = {
-                index: null,
-                item: null,
-                kind: null,
-                lhs: null,
-                path: null,
-                rhs: null,
-                taxonomy: null,
-                type: null
+                index: entry.index || null,
+                item: entry.item || null,
+                kind: entry.kind,
+                lhs: entry.lhs,
+                path: entry.path,
+                rhs: entry.rhs,
+                taxonomy: isInfoChange(entry) ? 'info.object.edit' : 'zzz.unclassified.change',
+                type: isInfoChange(entry) ? 'non-breaking' : 'unclassified'
             };
-
-            const isEdit = entry.kind === 'E';
-            const isInfo = entry.path[0] === 'info';
-
-            const isInfoChange = isEdit && isInfo && !utils.isXProperty(entry.path[1]);
-
-            if (isInfoChange) {
-                processedEntry.type = 'non-breaking';
-                processedEntry.taxonomy = 'info.object.edit';
-            } else {
-                processedEntry.type = 'unclassified';
-                processedEntry.taxonomy = 'zzz.unclassified.change';
-            }
-
-            processedEntry.kind = entry.kind;
-            processedEntry.path = entry.path;
-            processedEntry.lhs = entry.lhs;
-            processedEntry.rhs = entry.rhs;
-
-            if (entry.index !== null && entry.index !== undefined) {
-                processedEntry.index = entry.index;
-            }
-
-            if (entry.item !== null && entry.item !== undefined) {
-                processedEntry.item = entry.item;
-            }
 
             processedDiff.push(processedEntry);
         }
     }
 
     return processedDiff;
+};
+
+const isEdit = (entry: IDiff): boolean => {
+    return entry.kind === 'E';
+};
+
+const isInfoObject = (entry: IDiff): boolean => {
+    return entry.path[0] === 'info';
+};
+
+const isInfoChange = (entry: IDiff): boolean => {
+    return isEdit(entry) && isInfoObject(entry) && !utils.isXProperty(entry.path[1]);
 };
 
 const hasChanges = (rawDiff: IDiff[]): boolean => {
