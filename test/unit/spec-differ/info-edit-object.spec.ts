@@ -372,7 +372,7 @@ describe('specDiffer', () => {
                 info: {
                     contact: {
                         email: 'old contact email',
-                        name: 'new contact name',
+                        name: 'old contact name',
                         url: 'old contact url'
                     },
                     description: 'old spec description',
@@ -389,18 +389,51 @@ describe('specDiffer', () => {
             const result: Diff = specDiffer.diff(oldSpec, newSpec);
 
             expect(result.nonBreakingChanges[0].path[0]).toEqual('info');
-            expect(result.nonBreakingChanges[1].path[0]).toEqual('info');
-
-            const expectedPathOne = (result.nonBreakingChanges[0].path[1] === 'title' ||
-                                    (result.nonBreakingChanges[0].path[1] === 'contact' &&
-                                    result.nonBreakingChanges[0].path[2] === 'name'));
-
-            const expectedPathTwo = (result.nonBreakingChanges[1].path[1] === 'title' ||
-                                    (result.nonBreakingChanges[1].path[1] === 'contact' &&
-                                    result.nonBreakingChanges[1].path[2] === 'name'));
-
-            expect(expectedPathOne).toBeTruthy();
-            expect(expectedPathTwo).toBeTruthy();
+            expect(result.nonBreakingChanges[0].path[1]).toEqual('title');
         });
+    });
+
+    it('should populate the path of the multiple changes in the info object correctly when nested', () => {
+        const oldSpec: ParsedSpec = {
+            info: {
+                contact: {
+                    email: 'old contact email',
+                    name: 'old contact name',
+                    url: 'old contact url'
+                },
+                description: 'old spec description',
+                licence: {
+                    name: 'old licence name',
+                    url: 'old licence url'
+                },
+                termsOfService: 'old terms of service',
+                title: 'old spec title',
+                version: 'old version'
+            }
+        };
+
+        const newSpec: ParsedSpec = {
+            info: {
+                contact: {
+                    email: 'old contact email',
+                    name: 'new contact name',
+                    url: 'old contact url'
+                },
+                description: 'old spec description',
+                licence: {
+                    name: 'old licence name',
+                    url: 'old licence url'
+                },
+                termsOfService: 'old terms of service',
+                title: 'old spec title',
+                version: 'old version'
+            }
+        };
+
+        const result: Diff = specDiffer.diff(oldSpec, newSpec);
+
+        expect(result.nonBreakingChanges[0].path[0]).toEqual('info');
+        expect(result.nonBreakingChanges[0].path[1]).toEqual('contact');
+        expect(result.nonBreakingChanges[0].path[2]).toEqual('name');
     });
 });

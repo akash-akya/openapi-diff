@@ -5,7 +5,7 @@
     ],
     "jsRules": {},
     "rules": {
-//      "cyclomatic-complexity": [true, 4],
+      "cyclomatic-complexity": [true, 4],
       "interface-name": [true, "never-prefix"],
       "no-console": false,
       "object-literal-key-quotes": [true, "as-needed"],

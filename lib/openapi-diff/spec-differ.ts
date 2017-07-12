@@ -6,8 +6,10 @@ import utils from './utils';
 
 import {
     Diff,
-    DiffChange,
-    OpenAPISpec, ResultDiff
+    DiffChange, DiffChangeTaxonomy,
+    DiffChangeType,
+    OpenAPISpec,
+    ResultDiff
 } from './types';
 
 const processDiff = (rawDiff: IDiff[]): DiffChange[] => {
@@ -18,14 +20,14 @@ const processDiff = (rawDiff: IDiff[]): DiffChange[] => {
         for (const entry of rawDiff) {
 
             const processedEntry: DiffChange = {
-                index: entry.index || null,
-                item: entry.item || null,
+                index: getChangeNullableProperties(entry.index),
+                item: getChangeNullableProperties(entry.item),
                 kind: entry.kind,
                 lhs: entry.lhs,
                 path: entry.path,
                 rhs: entry.rhs,
-                taxonomy: isInfoChange(entry) ? 'info.object.edit' : 'zzz.unclassified.change',
-                type: isInfoChange(entry) ? 'non-breaking' : 'unclassified'
+                taxonomy: findChangeTaxonomy(entry),
+                type: findChangeType(entry)
             };
 
             processedDiff.push(processedEntry);
@@ -49,6 +51,18 @@ const isInfoChange = (entry: IDiff): boolean => {
 
 const hasChanges = (rawDiff: IDiff[]): boolean => {
     return !_.isUndefined(rawDiff);
+};
+
+const findChangeTaxonomy = (change: IDiff): DiffChangeTaxonomy => {
+    return isInfoChange(change) ? 'info.object.edit' : 'zzz.unclassified.change';
+};
+
+const findChangeType = (change: IDiff): DiffChangeType => {
+    return isInfoChange(change) ? 'non-breaking' : 'unclassified';
+};
+
+const getChangeNullableProperties = (changeProperty: any): any => {
+    return changeProperty || null;
 };
 
 const sortProcessedDiff = (processedDiff: DiffChange[]): ResultDiff => {
