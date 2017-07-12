@@ -56,6 +56,6 @@ export default {
 
         return getFileContents(location).then((fileContents) => {
             return parseAsJson(location, fileContents);
-        })
+        });
     }
 };
