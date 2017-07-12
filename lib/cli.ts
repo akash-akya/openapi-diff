@@ -21,27 +21,30 @@ commander
         Basic usage:
         The <old> spec and <new> spec arguments should be paths to where the specs live in your filesystem.`)
     .action((oldSpecPath, newSpecPath) => {
-        const results = openApiDiff.run(oldSpecPath, newSpecPath);
-
-        console.log(`* OpenAPI Diff v${packageJson.version} *`);
-        console.log(newLineChar);
-
-        console.log('Inputs');
-        console.log('------');
-        console.log(`Old spec: ${oldSpecPath}`);
-        console.log(`New spec: ${newSpecPath}`);
-        console.log(newLineChar);
-
-        console.log('Summary');
-        console.log('-------');
-        console.log(results.summary.join(newLineChar));
-
-        if (!(_.isEmpty(results.changeList))) {
+        openApiDiff.run(oldSpecPath, newSpecPath)
+        .then((results) => {
+            console.log(`* OpenAPI Diff v${packageJson.version} *`);
             console.log(newLineChar);
-            console.log('Details');
+
+            console.log('Inputs');
+            console.log('------');
+            console.log(`Old spec: ${oldSpecPath}`);
+            console.log(`New spec: ${newSpecPath}`);
+            console.log(newLineChar);
+
+            console.log('Summary');
             console.log('-------');
-            console.log(results.changeList.join(newLineChar));
-        }
+            console.log(results.summary.join(newLineChar));
+
+            if (!(_.isEmpty(results.changeList))) {
+                console.log(newLineChar);
+                console.log('Details');
+                console.log('-------');
+                console.log(results.changeList.join(newLineChar));
+            }
+        }).catch((error) => {
+            console.error(error);
+        });
     })
     .parse(process.argv);
 

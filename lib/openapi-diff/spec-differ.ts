@@ -7,68 +7,26 @@ import utils from './utils';
 import {
     Diff,
     DiffChange,
-    OpenAPISpec
+    OpenAPISpec, ResultDiff
 } from './types';
-
-const diffSpecs = (oldSpec: OpenAPISpec, newSpec: OpenAPISpec): Diff => {
-
-    let resultingDiff: {
-        breakingChanges: DiffChange[],
-        nonBreakingChanges: DiffChange[],
-        unclassifiedChanges: DiffChange[]
-    };
-
-    resultingDiff = {
-        breakingChanges: null,
-        nonBreakingChanges: null,
-        unclassifiedChanges: null
-    };
-
-    const rawDiff: IDiff[] = deepDiff.diff(oldSpec, newSpec);
-    const processedDiff: DiffChange[] = processDiff(rawDiff);
-    sortProcessedDiff(processedDiff, resultingDiff);
-
-    return resultingDiff;
-};
 
 const processDiff = (rawDiff: IDiff[]): DiffChange[] => {
 
     const processedDiff: DiffChange[] = [];
 
-    if (!(_.isEmpty(rawDiff))) {
+    if (hasChanges(rawDiff)) {
         for (const entry of rawDiff) {
 
             const processedEntry: DiffChange = {
-                index: null,
-                item: null,
-                kind: null,
-                lhs: null,
-                path: null,
-                rhs: null,
-                taxonomy: null,
-                type: null
+                index: entry.index || null,
+                item: entry.item || null,
+                kind: entry.kind,
+                lhs: entry.lhs,
+                path: entry.path,
+                rhs: entry.rhs,
+                taxonomy: isInfoChange(entry) ? 'info.object.edit' : 'zzz.unclassified.change',
+                type: isInfoChange(entry) ? 'non-breaking' : 'unclassified'
             };
-
-            if (entry.kind === 'E' && entry.path[0] === 'info' && !utils.isXProperty(entry.path[1])) {
-                processedEntry.type = 'non-breaking';
-                processedEntry.taxonomy = 'info.object.edit';
-            } else {
-                processedEntry.type = 'unclassified';
-                processedEntry.taxonomy = 'zzz.unclassified.change';
-            }
-
-            processedEntry.kind = entry.kind;
-            processedEntry.path = entry.path;
-            processedEntry.lhs = entry.lhs;
-            processedEntry.rhs = entry.rhs;
-
-            if (entry.index !== null && entry.index !== undefined) {
-                processedEntry.index = entry.index;
-            }
-
-            if (entry.item !== null && entry.item !== undefined) {
-                processedEntry.item = entry.item;
-            }
 
             processedDiff.push(processedEntry);
         }
@@ -77,15 +35,36 @@ const processDiff = (rawDiff: IDiff[]): DiffChange[] => {
     return processedDiff;
 };
 
-const sortProcessedDiff = (processedDiff: DiffChange[], resultingDiff: Diff): Diff => {
-    resultingDiff.breakingChanges = _.filter(processedDiff, ['type', 'breaking']);
-    resultingDiff.nonBreakingChanges = _.filter(processedDiff, ['type', 'non-breaking']);
-    resultingDiff.unclassifiedChanges = _.filter(processedDiff, ['type', 'unclassified']);
-    return resultingDiff;
+const isEdit = (entry: IDiff): boolean => {
+    return entry.kind === 'E';
+};
+
+const isInfoObject = (entry: IDiff): boolean => {
+    return entry.path[0] === 'info';
+};
+
+const isInfoChange = (entry: IDiff): boolean => {
+    return isEdit(entry) && isInfoObject(entry) && !utils.isXProperty(entry.path[1]);
+};
+
+const hasChanges = (rawDiff: IDiff[]): boolean => {
+    return !_.isUndefined(rawDiff);
+};
+
+const sortProcessedDiff = (processedDiff: DiffChange[]): ResultDiff => {
+    const results: ResultDiff = {
+        breakingChanges: _.filter(processedDiff, ['type', 'breaking']),
+        nonBreakingChanges: _.filter(processedDiff, ['type', 'non-breaking']),
+        unclassifiedChanges: _.filter(processedDiff, ['type', 'unclassified'])
+    };
+    return results;
 };
 
 export default {
     diff: (oldSpec: OpenAPISpec, newSpec: OpenAPISpec): Diff => {
-        return diffSpecs(oldSpec, newSpec);
+        const rawDiff: IDiff[] = deepDiff.diff(oldSpec, newSpec);
+        const processedDiff: DiffChange[] = processDiff(rawDiff);
+        const resultingDiff = sortProcessedDiff(processedDiff);
+        return resultingDiff;
     }
 };
