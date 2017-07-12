@@ -22,12 +22,7 @@ export default {
                             + `was modified from \'${entry.lhs}\' to \'${entry.rhs}\'`);
         }
 
-        let processedResult: {
-            changeList: string[];
-            summary: string[];
-        };
-
-        processedResult = {
+        const processedResult: ResultObject = {
             changeList,
             summary
         };
