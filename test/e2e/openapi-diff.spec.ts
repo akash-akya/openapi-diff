@@ -61,12 +61,14 @@ describe('openapi-diff', () => {
         invokeCommand({
             newSpecLocation: 'test/e2e/fixtures/non-existing-new.json',
             oldSpecLocation: 'test/e2e/fixtures/non-existing-old.json'
-            }).catch((error) => {
-                const errorMessageExpected =
-                    error === 'ERROR: unable to read test/e2e/fixtures/non-existing-old.json\n' ||
-                    error === 'ERROR: unable to read test/e2e/fixtures/non-existing-new.json\n';
+        }).then(() => {
+            fail('test expected to error out but it didn\'t');
+        }).catch((error) => {
+            const errorMessageExpected =
+                error === 'ERROR: unable to read test/e2e/fixtures/non-existing-old.json\n' ||
+                error === 'ERROR: unable to read test/e2e/fixtures/non-existing-new.json\n';
 
-                expect(errorMessageExpected).toBeTruthy(error);
+            expect(errorMessageExpected).toBeTruthy(error);
         }).then(done, done.fail);
     });
 
@@ -74,6 +76,8 @@ describe('openapi-diff', () => {
         invokeCommand({
             newSpecLocation: 'test/e2e/fixtures/not-a-json.txt',
             oldSpecLocation: 'test/e2e/fixtures/not-a-json.txt'
+        }).then(() => {
+            fail('test expected to error out but it didn\'t');
         }).catch((error) => {
             expect(error).toEqual(jasmine.stringMatching('ERROR: unable to parse ' +
                                                          'test/e2e/fixtures/not-a-json.txt as a JSON file'));
@@ -95,12 +99,14 @@ describe('openapi-diff', () => {
 
     it('should error gently when unable to use the URLs provided', (done) => {
         invokeCommand({
-          newSpecLocation: 'htt://localhost:3000/non-existing-new.json',
-          oldSpecLocation: 'htt://localhost:3000/non-existing-old.json'
+            newSpecLocation: 'htt://localhost:3000/basic-new.json',
+            oldSpecLocation: 'htt://localhost:3000/basic-old.json'
+        }).then(() => {
+            fail('test expected to error out but it didn\'t');
         }).catch((error) => {
             const errorMessageExpected =
-                error === 'ERROR: unable to open htt://localhost:3000/non-existing-old.json\n' ||
-                error === 'ERROR: unable to open htt://localhost:3000/non-existing-new.json\n';
+                error === 'ERROR: unable to open htt://localhost:3000/basic-old.json\n' ||
+                error === 'ERROR: unable to open htt://localhost:3000/basic-new.json\n';
 
             expect(errorMessageExpected).toBeTruthy(error);
         }).then(done, done.fail);
@@ -110,6 +116,8 @@ describe('openapi-diff', () => {
         invokeCommand({
            newSpecLocation: 'http://localhost:3000/non-existing-new.json',
            oldSpecLocation: 'http://localhost:3000/non-existing-old.json'
+        }).then(() => {
+            fail('test expected to error out but it didn\'t');
         }).catch((error) => {
             const errorMessageExpected =
                 error === 'ERROR: unable to fetch http://localhost:3000/non-existing-old.json. Response code: 404\n' ||
@@ -123,6 +131,8 @@ describe('openapi-diff', () => {
         invokeCommand({
             newSpecLocation: 'http://localhost:3000/not-a-json.txt',
             oldSpecLocation: 'http://localhost:3000/not-a-json.txt'
+        }).then(() => {
+            fail('test expected to error out but it didn\'t');
         }).catch((error) => {
             expect(error).toEqual(jasmine.stringMatching('ERROR: unable to parse ' +
                                                          'http://localhost:3000/not-a-json.txt as a JSON file'));
