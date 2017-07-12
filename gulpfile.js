@@ -108,7 +108,7 @@ gulp.task('e2e-test', () => {
 });
 
 gulp.task('lint-commits', (callback) => {
-    return exec('./node_modules/.bin/conventional-changelog-lint --from \"HEAD^\" --preset angular', (err, stdout, stderr) => {
+    return exec('./node_modules/.bin/conventional-changelog-lint --from \"HEAD~10\" --preset angular', (err, stdout, stderr) => {
         console.log(stdout);
         console.log(stderr);
         callback(err);

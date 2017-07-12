@@ -1,9 +1,5 @@
 {
-    "defaultSeverity": "error",
-    "extends": [
-        "tslint:latest"
-    ],
-    "jsRules": {},
+    "extends": ["tslint:latest"],
     "rules": {
       "cyclomatic-complexity": [true, 4],
       "interface-name": [true, "never-prefix"],
@@ -11,6 +7,5 @@
       "object-literal-key-quotes": [true, "as-needed"],
       "quotemark": [true, "single"],
       "trailing-comma": [true, {"multiline": "never", "singleline": "never"}]
-    },
-    "rulesDirectory": []
+    }
 }
