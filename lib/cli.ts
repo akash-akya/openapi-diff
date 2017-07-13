@@ -2,6 +2,7 @@
 
 import * as commander from 'commander';
 import * as _ from 'lodash';
+
 import openApiDiff from './openapi-diff';
 
 // tslint:disable:no-var-requires
@@ -43,7 +44,7 @@ commander
                 console.log(results.changeList.join(newLineChar));
             }
         }).catch((error) => {
-            console.error(error);
+            console.error(error.message);
         });
     })
     .parse(process.argv);

@@ -64,11 +64,8 @@ describe('openapi-diff', () => {
         }).then(() => {
             fail('test expected to error out but it didn\'t');
         }).catch((error) => {
-            const errorMessageExpected =
-                error === 'ERROR: unable to read test/e2e/fixtures/non-existing-old.json\n' ||
-                error === 'ERROR: unable to read test/e2e/fixtures/non-existing-new.json\n';
-
-            expect(errorMessageExpected).toBeTruthy(error);
+            expect(error).toEqual(jasmine.stringMatching('ERROR: Unable to read ' +
+                                                         'test/e2e/fixtures/non-existing-old.json'));
         }).then(done, done.fail);
     });
 
@@ -104,11 +101,8 @@ describe('openapi-diff', () => {
         }).then(() => {
             fail('test expected to error out but it didn\'t');
         }).catch((error) => {
-            const errorMessageExpected =
-                error === 'ERROR: unable to open htt://localhost:3000/basic-old.json\n' ||
-                error === 'ERROR: unable to open htt://localhost:3000/basic-new.json\n';
-
-            expect(errorMessageExpected).toBeTruthy(error);
+            expect(error).toEqual(jasmine.stringMatching('ERROR: unable to open ' +
+                                                         'htt://localhost:3000/basic-old.json'));
         }).then(done, done.fail);
     });
 
@@ -119,11 +113,8 @@ describe('openapi-diff', () => {
         }).then(() => {
             fail('test expected to error out but it didn\'t');
         }).catch((error) => {
-            const errorMessageExpected =
-                error === 'ERROR: unable to fetch http://localhost:3000/non-existing-old.json. Response code: 404\n' ||
-                error === 'ERROR: unable to fetch http://localhost:3000/non-existing-new.json. Response code: 404\n';
-
-            expect(errorMessageExpected).toBeTruthy(error);
+            expect(error).toEqual(jasmine.stringMatching(
+                'ERROR: unable to fetch http://localhost:3000/non-existing-old.json. Response code: 404'));
         }).then(done, done.fail);
     });
 
