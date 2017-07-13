@@ -215,8 +215,8 @@ describe('specDiffer', () => {
             const result: Diff = specDiffer.diff(oldSpec, newSpec);
             expect(result.nonBreakingChanges[0].lhs).toEqual('old spec title');
             expect(result.nonBreakingChanges[0].rhs).toEqual('new spec title');
-            expect(result.nonBreakingChanges[0].index).toBe(null);
-            expect(result.nonBreakingChanges[0].item).toBe(null);
+            expect(result.nonBreakingChanges[0].index).toBeNull();
+            expect(result.nonBreakingChanges[0].item).toBeNull();
         });
     });
 

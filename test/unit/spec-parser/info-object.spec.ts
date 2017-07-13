@@ -26,7 +26,7 @@ describe('specParser, with regards to the info object,', () => {
             };
 
             const resultingSpec: OpenAPISpec = specParser.parse(originalSpec);
-            expect(resultingSpec.info).not.toBe(undefined);
+            expect(resultingSpec.info).toBeDefined();
         });
 
         it('should generate a parsed spec copying across all the default fields to the info object', () => {
@@ -52,12 +52,22 @@ describe('specParser, with regards to the info object,', () => {
             expect(resultingSpec.info.title).toBe('spec title');
             expect(resultingSpec.info.description).toBe('spec description');
             expect(resultingSpec.info.termsOfService).toBe('terms of service');
-            expect(resultingSpec.info.contact.name).toBe('contact name');
-            expect(resultingSpec.info.contact.url).toBe('contact url');
-            expect(resultingSpec.info.contact.email).toBe('contact email');
-            expect(resultingSpec.info.licence.name).toBe('licence name');
-            expect(resultingSpec.info.licence.url).toBe('licence url');
-            expect(resultingSpec.info.version).toBe('version');
+
+            if (resultingSpec.info.contact) {
+                expect(resultingSpec.info.contact.name).toBe('contact name');
+                expect(resultingSpec.info.contact.url).toBe('contact url');
+                expect(resultingSpec.info.contact.email).toBe('contact email');
+            } else {
+                fail('info contact object was not defined when it should');
+            }
+
+            if (resultingSpec.info.licence) {
+                expect(resultingSpec.info.licence.name).toBe('licence name');
+                expect(resultingSpec.info.licence.url).toBe('licence url');
+                expect(resultingSpec.info.version).toBe('version');
+            } else {
+                fail('info licence object was not defined when it should');
+            }
         });
     });
 
@@ -73,7 +83,7 @@ describe('specParser, with regards to the info object,', () => {
             };
 
             const resultingSpec: ParsedSpec = specParser.parse(originalSpec);
-            expect(resultingSpec.info).not.toBe(undefined);
+            expect(resultingSpec.info).toBeDefined();
         });
 
         it('should generate a parsed spec copying across only the required fields to the info object', () => {
@@ -102,7 +112,8 @@ describe('specParser, with regards to the info object,', () => {
                 }
             };
             const resultingSpec: ParsedSpec = specParser.parse(originalSpec);
-            expect(resultingSpec.info).not.toBe(undefined);
+
+            expect(resultingSpec.info).toBeDefined();
         });
 
         it('should generate a parsed spec copying across the x-property and its value', () => {

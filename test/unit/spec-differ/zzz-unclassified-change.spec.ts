@@ -114,8 +114,8 @@ describe('specDiffer', () => {
             const result: Diff = specDiffer.diff(oldSpec, newSpec);
             expect(result.unclassifiedChanges[0].lhs).toEqual('old x value');
             expect(result.unclassifiedChanges[0].rhs).toEqual('new x value');
-            expect(result.unclassifiedChanges[0].index).toBe(null);
-            expect(result.unclassifiedChanges[0].item).toBe(null);
+            expect(result.unclassifiedChanges[0].index).toBeNull();
+            expect(result.unclassifiedChanges[0].item).toBeNull();
         });
     });
 
@@ -338,8 +338,8 @@ describe('specDiffer', () => {
             const result: Diff = specDiffer.diff(oldSpec, newSpec);
             expect(result.unclassifiedChanges[0].lhs).toEqual('old x value');
             expect(result.unclassifiedChanges[0].rhs).toEqual('new x value');
-            expect(result.unclassifiedChanges[0].index).toBe(null);
-            expect(result.unclassifiedChanges[0].item).toBe(null);
+            expect(result.unclassifiedChanges[0].index).toBeNull();
+            expect(result.unclassifiedChanges[0].item).toBeNull();
         });
     });
 });
