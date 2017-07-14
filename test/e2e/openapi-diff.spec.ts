@@ -57,30 +57,6 @@ describe('openapi-diff', () => {
         }).then(done, done.fail);
     });
 
-    it('should error gently when unable to find files on the local filesystem', (done) => {
-        invokeCommand({
-            newSpecLocation: 'test/e2e/fixtures/non-existing-new.json',
-            oldSpecLocation: 'test/e2e/fixtures/non-existing-old.json'
-        }).then(() => {
-            fail('test expected to error out but it didn\'t');
-        }).catch((error) => {
-            expect(error).toEqual(jasmine.stringMatching('ERROR: Unable to read ' +
-                                                         'test/e2e/fixtures/non-existing-old.json'));
-        }).then(done, done.fail);
-    });
-
-    it('should error gently when unable to parse files as json from the local filesystem', (done) => {
-        invokeCommand({
-            newSpecLocation: 'test/e2e/fixtures/not-a-json.txt',
-            oldSpecLocation: 'test/e2e/fixtures/not-a-json.txt'
-        }).then(() => {
-            fail('test expected to error out but it didn\'t');
-        }).catch((error) => {
-            expect(error).toEqual(jasmine.stringMatching('ERROR: unable to parse ' +
-                                                         'test/e2e/fixtures/not-a-json.txt as a JSON file'));
-        }).then(done, done.fail);
-    });
-
     it('should work with URL locations', (done) => {
         invokeCommand({
             newSpecLocation: 'http://localhost:3000/basic-new.json',
@@ -91,42 +67,6 @@ describe('openapi-diff', () => {
             expect(result).toEqual(jasmine.stringMatching('0 breaking changes found.'));
             expect(result).toEqual(jasmine.stringMatching('1 non-breaking changes found.'));
             expect(result).toEqual(jasmine.stringMatching('0 unclassified changes found.'));
-        }).then(done, done.fail);
-    });
-
-    it('should error gently when unable to use the URLs provided', (done) => {
-        invokeCommand({
-            newSpecLocation: 'htt://localhost:3000/basic-new.json',
-            oldSpecLocation: 'htt://localhost:3000/basic-old.json'
-        }).then(() => {
-            fail('test expected to error out but it didn\'t');
-        }).catch((error) => {
-            expect(error).toEqual(jasmine.stringMatching('ERROR: unable to open ' +
-                                                         'htt://localhost:3000/basic-old.json'));
-        }).then(done, done.fail);
-    });
-
-    it('should error gently when unable to fetch files over http', (done) => {
-        invokeCommand({
-           newSpecLocation: 'http://localhost:3000/non-existing-new.json',
-           oldSpecLocation: 'http://localhost:3000/non-existing-old.json'
-        }).then(() => {
-            fail('test expected to error out but it didn\'t');
-        }).catch((error) => {
-            expect(error).toEqual(jasmine.stringMatching(
-                'ERROR: unable to fetch http://localhost:3000/non-existing-old.json. Response code: 404'));
-        }).then(done, done.fail);
-    });
-
-    it('should error gently when unable to parse files as json over http', (done) => {
-        invokeCommand({
-            newSpecLocation: 'http://localhost:3000/not-a-json.txt',
-            oldSpecLocation: 'http://localhost:3000/not-a-json.txt'
-        }).then(() => {
-            fail('test expected to error out but it didn\'t');
-        }).catch((error) => {
-            expect(error).toEqual(jasmine.stringMatching('ERROR: unable to parse ' +
-                                                         'http://localhost:3000/not-a-json.txt as a JSON file'));
         }).then(done, done.fail);
     });
 

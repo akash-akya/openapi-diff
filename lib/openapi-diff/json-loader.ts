@@ -18,7 +18,7 @@ const loadFile = (location: string): q.Promise<string> => {
 
     fs.readFile(filePath, 'utf8', (error, fileContents) => {
         if (error) {
-            deferred.reject(new VError(error, `ERROR: Unable to read ${location}`));
+            deferred.reject(new VError(error, `ERROR: unable to read ${location}`));
         } else {
             deferred.resolve(fileContents);
         }
