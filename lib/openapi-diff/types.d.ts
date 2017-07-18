@@ -83,6 +83,16 @@ export interface ResultObject {
 
 // Various other types
 
+export interface FileSystem {
+    readFile: JsonLoaderFunction;
+}
+
+export interface HttpClient {
+    get: JsonLoaderFunction;
+}
+
+export type JsonLoaderFunction = (location: string) => q.Promise<string>;
+
 export interface OpenAPIDiff {
     run: (oldSpecPath: string, newSpecPath: string) => q.Promise<ResultObject>;
 }

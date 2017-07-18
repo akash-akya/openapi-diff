@@ -64,7 +64,7 @@ describe('openapi-diff', () => {
         }).then(() => {
             fail('test expected to error out but it didn\'t');
         }).catch((error) => {
-            expect(error).toEqual(jasmine.stringMatching('ERROR: Unable to read ' +
+            expect(error).toEqual(jasmine.stringMatching('ERROR: unable to read ' +
                                                          'test/e2e/fixtures/non-existing-old.json'));
         }).then(done, done.fail);
     });
