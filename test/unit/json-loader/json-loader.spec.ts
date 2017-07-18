@@ -1,10 +1,6 @@
-import * as VError from 'verror';
-
 import jsonLoader from '../../../lib/openapi-diff/json-loader';
 import fileSystemMockGenerator from '../support/file-system-mock-generator';
 import httpClientMockGenerator from '../support/http-client-mock-generator';
-
-import { OpenAPISpec } from '../../../lib/openapi-diff/types';
 
 describe('jsonLoader', () => {
 
@@ -20,7 +16,7 @@ describe('jsonLoader', () => {
             jsonLoader.load('non-existing-file.json', mockFileSystem, naiveHttpClient)
                 .then(() => {
                     fail('test expected to error out but it didn\'t');
-                }).catch((error: VError) => { // TODO: dodgy
+                }).catch((error) => {
                     expect(error.message)
                         .toEqual(jasmine.stringMatching('ERROR: unable to read non-existing-file.json'));
             }).then(done, done.fail);
@@ -32,7 +28,7 @@ describe('jsonLoader', () => {
             const mockFileSystem = fileSystemMockGenerator.createWithReturnValue(null, fileContents);
 
             jsonLoader.load('ok-file.json', mockFileSystem, naiveHttpClient)
-                .then((results: OpenAPISpec) => { // TODO: dodgy
+                .then((results) => {
                     expect(results).toEqual(JSON.parse(fileContents));
                 })
                 .then(done, done.fail);
@@ -46,7 +42,7 @@ describe('jsonLoader', () => {
             jsonLoader.load('existing-file-with-invalid.json', mockFileSystem, naiveHttpClient)
                 .then(() => {
                     fail('test expected to error out but it didn\'t');
-                }).catch((error: VError) => { // TODO: dodgy
+                }).catch((error) => {
                 expect(error.message)
                     .toContain('ERROR: unable to parse existing-file-with-invalid.json as a JSON file');
             }).then(done, done.fail);
@@ -62,7 +58,7 @@ describe('jsonLoader', () => {
             jsonLoader.load('http://url.that.errors.out', naiveFileSystem, mockHttpClient)
                 .then(() => {
                     fail('test expected to error out but it didn\'t');
-                }).catch((error: VError) => { // TODO: dodgy
+                }).catch((error) => {
                 expect(error.message)
                     .toEqual(jasmine.stringMatching('ERROR: unable to open http://url.that.errors.out'));
             }).then(done, done.fail);
@@ -75,7 +71,7 @@ describe('jsonLoader', () => {
             jsonLoader.load('http://url.that.is.not.there', naiveFileSystem, mockHttpClient)
                 .then(() => {
                     fail('test expected to error out but it didn\'t');
-                }).catch((error: VError) => { // TODO: dodgy
+                }).catch((error) => {
                 expect(error.message)
                     .toEqual('ERROR: unable to fetch http://url.that.is.not.there. Response code: 404');
             }).then(done, done.fail);
@@ -88,7 +84,7 @@ describe('jsonLoader', () => {
                 .createWithReturnValue(null, {statusCode: 200, body: urlContents});
 
             jsonLoader.load('http://url.that.works', naiveFileSystem, mockHttpClient)
-                .then((results: any) => { // TODO: dodgy
+                .then((results) => {
                     expect(results).toEqual(JSON.parse(urlContents));
                 })
                 .then(done, done.fail);
@@ -103,7 +99,7 @@ describe('jsonLoader', () => {
             jsonLoader.load('http://url.that.loads.but.has.no.json', naiveFileSystem, mockHttpClient)
                 .then(() => {
                     fail('test expected to error out but it didn\'t');
-                }).catch((error: VError) => { // TODO: dodgy
+                }).catch((error) => {
                 expect(error.message)
                     .toContain('ERROR: unable to parse http://url.that.loads.but.has.no.json as a JSON file');
             }).then(done, done.fail);

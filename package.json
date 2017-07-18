@@ -53,7 +53,6 @@
     "gulp-tslint": "^8.1.1",
     "gulp-typescript": "^3.1.7",
     "minimist": "^1.2.0",
-    "proxyquire": "^1.8.0",
     "run-sequence": "^1.2.2",
     "tslint": "5.4.3",
     "typescript": "2.3.4"

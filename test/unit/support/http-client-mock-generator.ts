@@ -11,6 +11,7 @@ export default {
         const mockHttpClient: HttpClient = {
             get: (location) => {
                 const deferred = q.defer<string>();
+
                 if (error) {
                     deferred.reject(new VError(error, `ERROR: unable to open ${location}`));
                 } else if (response && response.statusCode !== 200) {
