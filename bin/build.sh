@@ -12,7 +12,9 @@ echo ==== Test using node 4.x ====
 nvm install 4.8.3
 rm -rf node_modules
 mkdir node_modules
+ls node_deps/4x/
 cp -r node_deps/4x/* node_modules/ || true
+ls node_modules/
 npm install
 npm test
 cp -r node_modules/* node_deps/4x/ # Saving dependencies to be cached
