@@ -2,26 +2,26 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const _ = require("lodash");
 const utils_1 = require("./utils");
-const parseInfoObject = (spec) => {
-    return spec.info;
+const processInfoObject = (spec, parsedSpec) => {
+    _.set(parsedSpec, 'info', spec.info);
 };
-const parseTopLevelXProperties = (spec) => {
-    const xPropertiesArray = [];
+const processTopLevelXProperties = (spec, parsedSpec) => {
     _.forIn(spec, (value, key) => {
         if (utils_1.default.isXProperty(key)) {
-            xPropertiesArray.push({ key, value });
+            _.set(parsedSpec, key, value);
         }
     });
-    return xPropertiesArray;
+};
+const parseSpec = (spec) => {
+    const parsedSpec = {
+        info: null
+    };
+    processInfoObject(spec, parsedSpec);
+    processTopLevelXProperties(spec, parsedSpec);
+    return parsedSpec;
 };
 exports.default = {
     parse: (spec) => {
-        const parsedSpec = {
-            info: parseInfoObject(spec)
-        };
-        for (const entry of parseTopLevelXProperties(spec)) {
-            _.set(parsedSpec, entry.key, entry.value);
-        }
-        return parsedSpec;
+        return parseSpec(spec);
     }
 };
