@@ -108,7 +108,7 @@ gulp.task('e2e-test', () => {
 });
 
 gulp.task('lint-commits', (callback) => {
-    return exec('./node_modules/.bin/conventional-changelog-lint --from \"d9a3266\"', (err, stdout, stderr) => {
+    return exec('./node_modules/.bin/conventional-changelog-lint --from \"b462f37\"', (err, stdout, stderr) => {
         console.log(stdout);
         console.log(stderr);
         callback(err);
