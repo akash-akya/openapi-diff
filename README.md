@@ -25,10 +25,11 @@ The tool's output will display amount and type of changes (breaking, non-breakin
 
 ### Supported
 - Specs in the local filesystem or as URLs
-- Editions to the Info object and ^x- properties at the top level of the spec.
+- Detects editions to the `swagger` / `openapi` object.
+- Detects editions to the `info` object and `^x- properties` at the top level of the spec.
 
 ### Beta support 
-- Additions and deletions to the Info object and ^x- properties at the top level of the spec.
+- Additions and deletions to the `info` object and `^x- properties` at the top level of the spec.
 
 ### Not supported
 - Any other additions, editions or deletions to the spec.
