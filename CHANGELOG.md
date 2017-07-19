@@ -1,3 +1,13 @@
+<a name="0.2.0"></a>
+# [0.2.0](https://bitbucket.org/atlassian/openapi-diff/compare/0.1.0...v0.2.0) (2017-07-19)
+
+
+### Features
+
+* support specs in url format ([11a0396](https://bitbucket.org/atlassian/openapi-diff/commits/11a0396))
+
+
+
 <a name="0.1.0"></a>
 # [0.1.0](https://bitbucket.org/atlassian/openapi-diff/compare/0.0.1...v0.1.0) (2017-07-07)
 
