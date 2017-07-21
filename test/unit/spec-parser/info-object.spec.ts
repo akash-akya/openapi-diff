@@ -1,5 +1,5 @@
 import specParser from '../../../lib/openapi-diff/spec-parser';
-import {OpenAPISpec, ParsedSpec} from '../../../lib/openapi-diff/types';
+import {OpenAPI3Spec, ParsedSpec} from '../../../lib/openapi-diff/types';
 
 describe('specParser, with regards to the info object,', () => {
 
@@ -7,7 +7,7 @@ describe('specParser, with regards to the info object,', () => {
 
         it('should generate a parsed spec with an info object', () => {
 
-            const originalSpec: OpenAPISpec = {
+            const originalSpec: OpenAPI3Spec = {
                 info: {
                     contact: {
                         email: 'contact email',
@@ -22,16 +22,17 @@ describe('specParser, with regards to the info object,', () => {
                     termsOfService: 'terms of service',
                     title: 'spec title',
                     version: 'version'
-                }
+                },
+                openapi: '3.0.0'
             };
 
-            const resultingSpec: OpenAPISpec = specParser.parse(originalSpec);
+            const resultingSpec: ParsedSpec = specParser.parse(originalSpec);
             expect(resultingSpec.info).toBeDefined();
         });
 
         it('should generate a parsed spec copying across all the default fields to the info object', () => {
 
-            const originalSpec: OpenAPISpec = {
+            const originalSpec: OpenAPI3Spec = {
                 info: {
                     contact: {
                         email: 'contact email',
@@ -46,9 +47,10 @@ describe('specParser, with regards to the info object,', () => {
                     termsOfService: 'terms of service',
                     title: 'spec title',
                     version: 'version'
-                }
+                },
+                openapi: '3.0.0'
             };
-            const resultingSpec: OpenAPISpec = specParser.parse(originalSpec);
+            const resultingSpec: ParsedSpec = specParser.parse(originalSpec);
             expect(resultingSpec.info.title).toBe('spec title');
             expect(resultingSpec.info.description).toBe('spec description');
             expect(resultingSpec.info.termsOfService).toBe('terms of service');
@@ -75,11 +77,12 @@ describe('specParser, with regards to the info object,', () => {
 
         it('should generate a parsed spec with an info object', () => {
 
-            const originalSpec: OpenAPISpec = {
+            const originalSpec: OpenAPI3Spec = {
                 info: {
                     title: 'spec title',
                     version: 'version'
-                }
+                },
+                openapi: '3.0.0'
             };
 
             const resultingSpec: ParsedSpec = specParser.parse(originalSpec);
@@ -88,11 +91,12 @@ describe('specParser, with regards to the info object,', () => {
 
         it('should generate a parsed spec copying across only the required fields to the info object', () => {
 
-            const originalSpec: OpenAPISpec = {
+            const originalSpec: OpenAPI3Spec = {
                 info: {
                     title: 'spec title',
                     version: 'version'
-                }
+                },
+                openapi: '3.0.0'
             };
             const resultingSpec: ParsedSpec = specParser.parse(originalSpec);
             expect(resultingSpec.info.title).toBe('spec title');
@@ -104,12 +108,13 @@ describe('specParser, with regards to the info object,', () => {
 
         it('should generate a parsed spec with an info object', () => {
 
-            const originalSpec: OpenAPISpec = {
+            const originalSpec: OpenAPI3Spec = {
                 info: {
                     title: 'spec title',
                     version: 'version',
                     'x-external-id': 'some id'
-                }
+                },
+                openapi: '3.0.0'
             };
             const resultingSpec: ParsedSpec = specParser.parse(originalSpec);
 
@@ -118,12 +123,13 @@ describe('specParser, with regards to the info object,', () => {
 
         it('should generate a parsed spec copying across the x-property and its value', () => {
 
-            const originalSpec: OpenAPISpec = {
+            const originalSpec: OpenAPI3Spec = {
                 info: {
                     title: 'spec title',
                     version: 'version',
                     'x-external-id': 'some id'
-                }
+                },
+                openapi: '3.0.0'
             };
             const resultingSpec: ParsedSpec = specParser.parse(originalSpec);
             expect(resultingSpec.info['x-external-id']).toBe('some id');
@@ -134,16 +140,16 @@ describe('specParser, with regards to the info object,', () => {
 
         it('should generate a parsed spec copying across the x-property and its value', () => {
 
-            const originalSpec: OpenAPISpec = {
+            const originalSpec: OpenAPI3Spec = {
                 info: {
                     title: 'spec title',
                     version: 'version'
                 },
+                openapi: '3.0.0',
                 'x-external-id': 'some id'
             };
             const resultingSpec: ParsedSpec = specParser.parse(originalSpec);
             expect(resultingSpec['x-external-id']).toBe('some id');
         });
-
     });
 });

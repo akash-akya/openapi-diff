@@ -161,7 +161,7 @@ describe('openapi-diff', () => {
             oldSpecLocation: 'test/e2e/fixtures/complex-old.json'
         }).then((result) => {
             expect(result).toEqual(jasmine.stringMatching('0 breaking changes found.'));
-            expect(result).toEqual(jasmine.stringMatching('3 non-breaking changes found.'));
+            expect(result).toEqual(jasmine.stringMatching('4 non-breaking changes found.'));
             expect(result).toEqual(jasmine.stringMatching('2 unclassified changes found.'));
 
             expect(result).toContain('Non-breaking: the path [info/termsOfService] was modified ' +
@@ -172,6 +172,9 @@ describe('openapi-diff', () => {
 
             expect(result).toContain('Non-breaking: the path [info/license/url] was modified ' +
                                      'from \'http://license.example.com\' to \'http://new.license.example.com\'');
+
+            expect(result).toContain('Non-breaking: the path [swagger] was modified ' +
+                                     'from \'2.0\' to \'2.1\'');
 
             expect(result).toContain('Unclassified: the path [info/x-info-property] was modified ' +
                                      'from \'some content\' to \'some new content\'');
@@ -188,14 +191,43 @@ describe('openapi-diff', () => {
             oldSpecLocation: 'test/e2e/fixtures/petstore-swagger-2-old.json'
         }).then((result) => {
             expect(result).toEqual(jasmine.stringMatching('0 breaking changes found.'));
-            expect(result).toEqual(jasmine.stringMatching('2 non-breaking changes found.'));
+            expect(result).toEqual(jasmine.stringMatching('3 non-breaking changes found.'));
             expect(result).toEqual(jasmine.stringMatching('0 unclassified changes found.'));
+
+            expect(result).toContain('Non-breaking: the path [swagger] was modified ' +
+                                     'from \'2.0\' to \'2.1\'');
 
             expect(result).toContain('Non-breaking: the path [info/version] was modified ' +
                                      'from \'1.0.0\' to \'1.0.1\'');
 
             expect(result).toContain('Non-breaking: the path [info/license/name] was modified ' +
                                      'from \'Apache 2.0\' to \'Apache 2.1\'');
+        }).then(done, done.fail);
+    });
+
+    it('should be able to process real OpenApi 3.0.0 files', (done) => {
+        invokeCommand({
+            newSpecLocation: 'test/e2e/fixtures/openapi-3-new.json',
+            oldSpecLocation: 'test/e2e/fixtures/openapi-3-old.json'
+        }).then((result) => {
+            expect(result).toEqual(jasmine.stringMatching('0 breaking changes found.'));
+            expect(result).toEqual(jasmine.stringMatching('3 non-breaking changes found.'));
+            expect(result).toEqual(jasmine.stringMatching('2 unclassified changes found.'));
+
+            expect(result).toContain('Non-breaking: the path [openapi] was modified ' +
+                                     'from \'3.0.0\' to \'3.0.0-RC1\'');
+
+            expect(result).toContain('Non-breaking: the path [info/version] was modified ' +
+                                     'from \'Test version\' to \'New test version\'');
+
+            expect(result).toContain('Non-breaking: the path [info/title] was modified ' +
+                                     'from \'Test API\' to \'New test API\'');
+
+            expect(result).toContain('Unclassified: the path [info/x-info-property] was modified ' +
+                                     'from \'Some content\' to \'Some new content\'');
+
+            expect(result).toContain('Unclassified: the path [x-generic-property] was modified ' +
+                                     'from \'Some content\' to \'Some new content\'');
         }).then(done, done.fail);
     });
 });

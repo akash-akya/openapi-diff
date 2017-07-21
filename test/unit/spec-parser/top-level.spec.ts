@@ -1,5 +1,5 @@
 import specParser from '../../../lib/openapi-diff/spec-parser';
-import {OpenAPISpec, ParsedSpec} from '../../../lib/openapi-diff/types';
+import {OpenAPI3Spec, ParsedSpec} from '../../../lib/openapi-diff/types';
 
 describe('specParser, with regards to the top level object,', () => {
 
@@ -7,11 +7,12 @@ describe('specParser, with regards to the top level object,', () => {
 
         it('should generate a parsed spec copying across the x-property and its value', () => {
 
-            const originalSpec: OpenAPISpec = {
+            const originalSpec: OpenAPI3Spec = {
                 info: {
                     title: 'spec title',
                     version: 'version'
                 },
+                openapi: '3.0.0',
                 'x-external-id': 'some id',
                 'x-internal-id': 'some other id'
             };

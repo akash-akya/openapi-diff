@@ -7,9 +7,9 @@ import utils from './utils';
 import {
     Diff,
     DiffChange, DiffChangeTaxonomy,
-    DiffChangeType,
-    OpenAPISpec,
-    ResultDiff
+    DiffChangeType, OpenAPI3Spec,
+    ParsedSpec,
+    ResultDiff, Swagger2Spec
 } from './types';
 
 const processDiff = (rawDiff: IDiff[]): DiffChange[] => {
@@ -25,6 +25,7 @@ const processDiff = (rawDiff: IDiff[]): DiffChange[] => {
                 kind: entry.kind,
                 lhs: entry.lhs,
                 path: entry.path,
+                printablePath: [],
                 rhs: entry.rhs,
                 taxonomy: findChangeTaxonomy(entry),
                 type: findChangeType(entry)
@@ -45,8 +46,20 @@ const isInfoObject = (entry: IDiff): boolean => {
     return entry.path[0] === 'info';
 };
 
+const isOpenapiProperty = (entry: IDiff): boolean => {
+    return entry.path[0] === 'openapi';
+};
+
 const isInfoChange = (entry: IDiff): boolean => {
     return isEdit(entry) && isInfoObject(entry) && !utils.isXProperty(entry.path[1]);
+};
+
+const isOpenapiChange = (entry: IDiff): boolean => {
+    return isEdit(entry) && isOpenapiProperty(entry);
+};
+
+const isSwagger2Spec = (spec: Swagger2Spec | OpenAPI3Spec): boolean => {
+    return !!spec.swagger;
 };
 
 const hasChanges = (rawDiff: IDiff[]): boolean => {
@@ -54,15 +67,45 @@ const hasChanges = (rawDiff: IDiff[]): boolean => {
 };
 
 const findChangeTaxonomy = (change: IDiff): DiffChangeTaxonomy => {
-    return isInfoChange(change) ? 'info.object.edit' : 'zzz.unclassified.change';
+    if (isInfoChange(change)) {
+        return 'info.object.edit';
+    } else if (isOpenapiChange (change)) {
+        return 'openapi.property.edit';
+    } else {
+        // TODO: remove zzz
+        return 'zzz.unclassified.change';
+    }
 };
 
 const findChangeType = (change: IDiff): DiffChangeType => {
-    return isInfoChange(change) ? 'non-breaking' : 'unclassified';
+    if (isInfoChange(change) || isOpenapiChange (change)) {
+        return 'non-breaking';
+    } else {
+        return 'unclassified';
+    }
+};
+
+const findOpenApiPrintablePath = (spec: Swagger2Spec | OpenAPI3Spec): string[] => {
+    const processedPrintablePath: string[] = isSwagger2Spec(spec) ? ['swagger'] : ['openapi'];
+    return processedPrintablePath;
 };
 
 const getChangeNullableProperties = (changeProperty: any): any => {
     return changeProperty || null;
+};
+
+const populatePrintablePaths = (oldSpec: Swagger2Spec | OpenAPI3Spec,
+                                processedDiff: DiffChange[]): DiffChange[] => {
+
+    const populatedDiff: DiffChange[] = [];
+
+    for (const entry of processedDiff) {
+        const processedEntry = _.cloneDeep(entry);
+        processedEntry.printablePath = isOpenapiChange(entry) ? findOpenApiPrintablePath(oldSpec) : processedEntry.path;
+        populatedDiff.push(processedEntry);
+    }
+
+    return populatedDiff;
 };
 
 const sortProcessedDiff = (processedDiff: DiffChange[]): ResultDiff => {
@@ -75,10 +118,13 @@ const sortProcessedDiff = (processedDiff: DiffChange[]): ResultDiff => {
 };
 
 export default {
-    diff: (oldSpec: OpenAPISpec, newSpec: OpenAPISpec): Diff => {
-        const rawDiff: IDiff[] = deepDiff.diff(oldSpec, newSpec);
+    diff: (oldSpec: Swagger2Spec | OpenAPI3Spec,
+           oldParsedSpec: ParsedSpec,
+           newParsedSpec: ParsedSpec): Diff => {
+        const rawDiff: IDiff[] = deepDiff.diff(oldParsedSpec, newParsedSpec);
         const processedDiff: DiffChange[] = processDiff(rawDiff);
-        const resultingDiff = sortProcessedDiff(processedDiff);
+        const completeDiff: DiffChange[] = populatePrintablePaths(oldSpec, processedDiff);
+        const resultingDiff = sortProcessedDiff(completeDiff);
         return resultingDiff;
     }
 };

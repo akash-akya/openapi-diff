@@ -10,12 +10,14 @@ export interface Diff {
 }
 
 export interface DiffChange extends IDiff {
+    printablePath: string[];
     taxonomy: DiffChangeTaxonomy;
     type: DiffChangeType;
 }
 
 export type DiffChangeTaxonomy =
     'info.object.edit' |
+    'openapi.property.edit' |
     'zzz.unclassified.change';
 
 export type DiffChangeType =
@@ -35,9 +37,16 @@ export interface OpenAPISpecInfo {
     [xProperty: string]: any;
 }
 
-export interface OpenAPISpec {
+export interface Swagger2Spec {
     info: OpenAPISpecInfo;
     [xProperty: string]: any;
+    swagger: string;
+}
+
+export interface OpenAPI3Spec {
+    info: OpenAPISpecInfo;
+    [xProperty: string]: any;
+    openapi: string;
 }
 
 // Parsed Spec types
@@ -65,6 +74,7 @@ export interface ParsedLicenseObject {
 
 export interface ParsedSpec {
     info: ParsedInfoObject;
+    openapi: string;
     [xProperty: string]: any;
 }
 
