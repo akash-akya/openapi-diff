@@ -4,51 +4,55 @@ import {
     ParsedSpec, Swagger2Spec
 } from '../../../lib/openapi-diff/types';
 
-const buildSimpleSwaggerSpecWithVersion = (version: string): Swagger2Spec => {
-    const spec = {
-        info: {
-            title: 'spec title',
-            version: 'version'
-        },
-        swagger: version
-    };
-    return spec;
-};
-
-const buildSimpleOpenApiSpecWithVersion = (version: string): OpenAPI3Spec => {
-    const spec = {
-        info: {
-            title: 'spec title',
-            version: 'version'
-        },
-        openapi: version
-    };
-    return spec;
-};
-
-const buildSimpleParsedSpecWithVersion = (version: string): ParsedSpec => {
-    const spec = {
-        info: {
-            title: 'spec title',
-            version: 'version'
-        },
-        openapi: version
-    };
-    return spec;
-};
-
 describe('specDiffer', () => {
 
     describe('when there is a change in the openapi property', () => {
 
+        const buildSimpleSwaggerSpecWithVersion = (version: string): Swagger2Spec => {
+            const spec = {
+                info: {
+                    title: 'spec title',
+                    version: 'version'
+                },
+                swagger: version
+            };
+            return spec;
+        };
+
+        const buildSimpleOpenApiSpecWithVersion = (version: string): OpenAPI3Spec => {
+            const spec = {
+                info: {
+                    title: 'spec title',
+                    version: 'version'
+                },
+                openapi: version
+            };
+            return spec;
+        };
+
+        const buildSimpleParsedSpecWithVersion = (version: string): ParsedSpec => {
+            const spec = {
+                info: {
+                    title: 'spec title',
+                    version: 'version'
+                },
+                openapi: version
+            };
+            return spec;
+        };
+
         describe('generically', () => {
 
-            it('should classify the change as non-breaking', () => {
+            let result: Diff;
+
+            beforeEach(() => {
                 const oldSpec: Swagger2Spec = buildSimpleSwaggerSpecWithVersion('2.0');
                 const oldParsedSpec: ParsedSpec = buildSimpleParsedSpecWithVersion('2.0');
                 const newParsedSpec: ParsedSpec = buildSimpleParsedSpecWithVersion('2.1');
+                result = specDiffer.diff(oldSpec, oldParsedSpec, newParsedSpec);
+            });
 
-                const result: Diff = specDiffer.diff(oldSpec, oldParsedSpec, newParsedSpec);
+            it('should classify the change as non-breaking', () => {
                 expect(result.breakingChanges.length).toEqual(0);
                 expect(result.unclassifiedChanges.length).toEqual(0);
                 expect(result.nonBreakingChanges.length).toBe(1);
@@ -56,20 +60,10 @@ describe('specDiffer', () => {
             });
 
             it('should populate the taxonomy of the change as an edition', () => {
-                const oldSpec: Swagger2Spec = buildSimpleSwaggerSpecWithVersion('2.0');
-                const oldParsedSpec: ParsedSpec = buildSimpleParsedSpecWithVersion('2.0');
-                const newParsedSpec: ParsedSpec = buildSimpleParsedSpecWithVersion('2.1');
-
-                const result: Diff = specDiffer.diff(oldSpec, oldParsedSpec, newParsedSpec);
                 expect(result.nonBreakingChanges[0].taxonomy).toEqual('openapi.property.edit');
             });
 
             it('should copy the rest of the individual diff attributes across', () => {
-                const oldSpec: Swagger2Spec = buildSimpleSwaggerSpecWithVersion('2.0');
-                const oldParsedSpec: ParsedSpec = buildSimpleParsedSpecWithVersion('2.0');
-                const newParsedSpec: ParsedSpec = buildSimpleParsedSpecWithVersion('2.1');
-
-                const result: Diff = specDiffer.diff(oldSpec, oldParsedSpec, newParsedSpec);
                 expect(result.nonBreakingChanges[0].lhs).toEqual('2.0');
                 expect(result.nonBreakingChanges[0].rhs).toEqual('2.1');
                 expect(result.nonBreakingChanges[0].index).toBeNull();
