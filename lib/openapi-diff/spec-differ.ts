@@ -6,18 +6,21 @@ import utils from './utils';
 
 import {
     Diff,
-    DiffChange, DiffChangeTaxonomy,
-    DiffChangeType, OpenAPI3Spec,
+    DiffChange,
+    DiffChangeTaxonomy,
+    DiffChangeType,
     ParsedSpec,
-    ResultDiff, Swagger2Spec
+    ResultDiff
 } from './types';
 
-const processDiff = (rawDiff: IDiff[]): DiffChange[] => {
+const processDiff = (parsedSpec: ParsedSpec, rawDiff: IDiff[] | undefined): DiffChange[] => {
 
     const processedDiff: DiffChange[] = [];
 
-    if (hasChanges(rawDiff)) {
+    if (rawDiff) {
         for (const entry of rawDiff) {
+
+            const taxonomy = findChangeTaxonomy(entry);
 
             const processedEntry: DiffChange = {
                 index: getChangeNullableProperties(entry.index),
@@ -25,10 +28,10 @@ const processDiff = (rawDiff: IDiff[]): DiffChange[] => {
                 kind: entry.kind,
                 lhs: entry.lhs,
                 path: entry.path,
-                printablePath: [],
+                printablePath: utils.findOriginalPath(parsedSpec, entry.path),
                 rhs: entry.rhs,
-                taxonomy: findChangeTaxonomy(entry),
-                type: findChangeType(entry)
+                taxonomy,
+                type: findChangeType(taxonomy)
             };
 
             processedDiff.push(processedEntry);
@@ -58,54 +61,23 @@ const isOpenapiChange = (entry: IDiff): boolean => {
     return isEdit(entry) && isOpenapiProperty(entry);
 };
 
-const isSwagger2Spec = (spec: Swagger2Spec | OpenAPI3Spec): boolean => {
-    return !!spec.swagger;
-};
-
-const hasChanges = (rawDiff: IDiff[]): boolean => {
-    return !_.isUndefined(rawDiff);
-};
-
 const findChangeTaxonomy = (change: IDiff): DiffChangeTaxonomy => {
     if (isInfoChange(change)) {
         return 'info.object.edit';
     } else if (isOpenapiChange (change)) {
         return 'openapi.property.edit';
     } else {
-        // TODO: remove zzz
-        return 'zzz.unclassified.change';
+        return 'unclassified.change';
     }
 };
 
-const findChangeType = (change: IDiff): DiffChangeType => {
-    if (isInfoChange(change) || isOpenapiChange (change)) {
-        return 'non-breaking';
-    } else {
-        return 'unclassified';
-    }
-};
-
-const findOpenApiPrintablePath = (spec: Swagger2Spec | OpenAPI3Spec): string[] => {
-    const processedPrintablePath: string[] = isSwagger2Spec(spec) ? ['swagger'] : ['openapi'];
-    return processedPrintablePath;
+const findChangeType = (taxonomy: DiffChangeTaxonomy): DiffChangeType => {
+    const isNonBreakingChange = taxonomy === 'info.object.edit' || taxonomy === 'openapi.property.edit';
+    return isNonBreakingChange ? 'non-breaking' : 'unclassified';
 };
 
 const getChangeNullableProperties = (changeProperty: any): any => {
     return changeProperty || null;
-};
-
-const populatePrintablePaths = (oldSpec: Swagger2Spec | OpenAPI3Spec,
-                                processedDiff: DiffChange[]): DiffChange[] => {
-
-    const populatedDiff: DiffChange[] = [];
-
-    for (const entry of processedDiff) {
-        const processedEntry = _.cloneDeep(entry);
-        processedEntry.printablePath = isOpenapiChange(entry) ? findOpenApiPrintablePath(oldSpec) : processedEntry.path;
-        populatedDiff.push(processedEntry);
-    }
-
-    return populatedDiff;
 };
 
 const sortProcessedDiff = (processedDiff: DiffChange[]): ResultDiff => {
@@ -118,13 +90,11 @@ const sortProcessedDiff = (processedDiff: DiffChange[]): ResultDiff => {
 };
 
 export default {
-    diff: (oldSpec: Swagger2Spec | OpenAPI3Spec,
-           oldParsedSpec: ParsedSpec,
+    diff: (oldParsedSpec: ParsedSpec,
            newParsedSpec: ParsedSpec): Diff => {
         const rawDiff: IDiff[] = deepDiff.diff(oldParsedSpec, newParsedSpec);
-        const processedDiff: DiffChange[] = processDiff(rawDiff);
-        const completeDiff: DiffChange[] = populatePrintablePaths(oldSpec, processedDiff);
-        const resultingDiff = sortProcessedDiff(completeDiff);
+        const processedDiff: DiffChange[] = processDiff(oldParsedSpec, rawDiff);
+        const resultingDiff = sortProcessedDiff(processedDiff);
         return resultingDiff;
     }
 };

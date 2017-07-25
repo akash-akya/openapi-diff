@@ -17,7 +17,7 @@ const openApiDiff: OpenAPIDiff = {
         const whenNewSpec = jsonLoader.load(newSpecPath, fileSystem, httpClient);
         const whenParsedNewSpec = whenNewSpec.then(specParser.parse);
 
-        const whenDiff = q.all([whenOldSpec, whenParsedOldSpec, whenParsedNewSpec]).spread(specDiffer.diff);
+        const whenDiff = q.all([whenParsedOldSpec, whenParsedNewSpec]).spread(specDiffer.diff);
 
         const whenResults = whenDiff.then(resultReporter.build);
 

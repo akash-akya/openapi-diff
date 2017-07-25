@@ -18,7 +18,7 @@ export interface DiffChange extends IDiff {
 export type DiffChangeTaxonomy =
     'info.object.edit' |
     'openapi.property.edit' |
-    'zzz.unclassified.change';
+    'unclassified.change';
 
 export type DiffChangeType =
     'breaking' |
@@ -72,9 +72,14 @@ export interface ParsedLicenseObject {
     url?: string;
 }
 
+export interface ParsedOpenApiProperty {
+    originalPath: string[];
+    parsedValue: string;
+}
+
 export interface ParsedSpec {
     info: ParsedInfoObject;
-    openapi: string;
+    openapi: ParsedOpenApiProperty;
     [xProperty: string]: any;
 }
 

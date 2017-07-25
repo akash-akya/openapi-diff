@@ -1,8 +1,6 @@
-// TODO: remove zzz
-
 import specDiffer from '../../../lib/openapi-diff/spec-differ';
 import {
-    Diff, OpenAPI3Spec,
+    Diff,
     ParsedSpec
 } from '../../../lib/openapi-diff/types';
 
@@ -12,36 +10,26 @@ describe('specDiffer', () => {
 
     describe('when there is a change in an ^x- property at the top level object', () => {
 
-        const buildSimpleOpenApiSpecWithTopLevelXProperty = (): OpenAPI3Spec => {
-            const spec = {
-                info: {
-                    title: 'spec title',
-                    version: 'version'
-                },
-                openapi: '3.0.0',
-                'x-external-id': 'x value'
-            };
-            return spec;
-        };
-
         const buildSimpleParsedSpecWithTopLevelXProperty = (): ParsedSpec => {
             const spec = {
                 info: {
                     title: 'spec title',
                     version: 'version'
                 },
-                openapi: '3.0.0',
+                openapi: {
+                    originalPath: ['openapi'],
+                    parsedValue: '3.0.0'
+                },
                 'x-external-id': 'x value'
             };
             return spec;
         };
 
         beforeEach(() => {
-            const oldSpec = buildSimpleOpenApiSpecWithTopLevelXProperty();
             const oldParsedSpec = buildSimpleParsedSpecWithTopLevelXProperty();
             const newParsedSpec = buildSimpleParsedSpecWithTopLevelXProperty();
             newParsedSpec['x-external-id'] = 'NEW x value';
-            result = specDiffer.diff(oldSpec, oldParsedSpec, newParsedSpec);
+            result = specDiffer.diff(oldParsedSpec, newParsedSpec);
         });
 
         it('should classify the change in the x-property as unclassified', () => {
@@ -52,7 +40,7 @@ describe('specDiffer', () => {
         });
 
         it('should populate the taxonomy of the change at the top level object as unclassified', () => {
-            expect(result.unclassifiedChanges[0].taxonomy).toEqual('zzz.unclassified.change');
+            expect(result.unclassifiedChanges[0].taxonomy).toEqual('unclassified.change');
         });
 
         it('should populate the path of a single change in the info object correctly', () => {
@@ -69,29 +57,6 @@ describe('specDiffer', () => {
     });
 
     describe('when there is a change in an ^x- property in the info object', () => {
-
-        const buildOpenApiSpecWithInfoLevelXProperty = (): OpenAPI3Spec => {
-            const spec = {
-                info: {
-                    contact: {
-                        email: 'contact email',
-                        name: 'contact name',
-                        url: 'contact url'
-                    },
-                    description: 'spec description',
-                    licence: {
-                        name: 'licence name',
-                        url: 'licence url'
-                    },
-                    termsOfService: 'terms of service',
-                    title: 'spec title',
-                    version: 'version',
-                    'x-external-id': 'x value'
-                },
-                openapi: '3.0.0'
-            };
-            return spec;
-        };
 
         const buildParsedSpecWithInfoLevelXProperty = (): ParsedSpec => {
             const spec = {
@@ -111,17 +76,19 @@ describe('specDiffer', () => {
                     version: 'version',
                     'x-external-id': 'x value'
                 },
-                openapi: '3.0.0'
+                openapi: {
+                    originalPath: ['openapi'],
+                    parsedValue: '3.0.0'
+                }
             };
             return spec;
         };
 
         beforeEach(() => {
-            const oldSpec = buildOpenApiSpecWithInfoLevelXProperty();
             const oldParsedSpec = buildParsedSpecWithInfoLevelXProperty();
             const newParsedSpec = buildParsedSpecWithInfoLevelXProperty();
             newParsedSpec.info['x-external-id'] = 'NEW x value';
-            result = specDiffer.diff(oldSpec, oldParsedSpec, newParsedSpec);
+            result = specDiffer.diff(oldParsedSpec, newParsedSpec);
         });
 
         it('should classify a change in an x-property in the info object as unclassified', () => {
@@ -132,7 +99,7 @@ describe('specDiffer', () => {
         });
 
         it('should populate the taxonomy of a single change in the info object as unclassified', () => {
-            expect(result.unclassifiedChanges[0].taxonomy).toEqual('zzz.unclassified.change');
+            expect(result.unclassifiedChanges[0].taxonomy).toEqual('unclassified.change');
         });
 
         it('should populate the paths of a single change in the info object correctly', () => {

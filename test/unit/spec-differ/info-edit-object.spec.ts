@@ -2,35 +2,12 @@ import specDiffer from '../../../lib/openapi-diff/spec-differ';
 
 import {
     Diff,
-    OpenAPI3Spec,
     ParsedSpec
 } from '../../../lib/openapi-diff/types';
 
 let result: Diff;
 
 describe('specDiffer', () => {
-
-    const buildOpenApiSpecWithFullInfoObject = (): OpenAPI3Spec => {
-        const spec = {
-            info: {
-                contact: {
-                    email: 'contact email',
-                    name: 'contact name',
-                    url: 'contact url'
-                },
-                description: 'spec description',
-                licence: {
-                    name: 'licence name',
-                    url: 'licence url'
-                },
-                termsOfService: 'terms of service',
-                title: 'spec title',
-                version: 'version'
-            },
-            openapi: '3.0.0'
-        };
-        return spec;
-    };
 
     const buildParsedSpecWithFullInfoObject = (): ParsedSpec => {
         const spec = {
@@ -49,7 +26,10 @@ describe('specDiffer', () => {
                 title: 'spec title',
                 version: 'version'
             },
-            openapi: '3.0.0'
+            openapi: {
+                originalPath: ['openapi'],
+                parsedValue: '3.0.0'
+            }
         };
         return spec;
     };
@@ -57,11 +37,10 @@ describe('specDiffer', () => {
     describe('when there is a single change in the info object', () => {
 
         beforeEach(() => {
-            const oldSpec = buildOpenApiSpecWithFullInfoObject();
             const oldParsedSpec = buildParsedSpecWithFullInfoObject();
             const newParsedSpec = buildParsedSpecWithFullInfoObject();
             newParsedSpec.info.title = 'NEW spec title';
-            result = specDiffer.diff(oldSpec, oldParsedSpec, newParsedSpec);
+            result = specDiffer.diff(oldParsedSpec, newParsedSpec);
         });
 
         it('should classify a single change in the info object as non-breaking', () => {
@@ -93,7 +72,6 @@ describe('specDiffer', () => {
     describe('when there are multiple changes in the info object', () => {
 
         beforeEach(() => {
-            const oldSpec = buildOpenApiSpecWithFullInfoObject();
             const oldParsedSpec = buildParsedSpecWithFullInfoObject();
             const newParsedSpec = buildParsedSpecWithFullInfoObject();
             newParsedSpec.info.title = 'NEW spec title';
@@ -103,7 +81,7 @@ describe('specDiffer', () => {
             } else {
                 fail('Unexpected mock spec attributes missing');
             }
-            result = specDiffer.diff(oldSpec, oldParsedSpec, newParsedSpec);
+            result = specDiffer.diff(oldParsedSpec, newParsedSpec);
         });
 
         it('should classify multiple changes in the info object as non-breaking', () => {

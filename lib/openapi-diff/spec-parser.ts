@@ -5,6 +5,7 @@ import utils from './utils';
 import {
     OpenAPI3Spec,
     ParsedInfoObject,
+    ParsedOpenApiProperty,
     ParsedSpec,
     Swagger2Spec,
     XProperty
@@ -14,8 +15,12 @@ const parseInfoObject = (spec: Swagger2Spec | OpenAPI3Spec): ParsedInfoObject =>
     return spec.info;
 };
 
-const parseOpenApiProperty = (spec: Swagger2Spec | OpenAPI3Spec): string => {
-    return spec.swagger ? spec.swagger : spec.openapi;
+const parseOpenApiProperty = (spec: Swagger2Spec | OpenAPI3Spec): ParsedOpenApiProperty => {
+    const parsedOpenApiProperty: ParsedOpenApiProperty = {
+        originalPath: spec.swagger ? ['swagger'] : ['openapi'],
+        parsedValue: spec.swagger ? spec.swagger  : spec.openapi
+    };
+    return parsedOpenApiProperty;
 };
 
 const parseTopLevelXProperties = (spec: Swagger2Spec | OpenAPI3Spec): XProperty[] => {

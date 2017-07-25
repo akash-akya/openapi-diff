@@ -1,42 +1,22 @@
 import specDiffer from '../../../lib/openapi-diff/spec-differ';
 import {
-    Diff, OpenAPI3Spec,
-    ParsedSpec, Swagger2Spec
+    Diff,
+    ParsedSpec
 } from '../../../lib/openapi-diff/types';
 
 describe('specDiffer', () => {
 
     describe('when there is a change in the openapi property', () => {
-
-        const buildSimpleSwaggerSpecWithVersion = (version: string): Swagger2Spec => {
+        const buildSimpleParsedSpecWith = (path: string[], value: string): ParsedSpec => {
             const spec = {
                 info: {
                     title: 'spec title',
                     version: 'version'
                 },
-                swagger: version
-            };
-            return spec;
-        };
-
-        const buildSimpleOpenApiSpecWithVersion = (version: string): OpenAPI3Spec => {
-            const spec = {
-                info: {
-                    title: 'spec title',
-                    version: 'version'
-                },
-                openapi: version
-            };
-            return spec;
-        };
-
-        const buildSimpleParsedSpecWithVersion = (version: string): ParsedSpec => {
-            const spec = {
-                info: {
-                    title: 'spec title',
-                    version: 'version'
-                },
-                openapi: version
+                openapi: {
+                    originalPath: path,
+                    parsedValue: value
+                }
             };
             return spec;
         };
@@ -46,10 +26,9 @@ describe('specDiffer', () => {
             let result: Diff;
 
             beforeEach(() => {
-                const oldSpec: Swagger2Spec = buildSimpleSwaggerSpecWithVersion('2.0');
-                const oldParsedSpec: ParsedSpec = buildSimpleParsedSpecWithVersion('2.0');
-                const newParsedSpec: ParsedSpec = buildSimpleParsedSpecWithVersion('2.1');
-                result = specDiffer.diff(oldSpec, oldParsedSpec, newParsedSpec);
+                const oldParsedSpec: ParsedSpec = buildSimpleParsedSpecWith(['swagger'], '2.0');
+                const newParsedSpec: ParsedSpec = buildSimpleParsedSpecWith(['swagger'], '2.1');
+                result = specDiffer.diff(oldParsedSpec, newParsedSpec);
             });
 
             it('should classify the change as non-breaking', () => {
@@ -74,25 +53,25 @@ describe('specDiffer', () => {
         describe('from a Swagger 2.0 spec', () => {
 
             it('should populate the paths of the change with the original swagger path and the diff one', () => {
-                const oldSpec: Swagger2Spec = buildSimpleSwaggerSpecWithVersion('2.0');
-                const oldParsedSpec: ParsedSpec = buildSimpleParsedSpecWithVersion('2.0');
-                const newParsedSpec: ParsedSpec = buildSimpleParsedSpecWithVersion('2.1');
+                const oldParsedSpec: ParsedSpec = buildSimpleParsedSpecWith(['swagger'], '2.0');
+                const newParsedSpec: ParsedSpec = buildSimpleParsedSpecWith(['swagger'], '2.1');
 
-                const result: Diff = specDiffer.diff(oldSpec, oldParsedSpec, newParsedSpec);
+                const result: Diff = specDiffer.diff(oldParsedSpec, newParsedSpec);
                 expect(result.nonBreakingChanges[0].path[0]).toEqual('openapi');
+                expect(result.nonBreakingChanges[0].path[1]).toEqual('parsedValue');
                 expect(result.nonBreakingChanges[0].printablePath[0]).toEqual('swagger');
             });
         });
 
         describe('from an OpenApi 3.0 spec', () => {
 
-            it('should populate the paths of the change with the original swagger path and the diff one', () => {
-                const oldSpec: OpenAPI3Spec = buildSimpleOpenApiSpecWithVersion('3.0.0');
-                const oldParsedSpec: ParsedSpec = buildSimpleParsedSpecWithVersion('3.0.0');
-                const newParsedSpec: ParsedSpec = buildSimpleParsedSpecWithVersion('3.0.1');
+            it('should populate the paths of the change with the original openapi path and the diff one', () => {
+                const oldParsedSpec: ParsedSpec = buildSimpleParsedSpecWith(['openapi'], '3.0.0');
+                const newParsedSpec: ParsedSpec = buildSimpleParsedSpecWith(['openapi'], '3.0.1');
 
-                const result: Diff = specDiffer.diff(oldSpec, oldParsedSpec, newParsedSpec);
+                const result: Diff = specDiffer.diff(oldParsedSpec, newParsedSpec);
                 expect(result.nonBreakingChanges[0].path[0]).toEqual('openapi');
+                expect(result.nonBreakingChanges[0].path[1]).toEqual('parsedValue');
                 expect(result.nonBreakingChanges[0].printablePath[0]).toEqual('openapi');
             });
         });
