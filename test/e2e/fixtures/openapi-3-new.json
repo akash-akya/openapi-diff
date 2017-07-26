@@ -1,0 +1,9 @@
+{
+  "openapi": "3.0.0-RC1",
+  "info": {
+    "title": "New test API",
+    "version": "New test version",
+    "x-info-property": "Some new content"
+  },
+  "x-generic-property": "Some new content"
+}

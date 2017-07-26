@@ -1,6 +1,4 @@
-import {
-    OpenAPIDiff
-} from './openapi-diff/types';
+import { OpenAPIDiff } from './openapi-diff/types';
 
 import * as q from 'q';
 
@@ -13,11 +11,11 @@ import specParser from './openapi-diff/spec-parser';
 
 const openApiDiff: OpenAPIDiff = {
     run: (oldSpecPath, newSpecPath) => {
-        const whenOldSpecPath = jsonLoader.load(oldSpecPath, fileSystem, httpClient);
-        const whenParsedOldSpec = whenOldSpecPath.then(specParser.parse);
+        const whenOldSpec = jsonLoader.load(oldSpecPath, fileSystem, httpClient);
+        const whenParsedOldSpec = whenOldSpec.then(specParser.parse);
 
-        const whenNewSpecPath = jsonLoader.load(newSpecPath, fileSystem, httpClient);
-        const whenParsedNewSpec = whenNewSpecPath.then(specParser.parse);
+        const whenNewSpec = jsonLoader.load(newSpecPath, fileSystem, httpClient);
+        const whenParsedNewSpec = whenNewSpec.then(specParser.parse);
 
         const whenDiff = q.all([whenParsedOldSpec, whenParsedNewSpec]).spread(specDiffer.diff);
 

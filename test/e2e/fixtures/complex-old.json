@@ -15,5 +15,6 @@
     "version": "1.0.0",
     "x-info-property": "some content"
   },
-  "x-generic-property": "some content"
+  "x-generic-property": "some content",
+  "swagger": "2.0"
 }

@@ -12,13 +12,13 @@ export default {
 
         summary.push(`${result.nonBreakingChanges.length} non-breaking changes found.`);
         for (const entry of result.nonBreakingChanges) {
-            changeList.push(`Non-breaking: the path [${entry.path.join('/')}] `
+            changeList.push(`Non-breaking: the path [${entry.printablePath.join('/')}] `
                             + `was modified from \'${entry.lhs}\' to \'${entry.rhs}\'`);
         }
 
         summary.push(`${result.unclassifiedChanges.length} unclassified changes found.`);
         for (const entry of result.unclassifiedChanges) {
-            changeList.push(`Unclassified: the path [${entry.path.join('/')}] `
+            changeList.push(`Unclassified: the path [${entry.printablePath.join('/')}] `
                             + `was modified from \'${entry.lhs}\' to \'${entry.rhs}\'`);
         }
 

@@ -6,18 +6,21 @@ import utils from './utils';
 
 import {
     Diff,
-    DiffChange, DiffChangeTaxonomy,
+    DiffChange,
+    DiffChangeTaxonomy,
     DiffChangeType,
-    OpenAPISpec,
+    ParsedSpec,
     ResultDiff
 } from './types';
 
-const processDiff = (rawDiff: IDiff[]): DiffChange[] => {
+const processDiff = (parsedSpec: ParsedSpec, rawDiff: IDiff[] | undefined): DiffChange[] => {
 
     const processedDiff: DiffChange[] = [];
 
-    if (hasChanges(rawDiff)) {
+    if (rawDiff) {
         for (const entry of rawDiff) {
+
+            const taxonomy = findChangeTaxonomy(entry);
 
             const processedEntry: DiffChange = {
                 index: getChangeNullableProperties(entry.index),
@@ -25,9 +28,10 @@ const processDiff = (rawDiff: IDiff[]): DiffChange[] => {
                 kind: entry.kind,
                 lhs: entry.lhs,
                 path: entry.path,
+                printablePath: utils.findOriginalPath(parsedSpec, entry.path),
                 rhs: entry.rhs,
-                taxonomy: findChangeTaxonomy(entry),
-                type: findChangeType(entry)
+                taxonomy,
+                type: findChangeType(taxonomy)
             };
 
             processedDiff.push(processedEntry);
@@ -45,20 +49,31 @@ const isInfoObject = (entry: IDiff): boolean => {
     return entry.path[0] === 'info';
 };
 
+const isOpenapiProperty = (entry: IDiff): boolean => {
+    return entry.path[0] === 'openapi';
+};
+
 const isInfoChange = (entry: IDiff): boolean => {
     return isEdit(entry) && isInfoObject(entry) && !utils.isXProperty(entry.path[1]);
 };
 
-const hasChanges = (rawDiff: IDiff[]): boolean => {
-    return !_.isUndefined(rawDiff);
+const isOpenapiChange = (entry: IDiff): boolean => {
+    return isEdit(entry) && isOpenapiProperty(entry);
 };
 
 const findChangeTaxonomy = (change: IDiff): DiffChangeTaxonomy => {
-    return isInfoChange(change) ? 'info.object.edit' : 'zzz.unclassified.change';
+    if (isInfoChange(change)) {
+        return 'info.object.edit';
+    } else if (isOpenapiChange (change)) {
+        return 'openapi.property.edit';
+    } else {
+        return 'unclassified.change';
+    }
 };
 
-const findChangeType = (change: IDiff): DiffChangeType => {
-    return isInfoChange(change) ? 'non-breaking' : 'unclassified';
+const findChangeType = (taxonomy: DiffChangeTaxonomy): DiffChangeType => {
+    const isNonBreakingChange = taxonomy === 'info.object.edit' || taxonomy === 'openapi.property.edit';
+    return isNonBreakingChange ? 'non-breaking' : 'unclassified';
 };
 
 const getChangeNullableProperties = (changeProperty: any): any => {
@@ -75,9 +90,10 @@ const sortProcessedDiff = (processedDiff: DiffChange[]): ResultDiff => {
 };
 
 export default {
-    diff: (oldSpec: OpenAPISpec, newSpec: OpenAPISpec): Diff => {
-        const rawDiff: IDiff[] = deepDiff.diff(oldSpec, newSpec);
-        const processedDiff: DiffChange[] = processDiff(rawDiff);
+    diff: (oldParsedSpec: ParsedSpec,
+           newParsedSpec: ParsedSpec): Diff => {
+        const rawDiff: IDiff[] = deepDiff.diff(oldParsedSpec, newParsedSpec);
+        const processedDiff: DiffChange[] = processDiff(oldParsedSpec, rawDiff);
         const resultingDiff = sortProcessedDiff(processedDiff);
         return resultingDiff;
     }

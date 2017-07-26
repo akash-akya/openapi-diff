@@ -6,7 +6,8 @@ import {
     FileSystem,
     HttpClient,
     JsonLoaderFunction,
-    OpenAPISpec
+    OpenAPI3Spec,
+    Swagger2Spec
 } from './types';
 
 const isUrl = (location: string): boolean => {
@@ -14,11 +15,11 @@ const isUrl = (location: string): boolean => {
     return urlObject.protocol !== null;
 };
 
-const parseAsJson = (location: string, content: string): q.Promise<OpenAPISpec> => {
+const parseAsJson = (location: string, content: string): q.Promise<Swagger2Spec | OpenAPI3Spec> => {
     try {
         return q(JSON.parse(content));
     } catch (error) {
-        return q.reject<OpenAPISpec>(new VError(error, `ERROR: unable to parse ${location} as a JSON file`));
+        return q.reject<OpenAPI3Spec>(new VError(error, `ERROR: unable to parse ${location} as a JSON file`));
     }
 };
 
