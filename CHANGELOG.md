@@ -1,3 +1,13 @@
+<a name="0.3.0"></a>
+# [0.3.0](https://bitbucket.org/atlassian/openapi-diff/compare/0.2.0...v0.3.0) (2017-07-26)
+
+
+### Features
+
+* support for editions to the openapi / swagger property ([a8c2fc7](https://bitbucket.org/atlassian/openapi-diff/commits/a8c2fc7))
+
+
+
 <a name="0.2.0"></a>
 # [0.2.0](https://bitbucket.org/atlassian/openapi-diff/compare/0.1.0...v0.2.0) (2017-07-19)
 

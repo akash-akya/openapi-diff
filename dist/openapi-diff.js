@@ -9,10 +9,10 @@ const spec_differ_1 = require("./openapi-diff/spec-differ");
 const spec_parser_1 = require("./openapi-diff/spec-parser");
 const openApiDiff = {
     run: (oldSpecPath, newSpecPath) => {
-        const whenOldSpecPath = json_loader_1.default.load(oldSpecPath, file_system_1.default, http_client_1.default);
-        const whenParsedOldSpec = whenOldSpecPath.then(spec_parser_1.default.parse);
-        const whenNewSpecPath = json_loader_1.default.load(newSpecPath, file_system_1.default, http_client_1.default);
-        const whenParsedNewSpec = whenNewSpecPath.then(spec_parser_1.default.parse);
+        const whenOldSpec = json_loader_1.default.load(oldSpecPath, file_system_1.default, http_client_1.default);
+        const whenParsedOldSpec = whenOldSpec.then(spec_parser_1.default.parse);
+        const whenNewSpec = json_loader_1.default.load(newSpecPath, file_system_1.default, http_client_1.default);
+        const whenParsedNewSpec = whenNewSpec.then(spec_parser_1.default.parse);
         const whenDiff = q.all([whenParsedOldSpec, whenParsedNewSpec]).spread(spec_differ_1.default.diff);
         const whenResults = whenDiff.then(result_reporter_1.default.build);
         return whenResults;
