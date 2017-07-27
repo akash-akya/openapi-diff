@@ -47,7 +47,7 @@ describe('specDiffer', () => {
             expect(result.breakingChanges.length).toEqual(0);
             expect(result.unclassifiedChanges.length).toEqual(0);
             expect(result.nonBreakingChanges.length).toBe(1);
-            expect(result.nonBreakingChanges[0].type).toEqual('non-breaking');
+            expect(result.nonBreakingChanges[0].changeClass).toEqual('non-breaking');
         });
 
         it('should populate the taxonomy of a single change in the info object as an edition in it', () => {
@@ -88,8 +88,8 @@ describe('specDiffer', () => {
             expect(result.breakingChanges.length).toEqual(0);
             expect(result.unclassifiedChanges.length).toEqual(0);
             expect(result.nonBreakingChanges.length).toEqual(2);
-            expect(result.nonBreakingChanges[0].type).toEqual('non-breaking');
-            expect(result.nonBreakingChanges[1].type).toEqual('non-breaking');
+            expect(result.nonBreakingChanges[0].changeClass).toEqual('non-breaking');
+            expect(result.nonBreakingChanges[1].changeClass).toEqual('non-breaking');
         });
 
         it('should populate the taxonomy of multiple changes in the info object as an edition to it', () => {

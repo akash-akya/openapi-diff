@@ -12,7 +12,7 @@ export interface Diff {
 export interface DiffChange extends IDiff {
     printablePath: string[];
     taxonomy: DiffChangeTaxonomy;
-    type: DiffChangeType;
+    changeClass: DiffChangeClass;
 }
 
 export type DiffChangeTaxonomy =
@@ -20,7 +20,7 @@ export type DiffChangeTaxonomy =
     'openapi.property.edit' |
     'unclassified.change';
 
-export type DiffChangeType =
+export type DiffChangeClass =
     'breaking' |
     'non-breaking' |
     'unclassified';

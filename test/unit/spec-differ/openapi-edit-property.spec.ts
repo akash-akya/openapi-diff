@@ -35,7 +35,7 @@ describe('specDiffer', () => {
                 expect(result.breakingChanges.length).toEqual(0);
                 expect(result.unclassifiedChanges.length).toEqual(0);
                 expect(result.nonBreakingChanges.length).toBe(1);
-                expect(result.nonBreakingChanges[0].type).toEqual('non-breaking');
+                expect(result.nonBreakingChanges[0].changeClass).toEqual('non-breaking');
             });
 
             it('should populate the taxonomy of the change as an edition', () => {

@@ -7,8 +7,8 @@ import utils from './utils';
 import {
     Diff,
     DiffChange,
+    DiffChangeClass,
     DiffChangeTaxonomy,
-    DiffChangeType,
     ParsedSpec,
     ResultDiff
 } from './types';
@@ -23,6 +23,7 @@ const processDiff = (parsedSpec: ParsedSpec, rawDiff: IDiff[] | undefined): Diff
             const taxonomy = findChangeTaxonomy(entry);
 
             const processedEntry: DiffChange = {
+                changeClass: findChangeClass(taxonomy),
                 index: getChangeNullableProperties(entry.index),
                 item: getChangeNullableProperties(entry.item),
                 kind: entry.kind,
@@ -30,8 +31,7 @@ const processDiff = (parsedSpec: ParsedSpec, rawDiff: IDiff[] | undefined): Diff
                 path: entry.path,
                 printablePath: utils.findOriginalPath(parsedSpec, entry.path),
                 rhs: entry.rhs,
-                taxonomy,
-                type: findChangeType(taxonomy)
+                taxonomy
             };
 
             processedDiff.push(processedEntry);
@@ -71,8 +71,13 @@ const findChangeTaxonomy = (change: IDiff): DiffChangeTaxonomy => {
     }
 };
 
-const findChangeType = (taxonomy: DiffChangeTaxonomy): DiffChangeType => {
-    const isNonBreakingChange = taxonomy === 'info.object.edit' || taxonomy === 'openapi.property.edit';
+const findChangeClass = (taxonomy: DiffChangeTaxonomy): DiffChangeClass => {
+    const nonBreakingChanges: DiffChangeTaxonomy[] = [
+        'info.object.edit',
+        'openapi.property.edit'
+    ];
+
+    const isNonBreakingChange = _.includes(nonBreakingChanges, taxonomy);
     return isNonBreakingChange ? 'non-breaking' : 'unclassified';
 };
 
@@ -82,9 +87,9 @@ const getChangeNullableProperties = (changeProperty: any): any => {
 
 const sortProcessedDiff = (processedDiff: DiffChange[]): ResultDiff => {
     const results: ResultDiff = {
-        breakingChanges: _.filter(processedDiff, ['type', 'breaking']),
-        nonBreakingChanges: _.filter(processedDiff, ['type', 'non-breaking']),
-        unclassifiedChanges: _.filter(processedDiff, ['type', 'unclassified'])
+        breakingChanges: _.filter(processedDiff, ['changeClass', 'breaking']),
+        nonBreakingChanges: _.filter(processedDiff, ['changeClass', 'non-breaking']),
+        unclassifiedChanges: _.filter(processedDiff, ['changeClass', 'unclassified'])
     };
     return results;
 };

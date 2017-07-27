@@ -36,7 +36,7 @@ describe('specDiffer', () => {
             expect(result.breakingChanges.length).toEqual(0);
             expect(result.nonBreakingChanges.length).toBe(0);
             expect(result.unclassifiedChanges.length).toEqual(1);
-            expect(result.unclassifiedChanges[0].type).toEqual('unclassified');
+            expect(result.unclassifiedChanges[0].changeClass).toEqual('unclassified');
         });
 
         it('should populate the taxonomy of the change at the top level object as unclassified', () => {
@@ -95,7 +95,7 @@ describe('specDiffer', () => {
             expect(result.breakingChanges.length).toEqual(0);
             expect(result.nonBreakingChanges.length).toBe(0);
             expect(result.unclassifiedChanges.length).toEqual(1);
-            expect(result.unclassifiedChanges[0].type).toEqual('unclassified');
+            expect(result.unclassifiedChanges[0].changeClass).toEqual('unclassified');
         });
 
         it('should populate the taxonomy of a single change in the info object as unclassified', () => {
