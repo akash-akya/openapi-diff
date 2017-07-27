@@ -50,8 +50,13 @@ describe('specDiffer', () => {
             expect(result.nonBreakingChanges[0].changeClass).toEqual('non-breaking');
         });
 
-        it('should populate the taxonomy of a single change in the info object as an edition in it', () => {
+        it('should locate the scope of the change in the info object', () => {
+            expect(result.nonBreakingChanges[0].scope).toEqual('info.object');
+        });
+
+        it('should populate the taxonomy and type of a single change in the info object as an edition in it', () => {
             expect(result.nonBreakingChanges[0].taxonomy).toEqual('info.object.edit');
+            expect(result.nonBreakingChanges[0].type).toEqual('edit');
         });
 
         it('should populate the paths of a single change in the info object correctly', () => {
@@ -92,9 +97,16 @@ describe('specDiffer', () => {
             expect(result.nonBreakingChanges[1].changeClass).toEqual('non-breaking');
         });
 
+        it('should locate the scope of the changes in the info object', () => {
+            expect(result.nonBreakingChanges[0].scope).toEqual('info.object');
+            expect(result.nonBreakingChanges[1].scope).toEqual('info.object');
+        });
+
         it('should populate the taxonomy of multiple changes in the info object as an edition to it', () => {
             expect(result.nonBreakingChanges[0].taxonomy).toEqual('info.object.edit');
+            expect(result.nonBreakingChanges[0].type).toEqual('edit');
             expect(result.nonBreakingChanges[1].taxonomy).toEqual('info.object.edit');
+            expect(result.nonBreakingChanges[1].type).toEqual('edit');
         });
 
         it('should populate the paths of the multiple changes in the info object correctly', () => {

@@ -39,8 +39,13 @@ describe('specDiffer', () => {
             expect(result.unclassifiedChanges[0].changeClass).toEqual('unclassified');
         });
 
-        it('should populate the taxonomy of the change at the top level object as unclassified', () => {
+        it('should mark the scope of the changes as unclassified', () => {
+            expect(result.unclassifiedChanges[0].scope).toEqual('unclassified.change');
+        });
+
+        it('should populate the taxonomy and type of the change at the top level object as unclassified edit', () => {
             expect(result.unclassifiedChanges[0].taxonomy).toEqual('unclassified.change');
+            expect(result.unclassifiedChanges[0].type).toEqual('edit');
         });
 
         it('should populate the path of a single change in the info object correctly', () => {
@@ -98,8 +103,13 @@ describe('specDiffer', () => {
             expect(result.unclassifiedChanges[0].changeClass).toEqual('unclassified');
         });
 
-        it('should populate the taxonomy of a single change in the info object as unclassified', () => {
+        it('should mark the scope of the changes as unclassified', () => {
+            expect(result.unclassifiedChanges[0].scope).toEqual('unclassified.change');
+        });
+
+        it('should populate the taxonomy and type of a single change in the info object as unclassified edit', () => {
             expect(result.unclassifiedChanges[0].taxonomy).toEqual('unclassified.change');
+            expect(result.unclassifiedChanges[0].type).toEqual('edit');
         });
 
         it('should populate the paths of a single change in the info object correctly', () => {

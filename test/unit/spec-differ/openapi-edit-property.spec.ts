@@ -38,8 +38,13 @@ describe('specDiffer', () => {
                 expect(result.nonBreakingChanges[0].changeClass).toEqual('non-breaking');
             });
 
-            it('should populate the taxonomy of the change as an edition', () => {
+            it('should locate the scope of the changes in the openapi property', () => {
+                expect(result.nonBreakingChanges[0].scope).toEqual('openapi.property');
+            });
+
+            it('should populate the taxonomy and type of the change as an edition', () => {
                 expect(result.nonBreakingChanges[0].taxonomy).toEqual('openapi.property.edit');
+                expect(result.nonBreakingChanges[0].type).toEqual('edit');
             });
 
             it('should copy the rest of the individual diff attributes across', () => {

@@ -10,15 +10,23 @@ export interface Diff {
 }
 
 export interface DiffChange extends IDiff {
-    printablePath: string[];
-    taxonomy: DiffChangeTaxonomy;
     changeClass: DiffChangeClass;
+    printablePath: string[];
+    scope: string;
+    taxonomy: DiffChangeTaxonomy;
+    type: DiffChangeType;
 }
 
 export type DiffChangeTaxonomy =
     'info.object.edit' |
     'openapi.property.edit' |
     'unclassified.change';
+
+export type DiffChangeType =
+    'add' |
+    'edit' |
+    'delete' |
+    'unknown';
 
 export type DiffChangeClass =
     'breaking' |

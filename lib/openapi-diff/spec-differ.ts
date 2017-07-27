@@ -8,7 +8,7 @@ import {
     Diff,
     DiffChange,
     DiffChangeClass,
-    DiffChangeTaxonomy,
+    DiffChangeTaxonomy, DiffChangeType,
     ParsedSpec,
     ResultDiff
 } from './types';
@@ -20,7 +20,9 @@ const processDiff = (parsedSpec: ParsedSpec, rawDiff: IDiff[] | undefined): Diff
     if (rawDiff) {
         for (const entry of rawDiff) {
 
-            const taxonomy = findChangeTaxonomy(entry);
+            const type = getChangeType(entry.kind);
+            const scope = getChangeScope(entry);
+            const taxonomy = findChangeTaxonomy(type, scope);
 
             const processedEntry: DiffChange = {
                 changeClass: findChangeClass(taxonomy),
@@ -31,7 +33,9 @@ const processDiff = (parsedSpec: ParsedSpec, rawDiff: IDiff[] | undefined): Diff
                 path: entry.path,
                 printablePath: utils.findOriginalPath(parsedSpec, entry.path),
                 rhs: entry.rhs,
-                taxonomy
+                scope,
+                taxonomy,
+                type
             };
 
             processedDiff.push(processedEntry);
@@ -61,14 +65,8 @@ const isOpenapiChange = (entry: IDiff): boolean => {
     return isEdit(entry) && isOpenapiProperty(entry);
 };
 
-const findChangeTaxonomy = (change: IDiff): DiffChangeTaxonomy => {
-    if (isInfoChange(change)) {
-        return 'info.object.edit';
-    } else if (isOpenapiChange (change)) {
-        return 'openapi.property.edit';
-    } else {
-        return 'unclassified.change';
-    }
+const findChangeTaxonomy = (type: DiffChangeType, scope: string): DiffChangeTaxonomy => {
+    return (scope === 'unclassified.change') ? scope as DiffChangeTaxonomy : `${scope}.${type}` as DiffChangeTaxonomy;
 };
 
 const findChangeClass = (taxonomy: DiffChangeTaxonomy): DiffChangeClass => {
@@ -83,6 +81,31 @@ const findChangeClass = (taxonomy: DiffChangeTaxonomy): DiffChangeClass => {
 
 const getChangeNullableProperties = (changeProperty: any): any => {
     return changeProperty || null;
+};
+
+const getChangeScope = (change: IDiff): string => {
+    if (isInfoChange(change)) {
+        return 'info.object';
+    } else if (isOpenapiChange (change)) {
+        return 'openapi.property';
+    } else {
+        return 'unclassified.change';
+    }
+};
+
+const getChangeType = (changeKind: string): DiffChangeType => {
+    let resultingType: DiffChangeType;
+    switch (changeKind) {
+        case 'E': {
+            resultingType = 'edit';
+            break;
+        }
+        default: {
+            resultingType = 'unknown';
+            break;
+        }
+    }
+    return resultingType;
 };
 
 const sortProcessedDiff = (processedDiff: DiffChange[]): ResultDiff => {
