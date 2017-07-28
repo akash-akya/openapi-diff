@@ -13,7 +13,7 @@
       "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
     }
   },
-  "host": "petstore.swagger.io",
+  "host": "petstore.swagger.org",
   "basePath": "/v2",
   "tags": [
     {

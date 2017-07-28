@@ -141,7 +141,7 @@ describe('openapi-diff', () => {
         }).then(done, done.fail);
     });
 
-    it('should detect a non-breaking change when the provided specs have a different info object', (done) => {
+    it('should detect a single change', (done) => {
         invokeCommand({
             newSpecLocation: 'test/e2e/fixtures/basic-new.json',
             oldSpecLocation: 'test/e2e/fixtures/basic-old.json'
@@ -160,9 +160,14 @@ describe('openapi-diff', () => {
             newSpecLocation: 'test/e2e/fixtures/complex-new.json',
             oldSpecLocation: 'test/e2e/fixtures/complex-old.json'
         }).then((result) => {
-            expect(result).toEqual(jasmine.stringMatching('0 breaking changes found.'));
+            expect(result).toEqual(jasmine.stringMatching('2 breaking changes found.'));
             expect(result).toEqual(jasmine.stringMatching('4 non-breaking changes found.'));
             expect(result).toEqual(jasmine.stringMatching('2 unclassified changes found.'));
+
+            expect(result).toContain('Breaking: the path [host] with value \'some host info\' was removed');
+
+            expect(result).toContain('Breaking: the path [basePath] was modified ' +
+                                     'from \'/\' to \'/v2\'');
 
             expect(result).toContain('Non-breaking: the path [info/termsOfService] was modified ' +
                                      'from \'some terms\' to \'some new terms\'');
@@ -190,9 +195,14 @@ describe('openapi-diff', () => {
             newSpecLocation: 'test/e2e/fixtures/petstore-swagger-2-new.json',
             oldSpecLocation: 'test/e2e/fixtures/petstore-swagger-2-old.json'
         }).then((result) => {
-            expect(result).toEqual(jasmine.stringMatching('0 breaking changes found.'));
+            expect(result).toEqual(jasmine.stringMatching('2 breaking changes found.'));
             expect(result).toEqual(jasmine.stringMatching('3 non-breaking changes found.'));
             expect(result).toEqual(jasmine.stringMatching('0 unclassified changes found.'));
+
+            expect(result).toContain('Breaking: the path [host] was modified ' +
+                                     'from \'petstore.swagger.io\' to \'petstore.swagger.org\'');
+
+            expect(result).toContain('Breaking: the path [basePath] was added with value \'/v2\'');
 
             expect(result).toContain('Non-breaking: the path [swagger] was modified ' +
                                      'from \'2.0\' to \'2.1\'');
@@ -202,6 +212,7 @@ describe('openapi-diff', () => {
 
             expect(result).toContain('Non-breaking: the path [info/license/name] was modified ' +
                                      'from \'Apache 2.0\' to \'Apache 2.1\'');
+
         }).then(done, done.fail);
     });
 

@@ -1,12 +1,12 @@
 import specDiffer from '../../../lib/openapi-diff/spec-differ';
 import {
-    Diff,
+    DiffChange,
     ParsedSpec
 } from '../../../lib/openapi-diff/types';
 
 describe('specDiffer', () => {
 
-    let result: Diff;
+    let results: DiffChange[];
 
     describe('when there is a change in an ^x- property at the top level object', () => {
 
@@ -29,35 +29,33 @@ describe('specDiffer', () => {
             const oldParsedSpec = buildSimpleParsedSpecWithTopLevelXProperty();
             const newParsedSpec = buildSimpleParsedSpecWithTopLevelXProperty();
             newParsedSpec['x-external-id'] = 'NEW x value';
-            result = specDiffer.diff(oldParsedSpec, newParsedSpec);
+            results = specDiffer.diff(oldParsedSpec, newParsedSpec);
         });
 
         it('should classify the change in the x-property as unclassified', () => {
-            expect(result.breakingChanges.length).toEqual(0);
-            expect(result.nonBreakingChanges.length).toBe(0);
-            expect(result.unclassifiedChanges.length).toEqual(1);
-            expect(result.unclassifiedChanges[0].changeClass).toEqual('unclassified');
+            expect(results.length).toEqual(1);
+            expect(results[0].changeClass).toEqual('unclassified');
         });
 
         it('should mark the scope of the changes as unclassified', () => {
-            expect(result.unclassifiedChanges[0].scope).toEqual('unclassified.change');
+            expect(results[0].scope).toEqual('unclassified.change');
         });
 
         it('should populate the taxonomy and type of the change at the top level object as unclassified edit', () => {
-            expect(result.unclassifiedChanges[0].taxonomy).toEqual('unclassified.change');
-            expect(result.unclassifiedChanges[0].type).toEqual('edit');
+            expect(results[0].taxonomy).toEqual('unclassified.change');
+            expect(results[0].type).toEqual('edit');
         });
 
         it('should populate the path of a single change in the info object correctly', () => {
-            expect(result.unclassifiedChanges[0].path[0]).toEqual('x-external-id');
-            expect(result.unclassifiedChanges[0].printablePath[0]).toEqual('x-external-id');
+            expect(results[0].path[0]).toEqual('x-external-id');
+            expect(results[0].printablePath[0]).toEqual('x-external-id');
         });
 
         it('should copy the rest of the individual diff attributes across', () => {
-            expect(result.unclassifiedChanges[0].lhs).toEqual('x value');
-            expect(result.unclassifiedChanges[0].rhs).toEqual('NEW x value');
-            expect(result.unclassifiedChanges[0].index).toBeNull();
-            expect(result.unclassifiedChanges[0].item).toBeNull();
+            expect(results[0].lhs).toEqual('x value');
+            expect(results[0].rhs).toEqual('NEW x value');
+            expect(results[0].index).toBeNull();
+            expect(results[0].item).toBeNull();
         });
     });
 
@@ -93,37 +91,35 @@ describe('specDiffer', () => {
             const oldParsedSpec = buildParsedSpecWithInfoLevelXProperty();
             const newParsedSpec = buildParsedSpecWithInfoLevelXProperty();
             newParsedSpec.info['x-external-id'] = 'NEW x value';
-            result = specDiffer.diff(oldParsedSpec, newParsedSpec);
+            results = specDiffer.diff(oldParsedSpec, newParsedSpec);
         });
 
         it('should classify a change in an x-property in the info object as unclassified', () => {
-            expect(result.breakingChanges.length).toEqual(0);
-            expect(result.nonBreakingChanges.length).toBe(0);
-            expect(result.unclassifiedChanges.length).toEqual(1);
-            expect(result.unclassifiedChanges[0].changeClass).toEqual('unclassified');
+            expect(results.length).toEqual(1);
+            expect(results[0].changeClass).toEqual('unclassified');
         });
 
         it('should mark the scope of the changes as unclassified', () => {
-            expect(result.unclassifiedChanges[0].scope).toEqual('unclassified.change');
+            expect(results[0].scope).toEqual('unclassified.change');
         });
 
         it('should populate the taxonomy and type of a single change in the info object as unclassified edit', () => {
-            expect(result.unclassifiedChanges[0].taxonomy).toEqual('unclassified.change');
-            expect(result.unclassifiedChanges[0].type).toEqual('edit');
+            expect(results[0].taxonomy).toEqual('unclassified.change');
+            expect(results[0].type).toEqual('edit');
         });
 
         it('should populate the paths of a single change in the info object correctly', () => {
-            expect(result.unclassifiedChanges[0].path[0]).toEqual('info');
-            expect(result.unclassifiedChanges[0].path[1]).toEqual('x-external-id');
-            expect(result.unclassifiedChanges[0].printablePath[0]).toEqual('info');
-            expect(result.unclassifiedChanges[0].printablePath[1]).toEqual('x-external-id');
+            expect(results[0].path[0]).toEqual('info');
+            expect(results[0].path[1]).toEqual('x-external-id');
+            expect(results[0].printablePath[0]).toEqual('info');
+            expect(results[0].printablePath[1]).toEqual('x-external-id');
         });
 
         it('should copy the rest of the individual diff attributes across', () => {
-            expect(result.unclassifiedChanges[0].lhs).toEqual('x value');
-            expect(result.unclassifiedChanges[0].rhs).toEqual('NEW x value');
-            expect(result.unclassifiedChanges[0].index).toBeNull();
-            expect(result.unclassifiedChanges[0].item).toBeNull();
+            expect(results[0].lhs).toEqual('x value');
+            expect(results[0].rhs).toEqual('NEW x value');
+            expect(results[0].index).toBeNull();
+            expect(results[0].item).toBeNull();
         });
     });
 });

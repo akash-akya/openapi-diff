@@ -16,5 +16,7 @@
     "x-info-property": "some content"
   },
   "x-generic-property": "some content",
-  "swagger": "2.0"
+  "swagger": "2.0",
+  "host": "some host info",
+  "basePath": "/"
 }

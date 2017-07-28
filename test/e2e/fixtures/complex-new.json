@@ -16,5 +16,6 @@
     "x-info-property": "some new content"
   },
   "x-generic-property": "some new content",
-  "swagger": "2.1"
+  "swagger": "2.1",
+  "basePath": "/v2"
 }

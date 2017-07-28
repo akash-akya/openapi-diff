@@ -1,6 +1,6 @@
 import specDiffer from '../../../lib/openapi-diff/spec-differ';
 import {
-    Diff,
+    DiffChange,
     ParsedSpec
 } from '../../../lib/openapi-diff/types';
 
@@ -23,35 +23,33 @@ describe('specDiffer', () => {
 
         describe('generically', () => {
 
-            let result: Diff;
+            let results: DiffChange[];
 
             beforeEach(() => {
                 const oldParsedSpec: ParsedSpec = buildSimpleParsedSpecWith(['swagger'], '2.0');
                 const newParsedSpec: ParsedSpec = buildSimpleParsedSpecWith(['swagger'], '2.1');
-                result = specDiffer.diff(oldParsedSpec, newParsedSpec);
+                results = specDiffer.diff(oldParsedSpec, newParsedSpec);
             });
 
             it('should classify the change as non-breaking', () => {
-                expect(result.breakingChanges.length).toEqual(0);
-                expect(result.unclassifiedChanges.length).toEqual(0);
-                expect(result.nonBreakingChanges.length).toBe(1);
-                expect(result.nonBreakingChanges[0].changeClass).toEqual('non-breaking');
+                expect(results.length).toBe(1);
+                expect(results[0].changeClass).toEqual('non-breaking');
             });
 
             it('should locate the scope of the changes in the openapi property', () => {
-                expect(result.nonBreakingChanges[0].scope).toEqual('openapi.property');
+                expect(results[0].scope).toEqual('openapi.property');
             });
 
             it('should populate the taxonomy and type of the change as an edition', () => {
-                expect(result.nonBreakingChanges[0].taxonomy).toEqual('openapi.property.edit');
-                expect(result.nonBreakingChanges[0].type).toEqual('edit');
+                expect(results[0].taxonomy).toEqual('openapi.property.edit');
+                expect(results[0].type).toEqual('edit');
             });
 
             it('should copy the rest of the individual diff attributes across', () => {
-                expect(result.nonBreakingChanges[0].lhs).toEqual('2.0');
-                expect(result.nonBreakingChanges[0].rhs).toEqual('2.1');
-                expect(result.nonBreakingChanges[0].index).toBeNull();
-                expect(result.nonBreakingChanges[0].item).toBeNull();
+                expect(results[0].lhs).toEqual('2.0');
+                expect(results[0].rhs).toEqual('2.1');
+                expect(results[0].index).toBeNull();
+                expect(results[0].item).toBeNull();
             });
         });
 
@@ -61,10 +59,10 @@ describe('specDiffer', () => {
                 const oldParsedSpec: ParsedSpec = buildSimpleParsedSpecWith(['swagger'], '2.0');
                 const newParsedSpec: ParsedSpec = buildSimpleParsedSpecWith(['swagger'], '2.1');
 
-                const result: Diff = specDiffer.diff(oldParsedSpec, newParsedSpec);
-                expect(result.nonBreakingChanges[0].path[0]).toEqual('openapi');
-                expect(result.nonBreakingChanges[0].path[1]).toEqual('parsedValue');
-                expect(result.nonBreakingChanges[0].printablePath[0]).toEqual('swagger');
+                const results: DiffChange[] = specDiffer.diff(oldParsedSpec, newParsedSpec);
+                expect(results[0].path[0]).toEqual('openapi');
+                expect(results[0].path[1]).toEqual('parsedValue');
+                expect(results[0].printablePath[0]).toEqual('swagger');
             });
         });
 
@@ -74,10 +72,10 @@ describe('specDiffer', () => {
                 const oldParsedSpec: ParsedSpec = buildSimpleParsedSpecWith(['openapi'], '3.0.0');
                 const newParsedSpec: ParsedSpec = buildSimpleParsedSpecWith(['openapi'], '3.0.1');
 
-                const result: Diff = specDiffer.diff(oldParsedSpec, newParsedSpec);
-                expect(result.nonBreakingChanges[0].path[0]).toEqual('openapi');
-                expect(result.nonBreakingChanges[0].path[1]).toEqual('parsedValue');
-                expect(result.nonBreakingChanges[0].printablePath[0]).toEqual('openapi');
+                const results: DiffChange[] = specDiffer.diff(oldParsedSpec, newParsedSpec);
+                expect(results[0].path[0]).toEqual('openapi');
+                expect(results[0].path[1]).toEqual('parsedValue');
+                expect(results[0].printablePath[0]).toEqual('openapi');
             });
         });
     });

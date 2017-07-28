@@ -27,6 +27,7 @@ The tool's output will display amount and type of changes (breaking, non-breakin
 - Specs in the local filesystem or as URLs
 - Detects editions to the `swagger` / `openapi` object.
 - Detects editions to the `info` object and `^x- properties` at the top level of the spec.
+- Detects additions, editions and deletions of the `host` and `basePath` Swagger 2 properties.
 
 ### Beta support 
 - Additions and deletions to the `info` object and `^x- properties` at the top level of the spec.
