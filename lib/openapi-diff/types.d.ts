@@ -4,7 +4,7 @@ import IDiff = deepDiff.IDiff;
 import * as q from 'q';
 
 export interface DiffChange extends IDiff {
-    changeClass: DiffChangeClass;
+    severity: DiffChangeSeverity;
     printablePath: string[];
     scope: string;
     taxonomy: DiffChangeTaxonomy;
@@ -28,7 +28,7 @@ export type DiffChangeType =
     'delete' |
     'unknown';
 
-export type DiffChangeClass =
+export type DiffChangeSeverity =
     'breaking' |
     'non-breaking' |
     'unclassified';
@@ -98,6 +98,7 @@ export interface ParsedSpec {
 // Result types
 export interface ResultObject {
     changeList: string[];
+    hasBreakingChanges: boolean;
     summary: string[];
 }
 

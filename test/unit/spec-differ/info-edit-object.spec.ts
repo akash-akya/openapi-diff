@@ -45,7 +45,7 @@ describe('specDiffer', () => {
 
         it('should classify a single change in the info object as non-breaking', () => {
             expect(results.length).toBe(1);
-            expect(results[0].changeClass).toEqual('non-breaking');
+            expect(results[0].severity).toEqual('non-breaking');
         });
 
         it('should locate the scope of the change in the info object', () => {
@@ -89,8 +89,8 @@ describe('specDiffer', () => {
 
         it('should classify multiple changes in the info object as non-breaking', () => {
             expect(results.length).toEqual(2);
-            expect(results[0].changeClass).toEqual('non-breaking');
-            expect(results[1].changeClass).toEqual('non-breaking');
+            expect(results[0].severity).toEqual('non-breaking');
+            expect(results[1].severity).toEqual('non-breaking');
         });
 
         it('should locate the scope of the changes in the info object', () => {

@@ -35,7 +35,7 @@ describe('specDiffer', () => {
 
         it('should classify the edition in the basePath property as breaking', () => {
             expect(result.length).toEqual(1);
-            expect(result[0].changeClass).toEqual('breaking');
+            expect(result[0].severity).toEqual('breaking');
         });
 
         it('should locate the scope of the change in the basePath property', () => {
@@ -71,7 +71,7 @@ describe('specDiffer', () => {
 
         it('should classify the addition of the basePath property as breaking', () => {
             expect(result.length).toEqual(1);
-            expect(result[0].changeClass).toEqual('breaking');
+            expect(result[0].severity).toEqual('breaking');
         });
 
         it('should locate the scope of the change in the basePath property', () => {
@@ -107,7 +107,7 @@ describe('specDiffer', () => {
 
         it('should classify the addition of the basePath property as breaking', () => {
             expect(result.length).toEqual(1);
-            expect(result[0].changeClass).toEqual('breaking');
+            expect(result[0].severity).toEqual('breaking');
         });
 
         it('should locate the scope of the change in the basePath property', () => {

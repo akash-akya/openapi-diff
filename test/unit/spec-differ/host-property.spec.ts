@@ -35,7 +35,7 @@ describe('specDiffer', () => {
 
         it('should classify the edition in the host property as breaking', () => {
             expect(results.length).toEqual(1);
-            expect(results[0].changeClass).toEqual('breaking');
+            expect(results[0].severity).toEqual('breaking');
         });
 
         it('should locate the scope of the change in the host property', () => {
@@ -71,7 +71,7 @@ describe('specDiffer', () => {
 
         it('should classify the addition of the host property as breaking', () => {
             expect(results.length).toEqual(1);
-            expect(results[0].changeClass).toEqual('breaking');
+            expect(results[0].severity).toEqual('breaking');
         });
 
         it('should locate the scope of the change in the host property', () => {
@@ -107,7 +107,7 @@ describe('specDiffer', () => {
 
         it('should classify the addition of the host property as breaking', () => {
             expect(results.length).toEqual(1);
-            expect(results[0].changeClass).toEqual('breaking');
+            expect(results[0].severity).toEqual('breaking');
         });
 
         it('should locate the scope of the change in the host property', () => {

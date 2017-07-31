@@ -6,7 +6,7 @@ import utils from './utils';
 
 import {
     DiffChange,
-    DiffChangeClass,
+    DiffChangeSeverity,
     DiffChangeTaxonomy,
     DiffChangeType,
     ParsedSpec
@@ -24,7 +24,6 @@ const processDiff = (parsedSpec: ParsedSpec, rawDiff: IDiff[] | undefined): Diff
             const taxonomy = findChangeTaxonomy(type, scope);
 
             const processedEntry: DiffChange = {
-                changeClass: findChangeClass(taxonomy),
                 index: getChangeNullableProperties(entry.index),
                 item: getChangeNullableProperties(entry.item),
                 kind: entry.kind,
@@ -33,6 +32,7 @@ const processDiff = (parsedSpec: ParsedSpec, rawDiff: IDiff[] | undefined): Diff
                 printablePath: utils.findOriginalPath(parsedSpec, entry.path),
                 rhs: entry.rhs,
                 scope,
+                severity: findChangeSeverity(taxonomy),
                 taxonomy,
                 type
             };
@@ -69,21 +69,7 @@ const findChangeTaxonomy = (type: DiffChangeType, scope: string): DiffChangeTaxo
     return (scope === 'unclassified.change') ? scope as DiffChangeTaxonomy : `${scope}.${type}` as DiffChangeTaxonomy;
 };
 
-const findChangeClass = (taxonomy: DiffChangeTaxonomy): DiffChangeClass => {
-    const BreakingChanges: DiffChangeTaxonomy[] = [
-        'host.property.add',
-        'host.property.edit',
-        'host.property.delete',
-        'basePath.property.add',
-        'basePath.property.edit',
-        'basePath.property.delete'
-    ];
-
-    const nonBreakingChanges: DiffChangeTaxonomy[] = [
-        'info.object.edit',
-        'openapi.property.edit'
-    ];
-
+const findChangeSeverity = (taxonomy: DiffChangeTaxonomy): DiffChangeSeverity => {
     const isBreakingChange = _.includes(BreakingChanges, taxonomy);
     const isNonBreakingChange = _.includes(nonBreakingChanges, taxonomy);
 
@@ -136,6 +122,20 @@ const getChangeType = (changeKind: string): DiffChangeType => {
 const getTopLevelProperty = (entry: IDiff): string => {
     return entry.path[0];
 };
+
+const BreakingChanges: DiffChangeTaxonomy[] = [
+    'host.property.add',
+    'host.property.edit',
+    'host.property.delete',
+    'basePath.property.add',
+    'basePath.property.edit',
+    'basePath.property.delete'
+];
+
+const nonBreakingChanges: DiffChangeTaxonomy[] = [
+    'info.object.edit',
+    'openapi.property.edit'
+];
 
 export default {
     diff: (oldParsedSpec: ParsedSpec,

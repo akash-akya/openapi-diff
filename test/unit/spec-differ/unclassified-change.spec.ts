@@ -34,7 +34,7 @@ describe('specDiffer', () => {
 
         it('should classify the change in the x-property as unclassified', () => {
             expect(results.length).toEqual(1);
-            expect(results[0].changeClass).toEqual('unclassified');
+            expect(results[0].severity).toEqual('unclassified');
         });
 
         it('should mark the scope of the changes as unclassified', () => {
@@ -96,7 +96,7 @@ describe('specDiffer', () => {
 
         it('should classify a change in an x-property in the info object as unclassified', () => {
             expect(results.length).toEqual(1);
-            expect(results[0].changeClass).toEqual('unclassified');
+            expect(results[0].severity).toEqual('unclassified');
         });
 
         it('should mark the scope of the changes as unclassified', () => {

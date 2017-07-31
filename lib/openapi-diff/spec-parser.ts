@@ -23,25 +23,14 @@ const parseOpenApiProperty = (spec: Swagger2Spec | OpenAPI3Spec): ParsedOpenApiP
     return parsedOpenApiProperty;
 };
 
-const parseTopLevelXProperties = (spec: Swagger2Spec | OpenAPI3Spec): GenericProperty[] => {
-    const xPropertiesArray: GenericProperty[] = [];
+const parseTopLevelProperties = (spec: Swagger2Spec | OpenAPI3Spec): GenericProperty[] => {
+    const topLevelPropertiesArray: GenericProperty[] = [];
     _.forIn(spec, (value, key) => {
-        if (utils.isXProperty(key)) {
-            xPropertiesArray.push({key, value});
+        if (utils.isXProperty(key) || utils.isOptionalProperty(key)) {
+            topLevelPropertiesArray.push({key, value});
         }
     });
-    return xPropertiesArray;
-};
-
-const parseTopLevelOptionalProperties = (spec: Swagger2Spec | OpenAPI3Spec): GenericProperty[] => {
-    const optionalPropertiesArray: GenericProperty[] = [];
-    if (spec.host) {
-        optionalPropertiesArray.push({key: 'host', value: spec.host});
-    }
-    if (spec.basePath) {
-        optionalPropertiesArray.push({key: 'basePath', value: spec.basePath});
-    }
-    return optionalPropertiesArray;
+    return topLevelPropertiesArray;
 };
 
 export default {
@@ -51,9 +40,7 @@ export default {
             openapi: parseOpenApiProperty(spec)
         };
 
-        const topLevelProperties = _.concat(parseTopLevelXProperties(spec), parseTopLevelOptionalProperties(spec));
-
-        for (const entry of topLevelProperties) {
+        for (const entry of parseTopLevelProperties(spec)) {
             _.set(parsedSpec, entry.key, entry.value);
         }
 
