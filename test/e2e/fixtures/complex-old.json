@@ -18,5 +18,6 @@
   "x-generic-property": "some content",
   "swagger": "2.0",
   "host": "some host info",
-  "basePath": "/"
+  "basePath": "/",
+  "schemes": ["ws", "https"]
 }

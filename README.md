@@ -13,27 +13,25 @@ npm install --global openapi-diff
 ```
 
 ## Usage
-Invoke the tool with two paths to Swagger/OpenAPI files in order to find differences between them, these paths can either be paths to the specs in the local filesystem or URLs to the specs. 
+Invoke the tool with two paths to Swagger/OpenAPI files in order to find differences between them, these paths can either be paths to the specs in the local filesystem or URLs to the specs (sorry, no YML support just yet). 
 The Open API specs should be in JSON format.
 ```
 openapi-diff /path/to/old/openapi.json /path/to/new/openapi.json 
 ```
 
-The tool's output will display amount and type of changes (breaking, non-breaking, unclassified), and then list the changes with the relevant info.
+The tool's output will display the amount and type of changes (breaking, non-breaking, unclassified), and then list the changes with the relevant info.
 
 The command will exit with an exit code 1 if any breaking changes were found, so that you can fail builds in CI when this happens.
 
 ## Feature support
 
 ### Supported
-- Specs in the local filesystem or as URLs
 - Detects editions to the `swagger` / `openapi` object.
 - Detects editions to the `info` object and `^x- properties` at the top level of the spec.
-- Detects additions, editions and deletions of the `host` and `basePath` Swagger 2 properties.
+- Detects additions, editions and deletions of the `host`, `basePath` and `schemes` Swagger 2 properties.
 
 ### Beta support 
 - Additions and deletions to the `info` object and `^x- properties` at the top level of the spec.
 
 ### Not supported
 - Any other additions, editions or deletions to the spec.
-- Specs in YML format

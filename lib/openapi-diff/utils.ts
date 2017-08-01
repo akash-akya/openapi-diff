@@ -17,7 +17,7 @@ export default {
                parsedPath;
     },
     isOptionalProperty: (propertyPath: string): boolean => {
-        const optionalPropertyNames: string[] = ['host', 'basePath'];
+        const optionalPropertyNames: string[] = ['basePath', 'host', 'schemes'];
         return _.includes(optionalPropertyNames, propertyPath);
     },
     isXProperty: (propertyPath: string): boolean => {

@@ -20,12 +20,19 @@ export type DiffChangeTaxonomy =
     'host.property.edit' |
     'info.object.edit' |
     'openapi.property.edit' |
+    'schemes.property.add' |
+    'schemes.property.arrayContent.add' |
+    'schemes.property.arrayContent.delete' |
+    'schemes.property.edit' |
+    'schemes.property.delete' |
     'unclassified.change';
 
 export type DiffChangeType =
     'add' |
-    'edit' |
+    'arrayContent.add' |
+    'arrayContent.delete' |
     'delete' |
+    'edit' |
     'unknown';
 
 export type DiffChangeSeverity =
@@ -49,8 +56,9 @@ export interface Swagger2Spec {
     basePath?: string;
     host?: string;
     info: OpenAPISpecInfo;
-    [xProperty: string]: any;
+    schemes?: string[];
     swagger: string;
+    [xProperty: string]: any;
 }
 
 export interface OpenAPI3Spec {
@@ -92,6 +100,7 @@ export interface ParsedSpec {
     host?: string;
     info: ParsedInfoObject;
     openapi: ParsedOpenApiProperty;
+    schemes?: string[];
     [xProperty: string]: any;
 }
 

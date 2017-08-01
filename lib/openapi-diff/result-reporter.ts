@@ -7,12 +7,23 @@ import {
     ResultObject
 } from './types';
 
+// tslint:disable:cyclomatic-complexity
 const buildChangeSentence = (change: DiffChange): string => {
     let changeSentence: string;
     switch (change.type) {
         case 'add': {
             changeSentence = `${_.capitalize(change.severity)}: the path [${change.printablePath.join('/')}] `
                              + `was added with value \'${change.rhs}\'`;
+            break;
+        }
+        case 'arrayContent.add': {
+            changeSentence = `${_.capitalize(change.severity)}: the value \'${change.rhs}\' was added to the`
+            + ` array in the path [${change.printablePath.join('/')}]`;
+            break;
+        }
+        case 'arrayContent.delete': {
+            changeSentence = `${_.capitalize(change.severity)}: the value \'${change.lhs}\' was removed from the`
+                             + ` array in the path [${change.printablePath.join('/')}]`;
             break;
         }
         case 'delete': {
@@ -31,6 +42,8 @@ const buildChangeSentence = (change: DiffChange): string => {
     }
     return changeSentence;
 };
+
+// tslint:enable:cyclomatic-complexity
 
 const countSeverities = (changes: DiffChange[], changeSeverity: DiffChangeSeverity): number => {
     const changeCount = _.filter(changes, ['severity', changeSeverity]).length;

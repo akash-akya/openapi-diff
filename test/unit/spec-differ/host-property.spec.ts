@@ -89,7 +89,7 @@ describe('specDiffer', () => {
         });
 
         it('should copy the rest of the individual diff attributes across', () => {
-            expect(results[0].lhs).toBeUndefined();
+            expect(results[0].lhs).toBeNull();
             expect(results[0].rhs).toEqual('NEW host info');
             expect(results[0].index).toBeNull();
             expect(results[0].item).toBeNull();
@@ -126,7 +126,7 @@ describe('specDiffer', () => {
 
         it('should copy the rest of the individual diff attributes across', () => {
             expect(results[0].lhs).toEqual('OLD host info');
-            expect(results[0].rhs).toBeUndefined();
+            expect(results[0].rhs).toBeNull();
             expect(results[0].index).toBeNull();
             expect(results[0].item).toBeNull();
         });
