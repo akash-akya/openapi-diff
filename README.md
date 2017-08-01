@@ -21,6 +21,8 @@ openapi-diff /path/to/old/openapi.json /path/to/new/openapi.json
 
 The tool's output will display amount and type of changes (breaking, non-breaking, unclassified), and then list the changes with the relevant info.
 
+The command will exit with an exit code 1 if any breaking changes were found, so that you can fail builds in CI when this happens.
+
 ## Feature support
 
 ### Supported
