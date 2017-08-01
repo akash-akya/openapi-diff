@@ -1,3 +1,13 @@
+<a name="0.4.0"></a>
+# [0.4.0](https://bitbucket.org/atlassian/openapi-diff/compare/0.3.0...v0.4.0) (2017-08-01)
+
+
+### Features
+
+* support to add/edit/delete of Swagger 2's host and basePath props ([d8da76d](https://bitbucket.org/atlassian/openapi-diff/commits/d8da76d))
+
+
+
 <a name="0.3.0"></a>
 # [0.3.0](https://bitbucket.org/atlassian/openapi-diff/compare/0.2.0...v0.3.0) (2017-07-26)
 

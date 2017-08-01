@@ -7,7 +7,9 @@ const processDiff = (parsedSpec, rawDiff) => {
     const processedDiff = [];
     if (rawDiff) {
         for (const entry of rawDiff) {
-            const taxonomy = findChangeTaxonomy(entry);
+            const type = getChangeType(entry.kind);
+            const scope = getChangeScope(entry);
+            const taxonomy = findChangeTaxonomy(type, scope);
             const processedEntry = {
                 index: getChangeNullableProperties(entry.index),
                 item: getChangeNullableProperties(entry.item),
@@ -16,8 +18,10 @@ const processDiff = (parsedSpec, rawDiff) => {
                 path: entry.path,
                 printablePath: utils_1.default.findOriginalPath(parsedSpec, entry.path),
                 rhs: entry.rhs,
+                scope,
+                severity: findChangeSeverity(taxonomy),
                 taxonomy,
-                type: findChangeType(taxonomy)
+                type
             };
             processedDiff.push(processedEntry);
         }
@@ -27,49 +31,91 @@ const processDiff = (parsedSpec, rawDiff) => {
 const isEdit = (entry) => {
     return entry.kind === 'E';
 };
-const isInfoObject = (entry) => {
-    return entry.path[0] === 'info';
-};
-const isOpenapiProperty = (entry) => {
-    return entry.path[0] === 'openapi';
-};
 const isInfoChange = (entry) => {
     return isEdit(entry) && isInfoObject(entry) && !utils_1.default.isXProperty(entry.path[1]);
 };
-const isOpenapiChange = (entry) => {
-    return isEdit(entry) && isOpenapiProperty(entry);
+const isInfoObject = (entry) => {
+    return entry.path[0] === 'info';
 };
-const findChangeTaxonomy = (change) => {
-    if (isInfoChange(change)) {
-        return 'info.object.edit';
+const isTopLevelProperty = (entry) => {
+    const topLevelPropertyNames = [
+        'basePath',
+        'host',
+        'openapi'
+    ];
+    return _.includes(topLevelPropertyNames, entry.path[0]);
+};
+const findChangeTaxonomy = (type, scope) => {
+    return (scope === 'unclassified.change') ? scope : `${scope}.${type}`;
+};
+const findChangeSeverity = (taxonomy) => {
+    const isBreakingChange = _.includes(BreakingChanges, taxonomy);
+    const isNonBreakingChange = _.includes(nonBreakingChanges, taxonomy);
+    if (isBreakingChange) {
+        return 'breaking';
     }
-    else if (isOpenapiChange(change)) {
-        return 'openapi.property.edit';
+    else if (isNonBreakingChange) {
+        return 'non-breaking';
+    }
+    else {
+        return 'unclassified';
+    }
+};
+const getChangeNullableProperties = (changeProperty) => {
+    return changeProperty || null;
+};
+const getChangeScope = (change) => {
+    if (isInfoChange(change)) {
+        return 'info.object';
+    }
+    else if (isTopLevelProperty(change)) {
+        return `${getTopLevelProperty(change)}.property`;
     }
     else {
         return 'unclassified.change';
     }
 };
-const findChangeType = (taxonomy) => {
-    const isNonBreakingChange = taxonomy === 'info.object.edit' || taxonomy === 'openapi.property.edit';
-    return isNonBreakingChange ? 'non-breaking' : 'unclassified';
+const getChangeType = (changeKind) => {
+    let resultingType;
+    switch (changeKind) {
+        case 'D': {
+            resultingType = 'delete';
+            break;
+        }
+        case 'E': {
+            resultingType = 'edit';
+            break;
+        }
+        case 'N': {
+            resultingType = 'add';
+            break;
+        }
+        default: {
+            resultingType = 'unknown';
+            break;
+        }
+    }
+    return resultingType;
 };
-const getChangeNullableProperties = (changeProperty) => {
-    return changeProperty || null;
+const getTopLevelProperty = (entry) => {
+    return entry.path[0];
 };
-const sortProcessedDiff = (processedDiff) => {
-    const results = {
-        breakingChanges: _.filter(processedDiff, ['type', 'breaking']),
-        nonBreakingChanges: _.filter(processedDiff, ['type', 'non-breaking']),
-        unclassifiedChanges: _.filter(processedDiff, ['type', 'unclassified'])
-    };
-    return results;
-};
+const BreakingChanges = [
+    'host.property.add',
+    'host.property.edit',
+    'host.property.delete',
+    'basePath.property.add',
+    'basePath.property.edit',
+    'basePath.property.delete'
+];
+const nonBreakingChanges = [
+    'info.object.edit',
+    'openapi.property.edit'
+];
 exports.default = {
     diff: (oldParsedSpec, newParsedSpec) => {
         const rawDiff = deepDiff.diff(oldParsedSpec, newParsedSpec);
         const processedDiff = processDiff(oldParsedSpec, rawDiff);
-        const resultingDiff = sortProcessedDiff(processedDiff);
-        return resultingDiff;
+        return processedDiff;
     }
 };

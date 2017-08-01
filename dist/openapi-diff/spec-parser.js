@@ -12,14 +12,14 @@ const parseOpenApiProperty = (spec) => {
     };
     return parsedOpenApiProperty;
 };
-const parseTopLevelXProperties = (spec) => {
-    const xPropertiesArray = [];
+const parseTopLevelProperties = (spec) => {
+    const topLevelPropertiesArray = [];
     _.forIn(spec, (value, key) => {
-        if (utils_1.default.isXProperty(key)) {
-            xPropertiesArray.push({ key, value });
+        if (utils_1.default.isXProperty(key) || utils_1.default.isOptionalProperty(key)) {
+            topLevelPropertiesArray.push({ key, value });
         }
     });
-    return xPropertiesArray;
+    return topLevelPropertiesArray;
 };
 exports.default = {
     parse: (spec) => {
@@ -27,7 +27,7 @@ exports.default = {
             info: parseInfoObject(spec),
             openapi: parseOpenApiProperty(spec)
         };
-        for (const entry of parseTopLevelXProperties(spec)) {
+        for (const entry of parseTopLevelProperties(spec)) {
             _.set(parsedSpec, entry.key, entry.value);
         }
         return parsedSpec;

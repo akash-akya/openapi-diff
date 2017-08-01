@@ -35,9 +35,15 @@ commander
             console.log('Details');
             console.log('-------');
             console.log(results.changeList.join(newLineChar));
+            console.log(newLineChar);
+        }
+        if (results.hasBreakingChanges) {
+            console.log('DANGER: Breaking changes found!');
+            process.exit(1);
         }
     }).catch((error) => {
         console.error(error.message);
+        process.exit(2);
     });
 })
     .parse(process.argv);
