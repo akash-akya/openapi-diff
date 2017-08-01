@@ -5,12 +5,11 @@ import IDiff = deepDiff.IDiff;
 import utils from './utils';
 
 import {
-    Diff,
     DiffChange,
+    DiffChangeSeverity,
     DiffChangeTaxonomy,
     DiffChangeType,
-    ParsedSpec,
-    ResultDiff
+    ParsedSpec
 } from './types';
 
 const processDiff = (parsedSpec: ParsedSpec, rawDiff: IDiff[] | undefined): DiffChange[] => {
@@ -20,7 +19,9 @@ const processDiff = (parsedSpec: ParsedSpec, rawDiff: IDiff[] | undefined): Diff
     if (rawDiff) {
         for (const entry of rawDiff) {
 
-            const taxonomy = findChangeTaxonomy(entry);
+            const type = getChangeType(entry.kind);
+            const scope = getChangeScope(entry);
+            const taxonomy = findChangeTaxonomy(type, scope);
 
             const processedEntry: DiffChange = {
                 index: getChangeNullableProperties(entry.index),
@@ -30,8 +31,10 @@ const processDiff = (parsedSpec: ParsedSpec, rawDiff: IDiff[] | undefined): Diff
                 path: entry.path,
                 printablePath: utils.findOriginalPath(parsedSpec, entry.path),
                 rhs: entry.rhs,
+                scope,
+                severity: findChangeSeverity(taxonomy),
                 taxonomy,
-                type: findChangeType(taxonomy)
+                type
             };
 
             processedDiff.push(processedEntry);
@@ -45,56 +48,100 @@ const isEdit = (entry: IDiff): boolean => {
     return entry.kind === 'E';
 };
 
-const isInfoObject = (entry: IDiff): boolean => {
-    return entry.path[0] === 'info';
-};
-
-const isOpenapiProperty = (entry: IDiff): boolean => {
-    return entry.path[0] === 'openapi';
-};
-
 const isInfoChange = (entry: IDiff): boolean => {
     return isEdit(entry) && isInfoObject(entry) && !utils.isXProperty(entry.path[1]);
 };
 
-const isOpenapiChange = (entry: IDiff): boolean => {
-    return isEdit(entry) && isOpenapiProperty(entry);
+const isInfoObject = (entry: IDiff): boolean => {
+    return entry.path[0] === 'info';
 };
 
-const findChangeTaxonomy = (change: IDiff): DiffChangeTaxonomy => {
-    if (isInfoChange(change)) {
-        return 'info.object.edit';
-    } else if (isOpenapiChange (change)) {
-        return 'openapi.property.edit';
+const isTopLevelProperty = (entry: IDiff): boolean => {
+    const topLevelPropertyNames: string[] = [
+        'basePath',
+        'host',
+        'openapi'
+    ];
+    return _.includes(topLevelPropertyNames, entry.path[0]);
+};
+
+const findChangeTaxonomy = (type: DiffChangeType, scope: string): DiffChangeTaxonomy => {
+    return (scope === 'unclassified.change') ? scope as DiffChangeTaxonomy : `${scope}.${type}` as DiffChangeTaxonomy;
+};
+
+const findChangeSeverity = (taxonomy: DiffChangeTaxonomy): DiffChangeSeverity => {
+    const isBreakingChange = _.includes(BreakingChanges, taxonomy);
+    const isNonBreakingChange = _.includes(nonBreakingChanges, taxonomy);
+
+    if (isBreakingChange) {
+        return 'breaking';
+    } else if (isNonBreakingChange) {
+        return 'non-breaking';
     } else {
-        return 'unclassified.change';
+        return 'unclassified';
     }
-};
-
-const findChangeType = (taxonomy: DiffChangeTaxonomy): DiffChangeType => {
-    const isNonBreakingChange = taxonomy === 'info.object.edit' || taxonomy === 'openapi.property.edit';
-    return isNonBreakingChange ? 'non-breaking' : 'unclassified';
 };
 
 const getChangeNullableProperties = (changeProperty: any): any => {
     return changeProperty || null;
 };
 
-const sortProcessedDiff = (processedDiff: DiffChange[]): ResultDiff => {
-    const results: ResultDiff = {
-        breakingChanges: _.filter(processedDiff, ['type', 'breaking']),
-        nonBreakingChanges: _.filter(processedDiff, ['type', 'non-breaking']),
-        unclassifiedChanges: _.filter(processedDiff, ['type', 'unclassified'])
-    };
-    return results;
+const getChangeScope = (change: IDiff): string => {
+    if (isInfoChange(change)) {
+        return 'info.object';
+    } else if (isTopLevelProperty(change)) {
+        return `${getTopLevelProperty(change)}.property`;
+    } else {
+        return 'unclassified.change';
+    }
 };
+
+const getChangeType = (changeKind: string): DiffChangeType => {
+    let resultingType: DiffChangeType;
+    switch (changeKind) {
+        case 'D': {
+            resultingType = 'delete';
+            break;
+        }
+        case 'E': {
+            resultingType = 'edit';
+            break;
+        }
+        case 'N': {
+            resultingType = 'add';
+            break;
+        }
+        default: {
+            resultingType = 'unknown';
+            break;
+        }
+    }
+    return resultingType;
+};
+
+const getTopLevelProperty = (entry: IDiff): string => {
+    return entry.path[0];
+};
+
+const BreakingChanges: DiffChangeTaxonomy[] = [
+    'host.property.add',
+    'host.property.edit',
+    'host.property.delete',
+    'basePath.property.add',
+    'basePath.property.edit',
+    'basePath.property.delete'
+];
+
+const nonBreakingChanges: DiffChangeTaxonomy[] = [
+    'info.object.edit',
+    'openapi.property.edit'
+];
 
 export default {
     diff: (oldParsedSpec: ParsedSpec,
-           newParsedSpec: ParsedSpec): Diff => {
+           newParsedSpec: ParsedSpec): DiffChange[] => {
         const rawDiff: IDiff[] = deepDiff.diff(oldParsedSpec, newParsedSpec);
         const processedDiff: DiffChange[] = processDiff(oldParsedSpec, rawDiff);
-        const resultingDiff = sortProcessedDiff(processedDiff);
-        return resultingDiff;
+        return processedDiff;
     }
 };

@@ -3,24 +3,32 @@
 import IDiff = deepDiff.IDiff;
 import * as q from 'q';
 
-export interface Diff {
-    breakingChanges: DiffChange[];
-    nonBreakingChanges: DiffChange[];
-    unclassifiedChanges: DiffChange[];
-}
-
 export interface DiffChange extends IDiff {
+    severity: DiffChangeSeverity;
     printablePath: string[];
+    scope: string;
     taxonomy: DiffChangeTaxonomy;
     type: DiffChangeType;
 }
 
 export type DiffChangeTaxonomy =
+    'basePath.property.add' |
+    'basePath.property.delete' |
+    'basePath.property.edit' |
+    'host.property.add' |
+    'host.property.delete' |
+    'host.property.edit' |
     'info.object.edit' |
     'openapi.property.edit' |
     'unclassified.change';
 
 export type DiffChangeType =
+    'add' |
+    'edit' |
+    'delete' |
+    'unknown';
+
+export type DiffChangeSeverity =
     'breaking' |
     'non-breaking' |
     'unclassified';
@@ -38,6 +46,8 @@ export interface OpenAPISpecInfo {
 }
 
 export interface Swagger2Spec {
+    basePath?: string;
+    host?: string;
     info: OpenAPISpecInfo;
     [xProperty: string]: any;
     swagger: string;
@@ -78,21 +88,17 @@ export interface ParsedOpenApiProperty {
 }
 
 export interface ParsedSpec {
+    basePath?: string;
+    host?: string;
     info: ParsedInfoObject;
     openapi: ParsedOpenApiProperty;
     [xProperty: string]: any;
 }
 
 // Result types
-
-export interface ResultDiff {
-    breakingChanges: DiffChange[];
-    nonBreakingChanges: DiffChange[];
-    unclassifiedChanges: DiffChange[];
-}
-
 export interface ResultObject {
     changeList: string[];
+    hasBreakingChanges: boolean;
     summary: string[];
 }
 
@@ -100,6 +106,11 @@ export interface ResultObject {
 
 export interface FileSystem {
     readFile: JsonLoaderFunction;
+}
+
+export interface GenericProperty {
+    key: string;
+    value: any;
 }
 
 export interface HttpClient {
@@ -110,9 +121,4 @@ export type JsonLoaderFunction = (location: string) => q.Promise<string>;
 
 export interface OpenAPIDiff {
     run: (oldSpecPath: string, newSpecPath: string) => q.Promise<ResultObject>;
-}
-
-export interface XProperty {
-    key: string;
-    value: any;
 }

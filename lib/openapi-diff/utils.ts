@@ -16,6 +16,10 @@ export default {
                parsedSpec[parsedPathString].originalPath :
                parsedPath;
     },
+    isOptionalProperty: (propertyPath: string): boolean => {
+        const optionalPropertyNames: string[] = ['host', 'basePath'];
+        return _.includes(optionalPropertyNames, propertyPath);
+    },
     isXProperty: (propertyPath: string): boolean => {
         return propertyPath.startsWith('x-');
     }
