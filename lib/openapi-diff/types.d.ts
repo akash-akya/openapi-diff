@@ -112,6 +112,15 @@ export interface ResultObject {
 }
 
 // Various other types
+export interface ChangeTypeMapper {
+    D: (change: IDiff) => DiffChangeType;
+    E: (change: IDiff) => DiffChangeType;
+    N: (change: IDiff) => DiffChangeType;
+    A: (change: IDiff) => DiffChangeType;
+    'A.N': (change: IDiff) => DiffChangeType;
+    'A.D': (change: IDiff) => DiffChangeType;
+    [key: string]: (change: IDiff) => DiffChangeType;
+}
 
 export interface FileSystem {
     readFile: JsonLoaderFunction;

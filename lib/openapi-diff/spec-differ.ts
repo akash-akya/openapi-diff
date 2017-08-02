@@ -1,12 +1,12 @@
 import * as deepDiff from 'deep-diff';
 import * as _ from 'lodash';
-import * as VError from 'verror';
 
 import utils from './utils';
 
 import IDiff = deepDiff.IDiff;
 
 import {
+    ChangeTypeMapper,
     DiffChange,
     DiffChangeSeverity,
     DiffChangeTaxonomy,
@@ -44,6 +44,17 @@ const processDiff = (parsedSpec: ParsedSpec, rawDiff: IDiff[] | undefined): Diff
     }
 
     return processedDiff;
+};
+
+const changeTypeMapper: ChangeTypeMapper = {
+    A: (change: IDiff) => {
+        return (change.item && change.item.kind) ? changeTypeMapper[`A.${change.item.kind}`](change) : 'unknown';
+    },
+    'A.D': () => 'arrayContent.delete',
+    'A.N': () => 'arrayContent.add',
+    D: () => 'delete',
+    E: () => 'edit',
+    N: () => 'add'
 };
 
 const isEdit = (entry: IDiff): boolean => {
@@ -116,35 +127,7 @@ const getChangeScope = (change: IDiff): string => {
 };
 
 const getChangeType = (change: IDiff): DiffChangeType => {
-    const changeTypeMap: [{ kind: string, type: DiffChangeType }] = [
-        { kind: 'D', type: 'delete' },
-        { kind: 'E', type: 'edit' },
-        { kind: 'N', type: 'add' }
-    ];
-
-    if (_.findIndex(changeTypeMap, ['kind', change.kind]) > -1) {
-        return changeTypeMap[_.findIndex(changeTypeMap, ['kind', change.kind])].type;
-    } else if (change.kind === 'A') {
-        return getItemChangeType(change);
-    } else {
-        throw new VError(`ERROR: unable to find the type of change ${change}`);
-    }
-};
-
-const getItemChangeType = (change: IDiff): DiffChangeType => {
-    const itemChangeTypeMap: [ { kind: string, type: DiffChangeType } ] = [
-        { kind: 'D', type: 'arrayContent.delete' },
-        { kind: 'N', type: 'arrayContent.add'}
-    ];
-
-    if (_.isUndefined(change.item) ||
-        _.isUndefined(change.item.kind ||
-        _.findIndex(itemChangeTypeMap, ['kind', change.item.kind]) === -1)
-    ) {
-        throw new VError(`ERROR: unable to find the type of change ${change}`);
-    } else {
-        return itemChangeTypeMap[_.findIndex(itemChangeTypeMap, ['kind', change.item.kind])].type;
-    }
+    return changeTypeMapper[change.kind](change) || 'unknown';
 };
 
 const getTopLevelProperty = (entry: IDiff): string => {
