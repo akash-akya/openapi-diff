@@ -24,14 +24,4 @@ The tool's output will display the amount and type of changes (breaking, non-bre
 The command will exit with an exit code 1 if any breaking changes were found, so that you can fail builds in CI when this happens.
 
 ## Feature support
-
-### Supported
-- Detects editions to the `swagger` / `openapi` object.
-- Detects editions to the `info` object and `^x- properties` at the top level of the spec.
-- Detects additions, editions and deletions of the `host`, `basePath` and `schemes` Swagger 2 properties.
-
-### Beta support 
-- Additions and deletions to the `info` object and `^x- properties` at the top level of the spec.
-
-### Not supported
-- Any other additions, editions or deletions to the spec.
+See [SPEC_SUPPORT.md](SPEC_SUPPORT.md)
