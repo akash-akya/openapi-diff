@@ -33,14 +33,24 @@ const parseTopLevelProperties = (spec: Swagger2Spec | OpenAPI3Spec): GenericProp
     return topLevelPropertiesArray;
 };
 
+const sortSpecArrays = (spec: Swagger2Spec | OpenAPI3Spec): Swagger2Spec | OpenAPI3Spec => {
+    if (spec.schemes) {
+        spec.schemes = _.sortBy(spec.schemes);
+    }
+
+    return spec;
+};
+
 export default {
     parse: (spec: Swagger2Spec | OpenAPI3Spec): ParsedSpec => {
+        const sortedSpec = sortSpecArrays(spec);
+
         const parsedSpec: ParsedSpec = {
-            info: parseInfoObject(spec),
-            openapi: parseOpenApiProperty(spec)
+            info: parseInfoObject(sortedSpec),
+            openapi: parseOpenApiProperty(sortedSpec)
         };
 
-        for (const entry of parseTopLevelProperties(spec)) {
+        for (const entry of parseTopLevelProperties(sortedSpec)) {
             _.set(parsedSpec, entry.key, entry.value);
         }
 

@@ -174,7 +174,7 @@ describe('openapi-diff', () => {
         }).then(() => {
             fail('test expected to error out but it didn\'t');
         }).catch((error) => {
-            expect(error.message).toEqual(jasmine.stringMatching('4 breaking changes found.'));
+            expect(error.message).toEqual(jasmine.stringMatching('2 breaking changes found.'));
             expect(error.message).toEqual(jasmine.stringMatching('4 non-breaking changes found.'));
             expect(error.message).toEqual(jasmine.stringMatching('2 unclassified changes found.'));
 
@@ -182,12 +182,6 @@ describe('openapi-diff', () => {
 
             expect(error.message).toContain('Breaking: the path [basePath] was modified ' +
                                      'from \'/\' to \'/v2\'');
-
-            expect(error.message).toContain('Breaking: the value \'https\' was removed from the array in ' +
-                                            'the path [schemes]');
-
-            expect(error.message).toContain('Breaking: the path [schemes/0] was modified ' +
-                                            'from \'ws\' to \'http\'');
 
             expect(error.message).toContain('Non-breaking: the path [info/termsOfService] was modified ' +
                                      'from \'some terms\' to \'some new terms\'');
@@ -206,6 +200,8 @@ describe('openapi-diff', () => {
 
             expect(error.message).toContain('Unclassified: the path [x-generic-property] was modified ' +
                                      'from \'some content\' to \'some new content\'');
+
+            expect(error.message).not.toContain('the path [schemes');
 
             expect(error.message).toEqual(jasmine.stringMatching('DANGER: Breaking changes found!'));
 

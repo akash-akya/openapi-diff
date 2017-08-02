@@ -1,5 +1,4 @@
 import * as _ from 'lodash';
-import * as VError from 'verror';
 
 import {
     DiffChange,
@@ -7,43 +6,32 @@ import {
     ResultObject
 } from './types';
 
-// tslint:disable:cyclomatic-complexity
-const buildChangeSentence = (change: DiffChange): string => {
-    let changeSentence: string;
-    switch (change.type) {
-        case 'add': {
-            changeSentence = `${_.capitalize(change.severity)}: the path [${change.printablePath.join('/')}] `
-                             + `was added with value \'${change.rhs}\'`;
-            break;
-        }
-        case 'arrayContent.add': {
-            changeSentence = `${_.capitalize(change.severity)}: the value \'${change.rhs}\' was added to the`
-            + ` array in the path [${change.printablePath.join('/')}]`;
-            break;
-        }
-        case 'arrayContent.delete': {
-            changeSentence = `${_.capitalize(change.severity)}: the value \'${change.lhs}\' was removed from the`
-                             + ` array in the path [${change.printablePath.join('/')}]`;
-            break;
-        }
-        case 'delete': {
-            changeSentence = `${_.capitalize(change.severity)}: the path [${change.printablePath.join('/')}] `
-                             + `with value \'${change.lhs}\' was removed`;
-            break;
-        }
-        case 'edit': {
-            changeSentence = `${_.capitalize(change.severity)}: the path [${change.printablePath.join('/')}] `
-                              + `was modified from \'${change.lhs}\' to \'${change.rhs}\'`;
-            break;
-        }
-        default: {
-            throw new VError(`ERROR: unable to handle ${change.type} as a change type`);
-        }
-    }
-    return changeSentence;
-};
+const buildChangeSentence = (targetChange: DiffChange): string => {
+    const changeDescription: any = {
+        add: ((change: DiffChange): string => {
+            return `${_.capitalize(change.severity)}: the path [${change.printablePath.join('/')}] `
+                   + `was added with value \'${change.rhs}\'`;
+        }),
+        'arrayContent.add': ((change: DiffChange): string => {
+            return `${_.capitalize(change.severity)}: the value \'${change.rhs}\' was added to the`
+                    + ` array in the path [${change.printablePath.join('/')}]`;
+        }),
+        'arrayContent.delete': ((change: DiffChange): string => {
+            return `${_.capitalize(change.severity)}: the value \'${change.lhs}\' was removed from the`
+                   + ` array in the path [${change.printablePath.join('/')}]`;
+        }),
+        delete: ((change: DiffChange): string => {
+            return `${_.capitalize(change.severity)}: the path [${change.printablePath.join('/')}] `
+                   + `with value \'${change.lhs}\' was removed`;
+        }),
+        edit: ((change: DiffChange): string => {
+            return `${_.capitalize(change.severity)}: the path [${change.printablePath.join('/')}] `
+            + `was modified from \'${change.lhs}\' to \'${change.rhs}\'`;
+        })
+    };
 
-// tslint:enable:cyclomatic-complexity
+    return changeDescription[targetChange.type](targetChange);
+};
 
 const countSeverities = (changes: DiffChange[], changeSeverity: DiffChangeSeverity): number => {
     const changeCount = _.filter(changes, ['severity', changeSeverity]).length;

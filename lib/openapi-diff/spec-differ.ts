@@ -114,58 +114,38 @@ const getChangeScope = (change: IDiff): string => {
         return 'unclassified.change';
     }
 };
-// tslint:disable:cyclomatic-complexity
+
 const getChangeType = (change: IDiff): DiffChangeType => {
-    let resultingType: DiffChangeType;
-    switch (change.kind) {
-        case 'A':
-            resultingType = getItemChangeType(change);
-            break;
-        case 'E': {
-            resultingType = 'edit';
-            break;
-        }
-        case 'D': {
-            resultingType = 'delete';
-            break;
-        }
-        case 'N': {
-            resultingType = 'add';
-            break;
-        }
-        default: {
-            resultingType = 'unknown';
-            break;
-        }
+    const changeTypeMap: [{ kind: string, type: DiffChangeType }] = [
+        { kind: 'D', type: 'delete' },
+        { kind: 'E', type: 'edit' },
+        { kind: 'N', type: 'add' }
+    ];
+
+    if (_.findIndex(changeTypeMap, ['kind', change.kind]) > -1) {
+        return changeTypeMap[_.findIndex(changeTypeMap, ['kind', change.kind])].type;
+    } else if (change.kind === 'A') {
+        return getItemChangeType(change);
+    } else {
+        throw new VError(`ERROR: unable to find the type of change ${change}`);
     }
-    return resultingType;
 };
 
-// tslint:disable:cyclomatic-complexity
 const getItemChangeType = (change: IDiff): DiffChangeType => {
-    if (_.isUndefined(change.item) || _.isUndefined(change.item.kind) ) {
+    const itemChangeTypeMap: [ { kind: string, type: DiffChangeType } ] = [
+        { kind: 'D', type: 'arrayContent.delete' },
+        { kind: 'N', type: 'arrayContent.add'}
+    ];
+
+    if (_.isUndefined(change.item) ||
+        _.isUndefined(change.item.kind ||
+        _.findIndex(itemChangeTypeMap, ['kind', change.item.kind]) === -1)
+    ) {
         throw new VError(`ERROR: unable to find the type of change ${change}`);
     } else {
-        let resultingType: DiffChangeType;
-        switch (change.item.kind) {
-            case 'D': {
-                resultingType = 'arrayContent.delete';
-                break;
-            }
-            case 'N': {
-                resultingType = 'arrayContent.add';
-                break;
-            }
-            default: {
-                resultingType = 'unknown';
-                break;
-            }
-        }
-        return resultingType;
+        return itemChangeTypeMap[_.findIndex(itemChangeTypeMap, ['kind', change.item.kind])].type;
     }
 };
-
-// tslint:enable:cyclomatic-complexity
 
 const getTopLevelProperty = (entry: IDiff): string => {
     return entry.path[0];

@@ -247,8 +247,6 @@ describe('specDiffer', () => {
             expect(result[0].kind).toEqual('E');
         });
 
-        // TODO schema 0 in previous tests
-
         it('should classify the second change (edition of schemes member) as breaking', () => {
             expect(result[1].severity).toEqual('breaking');
         });
