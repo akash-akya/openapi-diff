@@ -17,5 +17,6 @@
   },
   "x-generic-property": "some new content",
   "swagger": "2.1",
-  "basePath": "/v2"
+  "basePath": "/v2",
+  "schemes": ["https", "ws"]
 }

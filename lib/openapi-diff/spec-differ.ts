@@ -1,10 +1,12 @@
 import * as deepDiff from 'deep-diff';
 import * as _ from 'lodash';
-import IDiff = deepDiff.IDiff;
 
 import utils from './utils';
 
+import IDiff = deepDiff.IDiff;
+
 import {
+    ChangeTypeMapper,
     DiffChange,
     DiffChangeSeverity,
     DiffChangeTaxonomy,
@@ -19,7 +21,7 @@ const processDiff = (parsedSpec: ParsedSpec, rawDiff: IDiff[] | undefined): Diff
     if (rawDiff) {
         for (const entry of rawDiff) {
 
-            const type = getChangeType(entry.kind);
+            const type = getChangeType(entry);
             const scope = getChangeScope(entry);
             const taxonomy = findChangeTaxonomy(type, scope);
 
@@ -27,10 +29,10 @@ const processDiff = (parsedSpec: ParsedSpec, rawDiff: IDiff[] | undefined): Diff
                 index: getChangeNullableProperties(entry.index),
                 item: getChangeNullableProperties(entry.item),
                 kind: entry.kind,
-                lhs: entry.lhs,
+                lhs: getChangeDiffValue(entry, 'lhs'),
                 path: entry.path,
                 printablePath: utils.findOriginalPath(parsedSpec, entry.path),
-                rhs: entry.rhs,
+                rhs: getChangeDiffValue(entry, 'rhs'),
                 scope,
                 severity: findChangeSeverity(taxonomy),
                 taxonomy,
@@ -42,6 +44,17 @@ const processDiff = (parsedSpec: ParsedSpec, rawDiff: IDiff[] | undefined): Diff
     }
 
     return processedDiff;
+};
+
+const changeTypeMapper: ChangeTypeMapper = {
+    A: (change: IDiff) => {
+        return (change.item && change.item.kind) ? changeTypeMapper[`A.${change.item.kind}`](change) : 'unknown';
+    },
+    'A.D': () => 'arrayContent.delete',
+    'A.N': () => 'arrayContent.add',
+    D: () => 'delete',
+    E: () => 'edit',
+    N: () => 'add'
 };
 
 const isEdit = (entry: IDiff): boolean => {
@@ -60,7 +73,8 @@ const isTopLevelProperty = (entry: IDiff): boolean => {
     const topLevelPropertyNames: string[] = [
         'basePath',
         'host',
-        'openapi'
+        'openapi',
+        'schemes'
     ];
     return _.includes(topLevelPropertyNames, entry.path[0]);
 };
@@ -82,8 +96,24 @@ const findChangeSeverity = (taxonomy: DiffChangeTaxonomy): DiffChangeSeverity =>
     }
 };
 
+const getChangeDiffValue = (change: IDiff, property: 'lhs' | 'rhs'): any => {
+    if (_.isUndefined(change[property])) {
+        if (_.isUndefined(change.item) || _.isUndefined(change.item[property])) {
+            return null;
+        } else {
+            return change.item[property];
+        }
+    } else {
+        return change[property];
+    }
+};
+
 const getChangeNullableProperties = (changeProperty: any): any => {
-    return changeProperty || null;
+    if (_.isUndefined(changeProperty)) {
+        return null;
+    } else {
+        return changeProperty;
+    }
 };
 
 const getChangeScope = (change: IDiff): string => {
@@ -96,27 +126,8 @@ const getChangeScope = (change: IDiff): string => {
     }
 };
 
-const getChangeType = (changeKind: string): DiffChangeType => {
-    let resultingType: DiffChangeType;
-    switch (changeKind) {
-        case 'D': {
-            resultingType = 'delete';
-            break;
-        }
-        case 'E': {
-            resultingType = 'edit';
-            break;
-        }
-        case 'N': {
-            resultingType = 'add';
-            break;
-        }
-        default: {
-            resultingType = 'unknown';
-            break;
-        }
-    }
-    return resultingType;
+const getChangeType = (change: IDiff): DiffChangeType => {
+    return changeTypeMapper[change.kind](change) || 'unknown';
 };
 
 const getTopLevelProperty = (entry: IDiff): string => {
@@ -124,17 +135,22 @@ const getTopLevelProperty = (entry: IDiff): string => {
 };
 
 const BreakingChanges: DiffChangeTaxonomy[] = [
-    'host.property.add',
-    'host.property.edit',
-    'host.property.delete',
     'basePath.property.add',
+    'basePath.property.delete',
     'basePath.property.edit',
-    'basePath.property.delete'
+    'host.property.add',
+    'host.property.delete',
+    'host.property.edit',
+    'schemes.property.add',
+    'schemes.property.arrayContent.delete',
+    'schemes.property.delete',
+    'schemes.property.edit'
 ];
 
 const nonBreakingChanges: DiffChangeTaxonomy[] = [
     'info.object.edit',
-    'openapi.property.edit'
+    'openapi.property.edit',
+    'schemes.property.arrayContent.add'
 ];
 
 export default {

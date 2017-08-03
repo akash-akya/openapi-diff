@@ -26,14 +26,18 @@ describe('specParser, with regards to the top level object,', () => {
 
         describe('with regards to the host property', () => {
 
-            const originalSpec: Swagger2Spec = {
-                host: 'some host url',
-                info: {
-                    title: 'spec title',
-                    version: 'version'
-                },
-                swagger: '2.0'
-            };
+            let originalSpec: Swagger2Spec;
+
+            beforeEach(() => {
+                originalSpec = {
+                    host: 'some host url',
+                    info: {
+                        title: 'spec title',
+                        version: 'version'
+                    },
+                    swagger: '2.0'
+                };
+            });
 
             it('should generate a parsed spec copying across the host property and its value when present', () => {
                 const resultingSpec: ParsedSpec = specParser.parse(originalSpec);
@@ -49,24 +53,71 @@ describe('specParser, with regards to the top level object,', () => {
 
         describe('with regards to the basePath property', () => {
 
-            const originalSpec: Swagger2Spec = {
-                basePath: 'some basePath info',
-                info: {
-                    title: 'spec title',
-                    version: 'version'
-                },
-                swagger: '2.0'
-            };
+            let originalSpec: Swagger2Spec;
+
+            beforeEach(() => {
+                originalSpec = {
+                    basePath: 'some basePath info',
+                    info: {
+                        title: 'spec title',
+                        version: 'version'
+                    },
+                    swagger: '2.0'
+                };
+            });
 
             it('should generate a parsed spec copying across the basePath property and its value', () => {
                 const resultingSpec: ParsedSpec = specParser.parse(originalSpec);
                 expect(resultingSpec.basePath).toBe('some basePath info');
             });
 
-            it('should generate a parsed spec without basepath property when not present', () => {
+            it('should generate a parsed spec without basePath property when not present', () => {
                 delete(originalSpec.basePath);
                 const resultingSpec: ParsedSpec = specParser.parse(originalSpec);
                 expect(resultingSpec.basePath).not.toBeDefined();
+            });
+        });
+
+        describe('with regards to the schemes property', () => {
+
+            let originalSpec: Swagger2Spec;
+
+            beforeEach(() => {
+               originalSpec = {
+                   info: {
+                       title: 'spec title',
+                       version: 'version'
+                   },
+                   schemes: ['http', 'https'],
+                   swagger: '2.0'
+               };
+            });
+
+            it('should generate a parsed spec copying across the basePath property and its value', () => {
+                const resultingSpec: ParsedSpec = specParser.parse(originalSpec);
+                expect(resultingSpec.schemes).toEqual(['http', 'https']);
+            });
+
+            it('should generate a parsed spec with schemes property even if it was empty in the first place', () => {
+                originalSpec.schemes = [];
+                const resultingSpec: ParsedSpec = specParser.parse(originalSpec);
+                if (resultingSpec.schemes) {
+                    expect(resultingSpec.schemes.length).toEqual(0);
+                } else {
+                    fail('schemes property was not defined when it should');
+                }
+            });
+
+            it('should generate a parsed spec without schemes property when not present', () => {
+                delete(originalSpec.schemes);
+                const resultingSpec: ParsedSpec = specParser.parse(originalSpec);
+                expect(resultingSpec.schemes).not.toBeDefined();
+            });
+
+            it('should generate a parsed spec with an ordered schemes property to simplify diffing', () => {
+                originalSpec.schemes = ['https', 'http'];
+                const resultingSpec: ParsedSpec = specParser.parse(originalSpec);
+                expect(resultingSpec.schemes).toEqual(['http', 'https']);
             });
         });
     });

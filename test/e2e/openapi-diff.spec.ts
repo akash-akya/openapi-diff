@@ -201,6 +201,8 @@ describe('openapi-diff', () => {
             expect(error.message).toContain('Unclassified: the path [x-generic-property] was modified ' +
                                      'from \'some content\' to \'some new content\'');
 
+            expect(error.message).not.toContain('the path [schemes');
+
             expect(error.message).toEqual(jasmine.stringMatching('DANGER: Breaking changes found!'));
 
             expect(error).toEqual(jasmine.stringMatching('Exit code: 1'));
@@ -214,14 +216,17 @@ describe('openapi-diff', () => {
         }).then(() => {
             fail('test expected to error out but it didn\'t');
         }).catch((error) => {
-            expect(error.message).toEqual(jasmine.stringMatching('2 breaking changes found.'));
-            expect(error.message).toEqual(jasmine.stringMatching('3 non-breaking changes found.'));
+            expect(error.message).toEqual(jasmine.stringMatching('3 breaking changes found.'));
+            expect(error.message).toEqual(jasmine.stringMatching('4 non-breaking changes found.'));
             expect(error.message).toEqual(jasmine.stringMatching('0 unclassified changes found.'));
 
             expect(error.message).toContain('Breaking: the path [host] was modified ' +
                                      'from \'petstore.swagger.io\' to \'petstore.swagger.org\'');
 
             expect(error.message).toContain('Breaking: the path [basePath] was added with value \'/v2\'');
+
+            expect(error.message).toContain('Breaking: the path [schemes/0] was modified ' +
+                                            'from \'http\' to \'https\'');
 
             expect(error.message).toContain('Non-breaking: the path [swagger] was modified ' +
                                      'from \'2.0\' to \'2.1\'');
@@ -231,6 +236,9 @@ describe('openapi-diff', () => {
 
             expect(error.message).toContain('Non-breaking: the path [info/license/name] was modified ' +
                                      'from \'Apache 2.0\' to \'Apache 2.1\'');
+
+            expect(error.message).toContain('Non-breaking: the value \'ws\' was added ' +
+                                            'to the array in the path [schemes]');
 
             expect(error.message).toEqual(jasmine.stringMatching('DANGER: Breaking changes found!'));
 
