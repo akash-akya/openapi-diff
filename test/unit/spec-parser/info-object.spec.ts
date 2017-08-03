@@ -1,23 +1,51 @@
 import specParser from '../../../lib/openapi-diff/spec-parser';
-import {OpenAPI3Spec, ParsedSpec} from '../../../lib/openapi-diff/types';
+
+import { OpenAPIObject } from 'openapi3-ts';
+
+import { ParsedSpec } from '../../../lib/openapi-diff/types';
 
 let resultingSpec: ParsedSpec;
 
 describe('specParser, with regards to the info object,', () => {
 
-    const buildSimpleOpenApi3Spec = (): OpenAPI3Spec => {
+    const buildSimpleOpenApi3Spec = (): OpenAPIObject => {
         const spec = {
+            components: {
+                callbacks: {},
+                examples: {},
+                headers: {},
+                links: {},
+                parameters: {},
+                paths: {},
+                requestBodies: {},
+                responses: {},
+                schemas: {},
+                securitySchemes: {}
+            },
             info: {
                 title: 'spec title',
                 version: 'spec version'
             },
-            openapi: '3.0.0'
+            openapi: '3.0.0',
+            paths: {}
         };
         return spec;
     };
 
-    const buildOpenApi3SpecWithCompleteInfoObject = (): OpenAPI3Spec => {
+    const buildOpenApi3SpecWithCompleteInfoObject = (): OpenAPIObject => {
         const spec = {
+            components: {
+                callbacks: {},
+                examples: {},
+                headers: {},
+                links: {},
+                parameters: {},
+                paths: {},
+                requestBodies: {},
+                responses: {},
+                schemas: {},
+                securitySchemes: {}
+            },
             info: {
                 contact: {
                     email: 'contact email',
@@ -33,7 +61,8 @@ describe('specParser, with regards to the info object,', () => {
                 title: 'spec title',
                 version: 'version'
             },
-            openapi: '3.0.0'
+            openapi: '3.0.0',
+            paths: {}
         };
         return spec;
     };

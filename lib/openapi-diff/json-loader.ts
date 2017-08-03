@@ -2,12 +2,13 @@ import * as q from 'q';
 import * as url from 'url';
 import * as VError from 'verror';
 
+import { OpenAPIObject } from 'openapi3-ts';
+import { Spec } from 'swagger-schema-official';
+
 import {
     FileSystem,
     HttpClient,
-    JsonLoaderFunction,
-    OpenAPI3Spec,
-    Swagger2Spec
+    JsonLoaderFunction
 } from './types';
 
 const isUrl = (location: string): boolean => {
@@ -15,11 +16,11 @@ const isUrl = (location: string): boolean => {
     return urlObject.protocol !== null;
 };
 
-const parseAsJson = (location: string, content: string): q.Promise<Swagger2Spec | OpenAPI3Spec> => {
+const parseAsJson = (location: string, content: string): q.Promise<Spec | OpenAPIObject> => {
     try {
         return q(JSON.parse(content));
     } catch (error) {
-        return q.reject<OpenAPI3Spec>(new VError(error, `ERROR: unable to parse ${location} as a JSON file`));
+        return q.reject<OpenAPIObject>(new VError(error, `ERROR: unable to parse ${location} as a JSON file`));
     }
 };
 

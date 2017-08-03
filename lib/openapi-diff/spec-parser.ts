@@ -2,28 +2,36 @@ import * as _ from 'lodash';
 
 import utils from './utils';
 
+import { OpenAPIObject } from 'openapi3-ts';
+import { Spec } from 'swagger-schema-official';
+
 import {
     GenericProperty,
-    OpenAPI3Spec,
     ParsedInfoObject,
     ParsedOpenApiProperty,
-    ParsedSpec,
-    Swagger2Spec
+    ParsedSpec
 } from './types';
 
-const parseInfoObject = (spec: Swagger2Spec | OpenAPI3Spec): ParsedInfoObject => {
+const parseInfoObject = (spec: Spec | OpenAPIObject): ParsedInfoObject => {
     return spec.info;
 };
 
-const parseOpenApiProperty = (spec: Swagger2Spec | OpenAPI3Spec): ParsedOpenApiProperty => {
-    const parsedOpenApiProperty: ParsedOpenApiProperty = {
-        originalPath: spec.swagger ? ['swagger'] : ['openapi'],
-        parsedValue: spec.swagger ? spec.swagger  : spec.openapi
-    };
-    return parsedOpenApiProperty;
+const parseOpenApiProperty = (spec: Spec | OpenAPIObject): ParsedOpenApiProperty => {
+    let originalPath: string[];
+    let parsedValue: string;
+
+    if (_.has(spec, 'swagger')) {
+        originalPath = ['swagger'];
+        parsedValue = (spec as Spec).swagger;
+    } else {
+        originalPath = ['openapi'];
+        parsedValue = (spec as OpenAPIObject).openapi;
+    }
+
+    return {originalPath, parsedValue};
 };
 
-const parseTopLevelProperties = (spec: Swagger2Spec | OpenAPI3Spec): GenericProperty[] => {
+const parseTopLevelProperties = (spec: Spec | OpenAPIObject): GenericProperty[] => {
     const topLevelPropertiesArray: GenericProperty[] = [];
     _.forIn(spec, (value, key) => {
         if (utils.isXProperty(key) || utils.isOptionalProperty(key)) {
@@ -33,16 +41,16 @@ const parseTopLevelProperties = (spec: Swagger2Spec | OpenAPI3Spec): GenericProp
     return topLevelPropertiesArray;
 };
 
-const sortSpecArrays = (spec: Swagger2Spec | OpenAPI3Spec): Swagger2Spec | OpenAPI3Spec => {
-    if (spec.schemes) {
-        spec.schemes = _.sortBy(spec.schemes);
+const sortSpecArrays = (spec: Spec | OpenAPIObject): Spec | OpenAPIObject => {
+    if (_.has(spec, 'schemes')) {
+        (spec as Spec).schemes = _.sortBy((spec as Spec).schemes);
     }
 
     return spec;
 };
 
 export default {
-    parse: (spec: Swagger2Spec | OpenAPI3Spec): ParsedSpec => {
+    parse: (spec: Spec | OpenAPIObject): ParsedSpec => {
         const sortedSpec = sortSpecArrays(spec);
 
         const parsedSpec: ParsedSpec = {
