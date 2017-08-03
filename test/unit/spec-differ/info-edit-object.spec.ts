@@ -69,6 +69,7 @@ describe('specDiffer', () => {
             expect(results[0].rhs).toEqual('NEW spec title');
             expect(results[0].index).toBeNull();
             expect(results[0].item).toBeNull();
+            expect(results[0].kind).toEqual('E');
         });
     });
 

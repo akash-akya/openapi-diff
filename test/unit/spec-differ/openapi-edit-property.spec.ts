@@ -50,6 +50,7 @@ describe('specDiffer', () => {
                 expect(results[0].rhs).toEqual('2.1');
                 expect(results[0].index).toBeNull();
                 expect(results[0].item).toBeNull();
+                expect(results[0].kind).toEqual('E');
             });
         });
 

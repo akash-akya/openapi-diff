@@ -40,33 +40,6 @@ export type DiffChangeSeverity =
     'non-breaking' |
     'unclassified';
 
-// Open API types
-
-export interface OpenAPISpecInfo {
-    title: string;
-    description?: string;
-    termsOfService?: string;
-    contact?: ParsedContactObject;
-    licence?: ParsedLicenseObject;
-    version: string;
-    [xProperty: string]: any;
-}
-
-export interface Swagger2Spec {
-    basePath?: string;
-    host?: string;
-    info: OpenAPISpecInfo;
-    schemes?: string[];
-    swagger: string;
-    [xProperty: string]: any;
-}
-
-export interface OpenAPI3Spec {
-    info: OpenAPISpecInfo;
-    [xProperty: string]: any;
-    openapi: string;
-}
-
 // Parsed Spec types
 
 export interface ParsedContactObject {
@@ -81,7 +54,7 @@ export interface ParsedInfoObject {
     termsOfService?: string;
     contact?: ParsedContactObject;
     licence?: ParsedLicenseObject;
-    version: string;
+    version?: string; // TODO: this is a bug in the OAS3 type definition
     [xProperty: string]: any;
 }
 

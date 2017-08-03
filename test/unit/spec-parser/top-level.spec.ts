@@ -1,5 +1,9 @@
 import specParser from '../../../lib/openapi-diff/spec-parser';
-import {OpenAPI3Spec, ParsedSpec, Swagger2Spec} from '../../../lib/openapi-diff/types';
+
+import { OpenAPIObject } from 'openapi3-ts';
+import { Spec } from 'swagger-schema-official';
+
+import { ParsedSpec } from '../../../lib/openapi-diff/types';
 
 describe('specParser, with regards to the top level object,', () => {
 
@@ -7,12 +11,25 @@ describe('specParser, with regards to the top level object,', () => {
 
         it('should generate a parsed spec copying across the x-property and its value', () => {
 
-            const originalSpec: OpenAPI3Spec = {
+            const originalSpec: OpenAPIObject = {
+                components: {
+                    callbacks: {},
+                    examples: {},
+                    headers: {},
+                    links: {},
+                    parameters: {},
+                    paths: {},
+                    requestBodies: {},
+                    responses: {},
+                    schemas: {},
+                    securitySchemes: {}
+                },
                 info: {
                     title: 'spec title',
                     version: 'version'
                 },
                 openapi: '3.0.0',
+                paths: {},
                 'x-external-id': 'some id',
                 'x-internal-id': 'some other id'
             };
@@ -26,7 +43,7 @@ describe('specParser, with regards to the top level object,', () => {
 
         describe('with regards to the host property', () => {
 
-            let originalSpec: Swagger2Spec;
+            let originalSpec: Spec;
 
             beforeEach(() => {
                 originalSpec = {
@@ -35,6 +52,7 @@ describe('specParser, with regards to the top level object,', () => {
                         title: 'spec title',
                         version: 'version'
                     },
+                    paths: {},
                     swagger: '2.0'
                 };
             });
@@ -53,7 +71,7 @@ describe('specParser, with regards to the top level object,', () => {
 
         describe('with regards to the basePath property', () => {
 
-            let originalSpec: Swagger2Spec;
+            let originalSpec: Spec;
 
             beforeEach(() => {
                 originalSpec = {
@@ -62,6 +80,7 @@ describe('specParser, with regards to the top level object,', () => {
                         title: 'spec title',
                         version: 'version'
                     },
+                    paths: {},
                     swagger: '2.0'
                 };
             });
@@ -80,7 +99,7 @@ describe('specParser, with regards to the top level object,', () => {
 
         describe('with regards to the schemes property', () => {
 
-            let originalSpec: Swagger2Spec;
+            let originalSpec: Spec;
 
             beforeEach(() => {
                originalSpec = {
@@ -88,6 +107,7 @@ describe('specParser, with regards to the top level object,', () => {
                        title: 'spec title',
                        version: 'version'
                    },
+                   paths: {},
                    schemes: ['http', 'https'],
                    swagger: '2.0'
                };

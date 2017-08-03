@@ -57,6 +57,7 @@ describe('specDiffer', () => {
             expect(result[0].rhs).toEqual('NEW basePath info');
             expect(result[0].index).toBeNull();
             expect(result[0].item).toBeNull();
+            expect(result[0].kind).toEqual('E');
         });
     });
 
@@ -93,6 +94,7 @@ describe('specDiffer', () => {
             expect(result[0].rhs).toEqual('NEW basePath info');
             expect(result[0].index).toBeNull();
             expect(result[0].item).toBeNull();
+            expect(result[0].kind).toEqual('N');
         });
     });
 
@@ -129,6 +131,7 @@ describe('specDiffer', () => {
             expect(result[0].rhs).toBeNull();
             expect(result[0].index).toBeNull();
             expect(result[0].item).toBeNull();
+            expect(result[0].kind).toEqual('D');
         });
     });
 });

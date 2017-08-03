@@ -57,6 +57,7 @@ describe('specDiffer', () => {
             expect(results[0].rhs).toEqual('NEW host info');
             expect(results[0].index).toBeNull();
             expect(results[0].item).toBeNull();
+            expect(results[0].kind).toEqual('E');
         });
     });
 
@@ -93,6 +94,7 @@ describe('specDiffer', () => {
             expect(results[0].rhs).toEqual('NEW host info');
             expect(results[0].index).toBeNull();
             expect(results[0].item).toBeNull();
+            expect(results[0].kind).toEqual('N');
         });
     });
 
@@ -129,6 +131,7 @@ describe('specDiffer', () => {
             expect(results[0].rhs).toBeNull();
             expect(results[0].index).toBeNull();
             expect(results[0].item).toBeNull();
+            expect(results[0].kind).toEqual('D');
         });
     });
 });

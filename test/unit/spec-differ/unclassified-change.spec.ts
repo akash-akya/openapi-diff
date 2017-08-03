@@ -56,6 +56,7 @@ describe('specDiffer', () => {
             expect(results[0].rhs).toEqual('NEW x value');
             expect(results[0].index).toBeNull();
             expect(results[0].item).toBeNull();
+            expect(results[0].kind).toEqual('E');
         });
     });
 
@@ -120,6 +121,7 @@ describe('specDiffer', () => {
             expect(results[0].rhs).toEqual('NEW x value');
             expect(results[0].index).toBeNull();
             expect(results[0].item).toBeNull();
+            expect(results[0].kind).toEqual('E');
         });
     });
 });
