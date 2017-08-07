@@ -1,11 +1,16 @@
 import jsonLoader from '../../../lib/openapi-diff/json-loader';
+import {FileSystem, HttpClient} from '../../../lib/openapi-diff/types';
 import fileSystemMockGenerator from '../support/file-system-mock-generator';
 import httpClientMockGenerator from '../support/http-client-mock-generator';
 
 describe('jsonLoader', () => {
+    let naiveFileSystem: FileSystem;
+    let naiveHttpClient: HttpClient;
 
-    const naiveFileSystem = fileSystemMockGenerator.createWithReturnValue('{}');
-    const naiveHttpClient = httpClientMockGenerator.createWithReturnValue('{}');
+    beforeEach(() => {
+        naiveFileSystem = fileSystemMockGenerator.createWithReturnValue('{}');
+        naiveHttpClient = httpClientMockGenerator.createWithReturnValue('{}');
+    });
 
     describe('when the input location is a file', () => {
 

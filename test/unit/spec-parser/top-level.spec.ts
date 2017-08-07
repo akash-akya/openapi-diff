@@ -121,15 +121,11 @@ describe('specParser, with regards to the top level object,', () => {
             it('should generate a parsed spec with schemes property even if it was empty in the first place', () => {
                 originalSpec.schemes = [];
                 const resultingSpec: ParsedSpec = specParser.parse(originalSpec);
-                if (resultingSpec.schemes) {
-                    expect(resultingSpec.schemes.length).toEqual(0);
-                } else {
-                    fail('schemes property was not defined when it should');
-                }
+                expect(resultingSpec.schemes).toEqual([]);
             });
 
             it('should generate a parsed spec without schemes property when not present', () => {
-                delete(originalSpec.schemes);
+                delete originalSpec.schemes;
                 const resultingSpec: ParsedSpec = specParser.parse(originalSpec);
                 expect(resultingSpec.schemes).not.toBeDefined();
             });

@@ -57,25 +57,22 @@ const changeTypeMapper: ChangeTypeMapper = {
     N: () => 'add'
 };
 
-const isEdit = (entry: IDiff): boolean => {
-    return entry.kind === 'E';
-};
-
 const isInfoChange = (entry: IDiff): boolean => {
-    return isEdit(entry) && isInfoObject(entry) && !utils.isXProperty(entry.path[1]);
+    return isInfoObject(entry) && !utils.isXProperty(entry.path[1]);
 };
 
 const isInfoObject = (entry: IDiff): boolean => {
     return entry.path[0] === 'info';
 };
 
+const topLevelPropertyNames: string[] = [
+    'basePath',
+    'host',
+    'openapi',
+    'schemes'
+];
+
 const isTopLevelProperty = (entry: IDiff): boolean => {
-    const topLevelPropertyNames: string[] = [
-        'basePath',
-        'host',
-        'openapi',
-        'schemes'
-    ];
     return _.includes(topLevelPropertyNames, entry.path[0]);
 };
 
@@ -97,23 +94,11 @@ const findChangeSeverity = (taxonomy: DiffChangeTaxonomy): DiffChangeSeverity =>
 };
 
 const getChangeDiffValue = (change: IDiff, property: 'lhs' | 'rhs'): any => {
-    if (_.isUndefined(change[property])) {
-        if (_.isUndefined(change.item) || _.isUndefined(change.item[property])) {
-            return null;
-        } else {
-            return change.item[property];
-        }
-    } else {
-        return change[property];
-    }
+    return change[property] || _.get(change, `item.${property}`, null);
 };
 
 const getChangeNullableProperties = (changeProperty: any): any => {
-    if (_.isUndefined(changeProperty)) {
-        return null;
-    } else {
-        return changeProperty;
-    }
+    return !_.isUndefined(changeProperty) ? changeProperty : null;
 };
 
 const getChangeScope = (change: IDiff): string => {
