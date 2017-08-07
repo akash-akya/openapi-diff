@@ -54,8 +54,8 @@ describe('specDiffer', () => {
         it('should copy the rest of the individual diff attributes across', () => {
             expect(results[0].lhs).toEqual('x value');
             expect(results[0].rhs).toEqual('NEW x value');
-            expect(results[0].index).toBeNull();
-            expect(results[0].item).toBeNull();
+            expect(results[0].index).toBeUndefined();
+            expect(results[0].item).toBeUndefined();
             expect(results[0].kind).toEqual('E');
         });
     });
@@ -119,8 +119,8 @@ describe('specDiffer', () => {
         it('should copy the rest of the individual diff attributes across', () => {
             expect(results[0].lhs).toEqual('x value');
             expect(results[0].rhs).toEqual('NEW x value');
-            expect(results[0].index).toBeNull();
-            expect(results[0].item).toBeNull();
+            expect(results[0].index).toBeUndefined();
+            expect(results[0].item).toBeUndefined();
             expect(results[0].kind).toEqual('E');
         });
     });

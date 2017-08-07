@@ -56,8 +56,8 @@ describe('specDiffer', () => {
         it('should copy the rest of the individual diff attributes across', () => {
             expect(results[0].lhs).toBe('schema');
             expect(results[0].rhs).toEqual('secure schema');
-            expect(results[0].index).toBeNull();
-            expect(results[0].item).toBeNull();
+            expect(results[0].index).toBeUndefined();
+            expect(results[0].item).toBeUndefined();
             expect(results[0].kind).toEqual('E');
         });
     });
@@ -72,7 +72,7 @@ describe('specDiffer', () => {
         });
 
         it('should classify the addition of an element in the schemes property content as non-breaking', () => {
-            expect(results.length).toEqual(1);
+            expect(results.length).toEqual(1, 'results.length');
             expect(results[0].severity).toEqual('non-breaking');
         });
 
@@ -168,8 +168,8 @@ describe('specDiffer', () => {
         it('should copy the rest of the individual diff attributes across', () => {
             expect(results[0].lhs).toBeNull();
             expect(results[0].rhs).toEqual(['NEW schema']);
-            expect(results[0].index).toBeNull();
-            expect(results[0].item).toBeNull();
+            expect(results[0].index).toBeUndefined();
+            expect(results[0].item).toBeUndefined();
             expect(results[0].kind).toEqual('N');
         });
     });
@@ -204,10 +204,20 @@ describe('specDiffer', () => {
         it('should copy the rest of the individual diff attributes across', () => {
             expect(results[0].lhs).toEqual(['schema']);
             expect(results[0].rhs).toBeNull();
-            expect(results[0].index).toBeNull();
-            expect(results[0].item).toBeNull();
+            expect(results[0].index).toBeUndefined();
+            expect(results[0].item).toBeUndefined();
             expect(results[0].kind).toEqual('D');
         });
+    });
+
+    xit('should classify the addition of a scheme as non-breaking', () => {
+        const oldParsedSpec = buildParsedSpecWithoutSchemesProperty();
+        oldParsedSpec.schemes = ['https'];
+        const newParsedSpec = buildParsedSpecWithoutSchemesProperty();
+        newParsedSpec.schemes = ['http', 'https'];
+        results = specDiffer.diff(oldParsedSpec, newParsedSpec);
+
+        expect(results).toEqual(jasmine.objectContaining({severity: 'non-breaking'}));
     });
 
     describe('when there are multiple changes in the schemes property content', () => {
@@ -242,8 +252,8 @@ describe('specDiffer', () => {
         it('should copy the rest of the individual diff attributes across', () => {
             expect(results[0].lhs).toBe('schema two');
             expect(results[0].rhs).toEqual('three');
-            expect(results[0].index).toBeNull();
-            expect(results[0].item).toBeNull();
+            expect(results[0].index).toBeUndefined();
+            expect(results[0].item).toBeUndefined();
             expect(results[0].kind).toEqual('E');
         });
 
@@ -266,8 +276,8 @@ describe('specDiffer', () => {
         it('should copy the rest of the individual diff attributes across', () => {
             expect(results[1].lhs).toBe('schema three');
             expect(results[1].rhs).toEqual('schema four');
-            expect(results[1].index).toBeNull();
-            expect(results[1].item).toBeNull();
+            expect(results[1].index).toBeUndefined();
+            expect(results[1].item).toBeUndefined();
             expect(results[1].kind).toEqual('E');
         });
 

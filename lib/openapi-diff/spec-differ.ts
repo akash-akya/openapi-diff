@@ -14,7 +14,7 @@ import {
     ParsedSpec
 } from './types';
 
-const processDiff = (parsedSpec: ParsedSpec, rawDiff: IDiff[] | undefined): DiffChange[] => {
+const legacyProcessDiff = (parsedSpec: ParsedSpec, rawDiff: IDiff[] | undefined): DiffChange[] => {
 
     const processedDiff: DiffChange[] = [];
 
@@ -26,8 +26,8 @@ const processDiff = (parsedSpec: ParsedSpec, rawDiff: IDiff[] | undefined): Diff
             const taxonomy = findChangeTaxonomy(type, scope);
 
             const processedEntry: DiffChange = {
-                index: getChangeNullableProperties(entry.index),
-                item: getChangeNullableProperties(entry.item),
+                index: entry.index,
+                item: entry.item,
                 kind: entry.kind,
                 lhs: getChangeDiffValue(entry, 'lhs'),
                 path: entry.path,
@@ -39,7 +39,12 @@ const processDiff = (parsedSpec: ParsedSpec, rawDiff: IDiff[] | undefined): Diff
                 type
             };
 
-            processedDiff.push(processedEntry);
+            const ignoredTaxonomies: string[] = [
+                'basePath.property.add'
+            ];
+            if (ignoredTaxonomies.indexOf(taxonomy) === -1) {
+               processedDiff.push(processedEntry);
+            }
         }
     }
 
@@ -97,10 +102,6 @@ const getChangeDiffValue = (change: IDiff, property: 'lhs' | 'rhs'): any => {
     return change[property] || _.get(change, `item.${property}`, null);
 };
 
-const getChangeNullableProperties = (changeProperty: any): any => {
-    return !_.isUndefined(changeProperty) ? changeProperty : null;
-};
-
 const getChangeScope = (change: IDiff): string => {
     if (isInfoChange(change)) {
         return 'info.object';
@@ -138,11 +139,32 @@ const nonBreakingChanges: DiffChangeTaxonomy[] = [
     'schemes.property.arrayContent.add'
 ];
 
+const processDiff = (oldParsedSpec: ParsedSpec, newParsedSpec: ParsedSpec): DiffChange[] => {
+    const basePathAdded: boolean = _.isUndefined(oldParsedSpec.basePath) && !!newParsedSpec.basePath;
+
+    if (basePathAdded) {
+        return [{
+            kind: 'N',
+            lhs: null,
+            path: ['basePath'],
+            printablePath: ['basePath'],
+            rhs: newParsedSpec.basePath,
+            scope: 'basePath.property',
+            severity: 'breaking',
+            taxonomy: 'basePath.property.add',
+            type: 'add'
+        }];
+    }
+
+    return [];
+};
+
 export default {
     diff: (oldParsedSpec: ParsedSpec,
            newParsedSpec: ParsedSpec): DiffChange[] => {
         const rawDiff: IDiff[] = deepDiff.diff(oldParsedSpec, newParsedSpec);
-        const processedDiff: DiffChange[] = processDiff(oldParsedSpec, rawDiff);
-        return processedDiff;
+        const legacyProcessedDiff: DiffChange[] = legacyProcessDiff(oldParsedSpec, rawDiff);
+        const processedDiff = processDiff(oldParsedSpec, newParsedSpec);
+        return legacyProcessedDiff.concat(processedDiff);
     }
 };

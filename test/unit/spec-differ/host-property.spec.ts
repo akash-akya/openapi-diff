@@ -55,8 +55,8 @@ describe('specDiffer', () => {
         it('should copy the rest of the individual diff attributes across', () => {
             expect(results[0].lhs).toEqual('host info');
             expect(results[0].rhs).toEqual('NEW host info');
-            expect(results[0].index).toBeNull();
-            expect(results[0].item).toBeNull();
+            expect(results[0].index).toBeUndefined();
+            expect(results[0].item).toBeUndefined();
             expect(results[0].kind).toEqual('E');
         });
     });
@@ -92,8 +92,8 @@ describe('specDiffer', () => {
         it('should copy the rest of the individual diff attributes across', () => {
             expect(results[0].lhs).toBeNull();
             expect(results[0].rhs).toEqual('NEW host info');
-            expect(results[0].index).toBeNull();
-            expect(results[0].item).toBeNull();
+            expect(results[0].index).toBeUndefined();
+            expect(results[0].item).toBeUndefined();
             expect(results[0].kind).toEqual('N');
         });
     });
@@ -129,8 +129,8 @@ describe('specDiffer', () => {
         it('should copy the rest of the individual diff attributes across', () => {
             expect(results[0].lhs).toEqual('OLD host info');
             expect(results[0].rhs).toBeNull();
-            expect(results[0].index).toBeNull();
-            expect(results[0].item).toBeNull();
+            expect(results[0].index).toBeUndefined();
+            expect(results[0].item).toBeUndefined();
             expect(results[0].kind).toEqual('D');
         });
     });

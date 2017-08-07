@@ -55,8 +55,8 @@ describe('specDiffer', () => {
         it('should copy the rest of the individual diff attributes across', () => {
             expect(result[0].lhs).toEqual('basePath info');
             expect(result[0].rhs).toEqual('NEW basePath info');
-            expect(result[0].index).toBeNull();
-            expect(result[0].item).toBeNull();
+            expect(result[0].index).toBeUndefined();
+            expect(result[0].item).toBeUndefined();
             expect(result[0].kind).toEqual('E');
         });
     });
@@ -92,8 +92,8 @@ describe('specDiffer', () => {
         it('should copy the rest of the individual diff attributes across', () => {
             expect(result[0].lhs).toBeNull();
             expect(result[0].rhs).toEqual('NEW basePath info');
-            expect(result[0].index).toBeNull();
-            expect(result[0].item).toBeNull();
+            expect(result[0].index).toBeUndefined();
+            expect(result[0].item).toBeUndefined();
             expect(result[0].kind).toEqual('N');
         });
     });
@@ -129,8 +129,8 @@ describe('specDiffer', () => {
         it('should copy the rest of the individual diff attributes across', () => {
             expect(result[0].lhs).toEqual('OLD basePath info');
             expect(result[0].rhs).toBeNull();
-            expect(result[0].index).toBeNull();
-            expect(result[0].item).toBeNull();
+            expect(result[0].index).toBeUndefined();
+            expect(result[0].item).toBeUndefined();
             expect(result[0].kind).toEqual('D');
         });
     });
