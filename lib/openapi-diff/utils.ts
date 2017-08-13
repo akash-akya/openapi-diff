@@ -6,7 +6,7 @@ export default {
     findOriginalPath: (parsedSpec: ParsedSpec, parsedPath: string[]): string[] => {
         const parsedPathCopy = _.cloneDeep(parsedPath);
 
-        if (_.last(parsedPathCopy) === 'parsedValue') {
+        if (_.last(parsedPathCopy) === 'value') {
             parsedPathCopy.pop();
         }
 
@@ -15,10 +15,6 @@ export default {
         return _.has(parsedSpec, [parsedPathString, 'originalPath']) ?
                parsedSpec[parsedPathString].originalPath :
                parsedPath;
-    },
-    isOptionalProperty: (propertyPath: string): boolean => {
-        const optionalPropertyNames: string[] = ['basePath', 'host', 'schemes'];
-        return _.includes(optionalPropertyNames, propertyPath);
     },
     isXProperty: (propertyPath: string): boolean => {
         return propertyPath.startsWith('x-');

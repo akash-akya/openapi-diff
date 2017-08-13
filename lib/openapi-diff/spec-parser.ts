@@ -2,66 +2,108 @@ import * as _ from 'lodash';
 
 import utils from './utils';
 
-import { OpenAPIObject } from 'openapi3-ts';
-import { Spec } from 'swagger-schema-official';
+import {OpenAPIObject as OpenApi3} from 'openapi3-ts';
+import {Spec as Swagger2} from 'swagger-schema-official';
 
 import {
     GenericProperty,
     ParsedInfoObject,
-    ParsedOpenApiProperty,
-    ParsedSpec
+    ParsedSpec,
+    ParsedTopLevelArrayMember
 } from './types';
 
-const parseInfoObject = (spec: Spec | OpenAPIObject): ParsedInfoObject => {
+const parseInfoObject = (spec: Swagger2 | OpenApi3): ParsedInfoObject => {
     return spec.info;
 };
 
-const parseOpenApiProperty = (spec: Spec | OpenAPIObject): ParsedOpenApiProperty => {
-    let originalPath: string[];
-    let parsedValue: string;
-
-    if (_.has(spec, 'swagger')) {
-        originalPath = ['swagger'];
-        parsedValue = (spec as Spec).swagger;
-    } else {
-        originalPath = ['openapi'];
-        parsedValue = (spec as OpenAPIObject).openapi;
-    }
-
-    return {originalPath, parsedValue};
-};
-
-const parseTopLevelProperties = (spec: Spec | OpenAPIObject): GenericProperty[] => {
+const parseTopLevelXProperties = (spec: Swagger2 | OpenApi3): GenericProperty[] => {
     const topLevelPropertiesArray: GenericProperty[] = [];
     _.forIn(spec, (value, key) => {
-        if (utils.isXProperty(key) || utils.isOptionalProperty(key)) {
+        if (utils.isXProperty(key)) {
             topLevelPropertiesArray.push({key, value});
         }
     });
     return topLevelPropertiesArray;
 };
 
-const sortSpecArrays = (spec: Spec | OpenAPIObject): Spec | OpenAPIObject => {
-    if (_.has(spec, 'schemes')) {
-        (spec as Spec).schemes = _.sortBy((spec as Spec).schemes);
+const parseTopLevelArrayProperties = (arrayName: string, inputArray: string[]): ParsedTopLevelArrayMember[] => {
+
+    const parsedSchemesArray: ParsedTopLevelArrayMember[] = [];
+
+    if (inputArray.length) {
+        inputArray.forEach((value, index) => {
+            parsedSchemesArray.push({
+                originalPath: [arrayName, index.toString()],
+                value
+            });
+        });
     }
 
-    return spec;
+    return parsedSchemesArray;
+};
+
+const parseSwagger2Spec = (swagger2Spec: Swagger2): ParsedSpec => {
+    const parsedSpec: ParsedSpec = {
+        basePath: {
+            originalPath: ['basePath'],
+            value: swagger2Spec.basePath
+        },
+        host: {
+            originalPath: ['host'],
+            value: swagger2Spec.host
+        },
+        info: parseInfoObject(swagger2Spec),
+        openapi: {
+            originalPath: ['swagger'],
+            value: swagger2Spec.swagger
+        },
+        schemes: {
+            originalPath: ['schemes'],
+            value: swagger2Spec.schemes ? parseTopLevelArrayProperties('schemes', swagger2Spec.schemes) : undefined
+        }
+    };
+
+    for (const entry of parseTopLevelXProperties(swagger2Spec)) {
+        _.set(parsedSpec, entry.key, {originalPath: [ entry.key ], value: entry.value});
+    }
+
+    return parsedSpec;
+};
+
+const parseOpenApi3Spec = (openApi3Spec: OpenApi3): ParsedSpec => {
+    const parsedSpec: ParsedSpec = {
+        basePath: {
+            originalPath: ['basePath'],
+            value: undefined
+        },
+        host: {
+            originalPath: ['host'],
+            value: undefined
+        },
+        info: parseInfoObject(openApi3Spec),
+        openapi: {
+            originalPath: ['openapi'],
+            value: openApi3Spec.openapi
+        },
+        schemes: {
+            originalPath: ['schemes'],
+            value: undefined
+        }
+    };
+
+    for (const entry of parseTopLevelXProperties(openApi3Spec)) {
+        _.set(parsedSpec, entry.key, {originalPath: [ entry.key ], value: entry.value});
+    }
+
+    return parsedSpec;
+};
+
+const isSwagger2 = (spec: Swagger2 | OpenApi3): boolean => {
+    return !!(spec as Swagger2).swagger;
 };
 
 export default {
-    parse: (spec: Spec | OpenAPIObject): ParsedSpec => {
-        const sortedSpec = sortSpecArrays(spec);
-
-        const parsedSpec: ParsedSpec = {
-            info: parseInfoObject(sortedSpec),
-            openapi: parseOpenApiProperty(sortedSpec)
-        };
-
-        for (const entry of parseTopLevelProperties(sortedSpec)) {
-            _.set(parsedSpec, entry.key, entry.value);
-        }
-
-        return parsedSpec;
+    parse: (spec: Swagger2 | OpenApi3): ParsedSpec => {
+        return isSwagger2(spec) ? parseSwagger2Spec(spec as Swagger2) : parseOpenApi3Spec(spec as OpenApi3);
     }
 };

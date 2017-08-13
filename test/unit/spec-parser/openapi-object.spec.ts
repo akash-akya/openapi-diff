@@ -1,7 +1,7 @@
 import specParser from '../../../lib/openapi-diff/spec-parser';
 
-import { OpenAPIObject } from 'openapi3-ts';
-import { Spec } from 'swagger-schema-official';
+import { OpenAPIObject as OpenApi3 } from 'openapi3-ts';
+import { Spec as Swagger2 } from 'swagger-schema-official';
 
 import { ParsedSpec } from '../../../lib/openapi-diff/types';
 
@@ -9,7 +9,7 @@ let resultingSpec: ParsedSpec;
 
 describe('specParser, with regards to the swagger/openapi object,', () => {
 
-    const buildSimpleSwagger2Spec = (): Spec => {
+    const buildSimpleSwagger2Spec = (): Swagger2 => {
         const spec = {
             info: {
                 title: 'spec title',
@@ -21,7 +21,7 @@ describe('specParser, with regards to the swagger/openapi object,', () => {
         return spec;
     };
 
-    const buildSimpleOpenApi3Spec = (): OpenAPIObject => {
+    const buildSimpleOpenApi3Spec = (): OpenApi3 => {
         const spec = {
             components: {
                 callbacks: {},
@@ -57,7 +57,7 @@ describe('specParser, with regards to the swagger/openapi object,', () => {
         });
 
         it('should generate a parsed spec copying across the value of the swagger property', () => {
-            expect(resultingSpec.openapi.parsedValue).toEqual('2.0');
+            expect(resultingSpec.openapi.value).toEqual('2.0');
         });
 
         it('should generate a parsed spec preserving the original path of the swagger property', () => {
@@ -77,7 +77,7 @@ describe('specParser, with regards to the swagger/openapi object,', () => {
         });
 
         it('should generate a parsed spec copying across the value of the openapi property', () => {
-            expect(resultingSpec.openapi.parsedValue).toEqual('3.0.0');
+            expect(resultingSpec.openapi.value).toEqual('3.0.0');
         });
 
         it('should generate a parsed spec preserving the original path of the openapi property', () => {

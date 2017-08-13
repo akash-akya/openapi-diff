@@ -7,14 +7,26 @@ let parsedSpec: ParsedSpec;
 describe('specParser, with regards to the find original path function,', () => {
 
     const buildSimpleParsedSwagger2Spec = (): ParsedSpec => {
-        const spec = {
+        const spec: ParsedSpec = {
+            basePath: {
+                originalPath: ['basePath'],
+                value: undefined
+            },
+            host: {
+                originalPath: ['host'],
+                value: undefined
+            },
             info: {
                 title: 'spec title',
                 version: 'spec version'
             },
             openapi: {
                 originalPath: ['swagger'],
-                parsedValue: '2.0'
+                value: '2.0'
+            },
+            schemes: {
+                originalPath: ['schemes'],
+                value: undefined
             },
             'x-external-id': 'x value'
         };
@@ -41,7 +53,7 @@ describe('specParser, with regards to the find original path function,', () => {
     describe('when the original content has an originalPath property', () => {
 
         it('should return the original path for a top level element', () => {
-            const result = utils.findOriginalPath(parsedSpec, ['openapi', 'parsedValue']);
+            const result = utils.findOriginalPath(parsedSpec, ['openapi', 'value']);
             expect(result).toEqual(['swagger']);
         });
     });

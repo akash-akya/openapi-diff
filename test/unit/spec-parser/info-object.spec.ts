@@ -1,6 +1,6 @@
 import specParser from '../../../lib/openapi-diff/spec-parser';
 
-import { OpenAPIObject } from 'openapi3-ts';
+import { OpenAPIObject as OpenApi3 } from 'openapi3-ts';
 
 import { ParsedSpec } from '../../../lib/openapi-diff/types';
 
@@ -8,7 +8,7 @@ let resultingSpec: ParsedSpec;
 
 describe('specParser, with regards to the info object,', () => {
 
-    const buildSimpleOpenApi3Spec = (): OpenAPIObject => {
+    const buildSimpleOpenApi3Spec = (): OpenApi3 => {
         const spec = {
             components: {
                 callbacks: {},
@@ -32,7 +32,7 @@ describe('specParser, with regards to the info object,', () => {
         return spec;
     };
 
-    const buildOpenApi3SpecWithCompleteInfoObject = (): OpenAPIObject => {
+    const buildOpenApi3SpecWithCompleteInfoObject = (): OpenApi3 => {
         const spec = {
             components: {
                 callbacks: {},

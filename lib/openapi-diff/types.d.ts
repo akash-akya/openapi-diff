@@ -3,15 +3,17 @@
 import IDiff = deepDiff.IDiff;
 import * as q from 'q';
 
-export interface DiffChange extends IDiff {
-    severity: DiffChangeSeverity;
+export interface DiffEntry {
+    oldValue?: any;
+    newValue?: any;
     printablePath: string[];
     scope: string;
-    taxonomy: DiffChangeTaxonomy;
-    type: DiffChangeType;
+    severity: DiffEntrySeverity;
+    taxonomy: DiffEntryTaxonomy;
+    type: DiffEntryType;
 }
 
-export type DiffChangeTaxonomy =
+export type DiffEntryTaxonomy =
     'basePath.property.add' |
     'basePath.property.delete' |
     'basePath.property.edit' |
@@ -27,7 +29,7 @@ export type DiffChangeTaxonomy =
     'schemes.property.delete' |
     'unclassified.change';
 
-export type DiffChangeType =
+export type DiffEntryType =
     'add' |
     'arrayContent.add' |
     'arrayContent.delete' |
@@ -35,7 +37,7 @@ export type DiffChangeType =
     'edit' |
     'unknown';
 
-export type DiffChangeSeverity =
+export type DiffEntrySeverity =
     'breaking' |
     'non-breaking' |
     'unclassified';
@@ -63,17 +65,27 @@ export interface ParsedLicenseObject {
     url?: string;
 }
 
-export interface ParsedOpenApiProperty {
+export interface ParsedTopLevelProperty {
     originalPath: string[];
-    parsedValue: string;
+    value?: string;
+}
+
+export interface ParsedTopLevelArrayProperty {
+    originalPath: string[];
+    value?: ParsedTopLevelArrayMember[];
+}
+
+export interface ParsedTopLevelArrayMember {
+    originalPath: string[];
+    value: string;
 }
 
 export interface ParsedSpec {
-    basePath?: string;
-    host?: string;
+    basePath: ParsedTopLevelProperty;
+    host: ParsedTopLevelProperty;
     info: ParsedInfoObject;
-    openapi: ParsedOpenApiProperty;
-    schemes?: string[];
+    openapi: ParsedTopLevelProperty;
+    schemes: ParsedTopLevelArrayProperty;
     [xProperty: string]: any;
 }
 
@@ -86,13 +98,13 @@ export interface ResultObject {
 
 // Various other types
 export interface ChangeTypeMapper {
-    D: (change: IDiff) => DiffChangeType;
-    E: (change: IDiff) => DiffChangeType;
-    N: (change: IDiff) => DiffChangeType;
-    A: (change: IDiff) => DiffChangeType;
-    'A.N': (change: IDiff) => DiffChangeType;
-    'A.D': (change: IDiff) => DiffChangeType;
-    [key: string]: (change: IDiff) => DiffChangeType;
+    D: (change: IDiff) => DiffEntryType;
+    E: (change: IDiff) => DiffEntryType;
+    N: (change: IDiff) => DiffEntryType;
+    A: (change: IDiff) => DiffEntryType;
+    'A.N': (change: IDiff) => DiffEntryType;
+    'A.D': (change: IDiff) => DiffEntryType;
+    [key: string]: (change: IDiff) => DiffEntryType;
 }
 
 export interface FileSystem {

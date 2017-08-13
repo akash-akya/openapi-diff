@@ -1,16 +1,23 @@
 import specDiffer from '../../../lib/openapi-diff/spec-differ';
 
 import {
-    DiffChange,
     ParsedSpec
 } from '../../../lib/openapi-diff/types';
 
-let results: DiffChange[];
+let results: any[];
 
 describe('specDiffer', () => {
 
     const buildParsedSpecWithFullInfoObject = (): ParsedSpec => {
-        const spec = {
+        const spec: ParsedSpec = {
+            basePath: {
+                originalPath: ['basePath'],
+                value: undefined
+            },
+            host: {
+                originalPath: ['host'],
+                value: undefined
+            },
             info: {
                 contact: {
                     email: 'contact email',
@@ -28,7 +35,11 @@ describe('specDiffer', () => {
             },
             openapi: {
                 originalPath: ['openapi'],
-                parsedValue: '3.0.0'
+                value: '3.0.0'
+            },
+            schemes: {
+                originalPath: ['schemes'],
+                value: undefined
             }
         };
         return spec;

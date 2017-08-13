@@ -1,137 +1,65 @@
 import specDiffer from '../../../lib/openapi-diff/spec-differ';
-
-import {
-    DiffChange,
-    ParsedSpec
-} from '../../../lib/openapi-diff/types';
-
-let results: DiffChange[];
+import parsedSpecBuilder from '../support/parsed-spec-builder';
 
 describe('specDiffer', () => {
 
-    const buildParsedSpecWithoutHostProperty = (): ParsedSpec => {
-        const spec = {
-            info: {
-                title: 'spec title',
-                version: 'version'
-            },
-            openapi: {
-                originalPath: ['swagger'],
-                parsedValue: '2.0'
-            }
-        };
-        return spec;
-    };
-
     describe('when there is an edition in the host property', () => {
 
-        beforeEach(() => {
-            const oldParsedSpec = buildParsedSpecWithoutHostProperty();
-            oldParsedSpec.host = 'host info';
-            const newParsedSpec = buildParsedSpecWithoutHostProperty();
-            newParsedSpec.host = 'NEW host info';
-            results = specDiffer.diff(oldParsedSpec, newParsedSpec);
-        });
+        const oldParsedSpec = parsedSpecBuilder.withHost('host info').build();
+        const newParsedSpec = parsedSpecBuilder.withHost('NEW host info').build();
+        const result = specDiffer.diff(oldParsedSpec, newParsedSpec);
 
-        it('should classify the edition in the host property as breaking', () => {
-            expect(results.length).toEqual(1);
-            expect(results[0].severity).toEqual('breaking');
-        });
-
-        it('should locate the scope of the change in the host property', () => {
-            expect(results[0].scope).toEqual('host.property');
-        });
-
-        it('should populate the taxonomy and type of a change in the host property as an edition in it', () => {
-            expect(results[0].taxonomy).toEqual('host.property.edit');
-            expect(results[0].type).toEqual('edit');
-        });
-
-        it('should populate the paths of a single change in the host property correctly', () => {
-            expect(results[0].path[0]).toEqual('host');
-            expect(results[0].printablePath[0]).toEqual('host');
-        });
-
-        it('should copy the rest of the individual diff attributes across', () => {
-            expect(results[0].lhs).toEqual('host info');
-            expect(results[0].rhs).toEqual('NEW host info');
-            expect(results[0].index).toBeUndefined();
-            expect(results[0].item).toBeUndefined();
-            expect(results[0].kind).toEqual('E');
+        it('should classify the change as a breaking edition in the host property', () => {
+            expect(result.length).toEqual(1);
+            expect(result[0]).toEqual({
+               newValue: 'NEW host info',
+               oldValue: 'host info',
+               printablePath: ['host'],
+               scope: 'host.property',
+               severity: 'breaking',
+               taxonomy: 'host.property.edit',
+               type: 'edit'
+           });
         });
     });
 
     describe('when the host property is added in the new spec', () => {
 
-        beforeEach(() => {
-            const oldParsedSpec = buildParsedSpecWithoutHostProperty();
-            const newParsedSpec = buildParsedSpecWithoutHostProperty();
-            newParsedSpec.host = 'NEW host info';
-            results = specDiffer.diff(oldParsedSpec, newParsedSpec);
-        });
+        const oldParsedSpec = parsedSpecBuilder.withNoHost().build();
+        const newParsedSpec = parsedSpecBuilder.withHost('NEW host info').build();
+        const result = specDiffer.diff(oldParsedSpec, newParsedSpec);
 
-        it('should classify the addition of the host property as breaking', () => {
-            expect(results.length).toEqual(1);
-            expect(results[0].severity).toEqual('breaking');
-        });
-
-        it('should locate the scope of the change in the host property', () => {
-            expect(results[0].scope).toEqual('host.property');
-        });
-
-        it('should populate the taxonomy and type of a new host property as an addition', () => {
-            expect(results[0].taxonomy).toEqual('host.property.add');
-            expect(results[0].type).toEqual('add');
-        });
-
-        it('should populate the paths of an added host property correctly', () => {
-            expect(results[0].path[0]).toEqual('host');
-            expect(results[0].printablePath[0]).toEqual('host');
-        });
-
-        it('should copy the rest of the individual diff attributes across', () => {
-            expect(results[0].lhs).toBeNull();
-            expect(results[0].rhs).toEqual('NEW host info');
-            expect(results[0].index).toBeUndefined();
-            expect(results[0].item).toBeUndefined();
-            expect(results[0].kind).toEqual('N');
+        it('should classify the change as a breaking addition of the host property', () => {
+            expect(result.length).toEqual(1);
+            expect(result[0]).toEqual({
+               newValue: 'NEW host info',
+               oldValue: undefined,
+               printablePath: ['host'],
+               scope: 'host.property',
+               severity: 'breaking',
+               taxonomy: 'host.property.add',
+               type: 'add'
+            });
         });
     });
 
     describe('when the host property is deleted in the new spec', () => {
 
-        beforeEach(() => {
-            const oldParsedSpec = buildParsedSpecWithoutHostProperty();
-            oldParsedSpec.host = 'OLD host info';
-            const newParsedSpec = buildParsedSpecWithoutHostProperty();
-            results = specDiffer.diff(oldParsedSpec, newParsedSpec);
-        });
+        const oldParsedSpec = parsedSpecBuilder.withHost('OLD host info').build();
+        const newParsedSpec = parsedSpecBuilder.withNoHost().build();
+        const result = specDiffer.diff(oldParsedSpec, newParsedSpec);
 
-        it('should classify the addition of the host property as breaking', () => {
-            expect(results.length).toEqual(1);
-            expect(results[0].severity).toEqual('breaking');
-        });
-
-        it('should locate the scope of the change in the host property', () => {
-            expect(results[0].scope).toEqual('host.property');
-        });
-
-        it('should populate the taxonomy and type of a new host property as a deletion', () => {
-            expect(results[0].taxonomy).toEqual('host.property.delete');
-            expect(results[0].type).toEqual('delete');
-        });
-
-        it('should populate the paths of an added host property correctly', () => {
-            expect(results[0].path[0]).toEqual('host');
-            expect(results[0].printablePath[0]).toEqual('host');
-        });
-
-        it('should copy the rest of the individual diff attributes across', () => {
-            expect(results[0].lhs).toEqual('OLD host info');
-            expect(results[0].rhs).toBeNull();
-            expect(results[0].index).toBeUndefined();
-            expect(results[0].item).toBeUndefined();
-            expect(results[0].kind).toEqual('D');
+        it('should classify the change as a breaking deletion of the host property', () => {
+            expect(result.length).toEqual(1);
+            expect(result[0]).toEqual({
+               newValue: undefined,
+               oldValue: 'OLD host info',
+               printablePath: ['host'],
+               scope: 'host.property',
+               severity: 'breaking',
+               taxonomy: 'host.property.delete',
+               type: 'delete'
+            });
         });
     });
 });

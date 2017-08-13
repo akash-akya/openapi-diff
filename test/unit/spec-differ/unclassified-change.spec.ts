@@ -1,24 +1,35 @@
 import specDiffer from '../../../lib/openapi-diff/spec-differ';
 import {
-    DiffChange,
     ParsedSpec
 } from '../../../lib/openapi-diff/types';
 
 describe('specDiffer', () => {
 
-    let results: DiffChange[];
+    let results: any[];
 
     describe('when there is a change in an ^x- property at the top level object', () => {
 
         const buildSimpleParsedSpecWithTopLevelXProperty = (): ParsedSpec => {
-            const spec = {
+            const spec: ParsedSpec = {
+                basePath: {
+                    originalPath: ['basePath'],
+                    value: undefined
+                },
+                host: {
+                    originalPath: ['host'],
+                    value: undefined
+                },
                 info: {
                     title: 'spec title',
                     version: 'version'
                 },
                 openapi: {
                     originalPath: ['openapi'],
-                    parsedValue: '3.0.0'
+                    value: '3.0.0'
+                },
+                schemes: {
+                    originalPath: ['schemes'],
+                    value: undefined
                 },
                 'x-external-id': 'x value'
             };
@@ -63,7 +74,15 @@ describe('specDiffer', () => {
     describe('when there is a change in an ^x- property in the info object', () => {
 
         const buildParsedSpecWithInfoLevelXProperty = (): ParsedSpec => {
-            const spec = {
+            const spec: ParsedSpec = {
+                basePath: {
+                    originalPath: ['basePath'],
+                    value: undefined
+                },
+                host: {
+                    originalPath: ['host'],
+                    value: undefined
+                },
                 info: {
                     contact: {
                         email: 'contact email',
@@ -82,7 +101,11 @@ describe('specDiffer', () => {
                 },
                 openapi: {
                     originalPath: ['openapi'],
-                    parsedValue: '3.0.0'
+                    value: '3.0.0'
+                },
+                schemes: {
+                    originalPath: ['schemes'],
+                    value: undefined
                 }
             };
             return spec;
