@@ -1,45 +1,26 @@
 import specDiffer from '../../../lib/openapi-diff/spec-differ';
-import {
-    ParsedSpec
-} from '../../../lib/openapi-diff/types';
+import {parsedSpecBuilder, parsedSpecInfoBuilder} from '../support/parsed-spec-builder';
 
 describe('specDiffer', () => {
 
     let results: any[];
 
     describe('when there is a change in an ^x- property at the top level object', () => {
-
-        const buildSimpleParsedSpecWithTopLevelXProperty = (): ParsedSpec => {
-            const spec: ParsedSpec = {
-                basePath: {
-                    originalPath: ['basePath'],
-                    value: undefined
-                },
-                host: {
-                    originalPath: ['host'],
-                    value: undefined
-                },
-                info: {
-                    title: 'spec title',
-                    version: 'version'
-                },
-                openapi: {
-                    originalPath: ['openapi'],
-                    value: '3.0.0'
-                },
-                schemes: {
-                    originalPath: ['schemes'],
-                    value: undefined
-                },
-                'x-external-id': 'x value'
-            };
-            return spec;
-        };
-
         beforeEach(() => {
-            const oldParsedSpec = buildSimpleParsedSpecWithTopLevelXProperty();
-            const newParsedSpec = buildSimpleParsedSpecWithTopLevelXProperty();
-            newParsedSpec['x-external-id'] = 'NEW x value';
+            const oldParsedSpec = parsedSpecBuilder
+                .withTopLevelXProperty({
+                    name: 'x-external-id',
+                    originalPath: ['x-external-id'],
+                    value: 'x value'
+                })
+                .build();
+            const newParsedSpec = parsedSpecBuilder
+                .withTopLevelXProperty({
+                    name: 'x-external-id',
+                    originalPath: ['x-external-id'],
+                    value: 'NEW x value'
+                })
+                .build();
             results = specDiffer.diff(oldParsedSpec, newParsedSpec);
         });
 
@@ -72,49 +53,13 @@ describe('specDiffer', () => {
     });
 
     describe('when there is a change in an ^x- property in the info object', () => {
-
-        const buildParsedSpecWithInfoLevelXProperty = (): ParsedSpec => {
-            const spec: ParsedSpec = {
-                basePath: {
-                    originalPath: ['basePath'],
-                    value: undefined
-                },
-                host: {
-                    originalPath: ['host'],
-                    value: undefined
-                },
-                info: {
-                    contact: {
-                        email: 'contact email',
-                        name: 'contact name',
-                        url: 'contact url'
-                    },
-                    description: 'spec description',
-                    licence: {
-                        name: 'licence name',
-                        url: 'licence url'
-                    },
-                    termsOfService: 'terms of service',
-                    title: 'spec title',
-                    version: 'version',
-                    'x-external-id': 'x value'
-                },
-                openapi: {
-                    originalPath: ['openapi'],
-                    value: '3.0.0'
-                },
-                schemes: {
-                    originalPath: ['schemes'],
-                    value: undefined
-                }
-            };
-            return spec;
-        };
-
         beforeEach(() => {
-            const oldParsedSpec = buildParsedSpecWithInfoLevelXProperty();
-            const newParsedSpec = buildParsedSpecWithInfoLevelXProperty();
-            newParsedSpec.info['x-external-id'] = 'NEW x value';
+            const oldParsedSpec = parsedSpecBuilder
+                .withInfoObject(parsedSpecInfoBuilder.withXProperty('x-external-id', 'x value'))
+                .build();
+            const newParsedSpec = parsedSpecBuilder
+                .withInfoObject(parsedSpecInfoBuilder.withXProperty('x-external-id', 'NEW x value'))
+                .build();
             results = specDiffer.diff(oldParsedSpec, newParsedSpec);
         });
 

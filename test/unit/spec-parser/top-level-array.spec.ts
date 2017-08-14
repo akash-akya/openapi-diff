@@ -1,6 +1,6 @@
 import specParser from '../../../lib/openapi-diff/spec-parser';
 import openApi3SpecBuilder from '../support/openapi3-spec-builder';
-import parsedSpecBuilder from '../support/parsed-spec-builder';
+import {parsedSpecBuilder} from '../support/parsed-spec-builder';
 import swagger2SpecBuilder from '../support/swagger2-spec-builder';
 
 describe('specParser, with regards to arrays in the top level object,', () => {
@@ -12,8 +12,10 @@ describe('specParser, with regards to arrays in the top level object,', () => {
             it('should generate a parsed spec with a parsed schemes array property and undefined value', () => {
 
                 const originalSpec = swagger2SpecBuilder.build();
-                const expectedResult = parsedSpecBuilder.withNoSchemes().build();
+
                 const actualResult = specParser.parse(originalSpec);
+
+                const expectedResult = parsedSpecBuilder.withNoSchemes().build();
                 expect(actualResult).toEqual(expectedResult);
             });
         });
@@ -23,7 +25,7 @@ describe('specParser, with regards to arrays in the top level object,', () => {
             describe('but it is empty', () => {
 
                 it('should generate a parsed spec with an empty schemes array property', () => {
-                    const originalSpec = swagger2SpecBuilder.withSchemes([]).build();
+                    const originalSpec = swagger2SpecBuilder.withEmptySchemes().build();
 
                     const actualResult = specParser.parse(originalSpec);
 
@@ -44,7 +46,9 @@ describe('specParser, with regards to arrays in the top level object,', () => {
                         originalPath: ['schemes', '0'],
                         value: 'http'
                     }]).build();
+
                     const actualResult = specParser.parse(originalSpec);
+
                     expect(actualResult).toEqual(expectedResult);
                 });
             });
@@ -67,7 +71,9 @@ describe('specParser, with regards to arrays in the top level object,', () => {
                         originalPath: ['schemes', '3'],
                         value: 'wss'
                     }]).build();
+
                     const actualResult = specParser.parse(originalSpec);
+
                     expect(actualResult).toEqual(expectedResult);
                 });
             });
@@ -79,8 +85,10 @@ describe('specParser, with regards to arrays in the top level object,', () => {
         it('should generate a parsed spec with a parsed schemes array property and undefined value', () => {
 
             const originalSpec = openApi3SpecBuilder.build();
-            const expectedResult = parsedSpecBuilder.withOpenApi(['openapi'], '3.0.0').build();
+            const expectedResult = parsedSpecBuilder.withOpenApi3().build();
+
             const actualResult = specParser.parse(originalSpec);
+
             expect(actualResult).toEqual(expectedResult);
         });
     });

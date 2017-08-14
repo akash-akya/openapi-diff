@@ -1,5 +1,5 @@
 import specDiffer from '../../../lib/openapi-diff/spec-differ';
-import parsedSpecBuilder from '../support/parsed-spec-builder';
+import {parsedSpecBuilder} from '../support/parsed-spec-builder';
 
 describe('specDiffer', () => {
 
@@ -9,6 +9,7 @@ describe('specDiffer', () => {
 
             const oldParsedSpec = parsedSpecBuilder.withOpenApi(['swagger'], '2.0').build();
             const newParsedSpec = parsedSpecBuilder.withOpenApi(['swagger'], '2.1').build();
+
             const result = specDiffer.diff(oldParsedSpec, newParsedSpec);
 
             it('should classify the change as a non-breaking edition in the openapi property', () => {
@@ -27,8 +28,9 @@ describe('specDiffer', () => {
 
         describe('from a OpenApi 3.0 spec', () => {
 
-            const oldParsedSpec = parsedSpecBuilder.withOpenApi(['openapi'], '3.0.0').build();
+            const oldParsedSpec = parsedSpecBuilder.withOpenApi3().build();
             const newParsedSpec = parsedSpecBuilder.withOpenApi(['openapi'], '3.0.1').build();
+
             const result = specDiffer.diff(oldParsedSpec, newParsedSpec);
 
             it('should classify the change as a non-breaking edition in the openapi property', () => {

@@ -1,17 +1,75 @@
 import * as _ from 'lodash';
-import {GenericProperty} from '../../../lib/openapi-diff/types';
+import { GenericProperty } from '../../../lib/openapi-diff/types';
 
-import {Spec as Swagger2} from 'swagger-schema-official';
+import { Spec as Swagger2 } from 'swagger-schema-official';
 
 export interface Swagger2SpecBuilder {
     build(): Swagger2;
     withBasePath(value: string): Swagger2SpecBuilder;
+    withCompleteInfoObject(): Swagger2SpecBuilder;
+    withEmptySchemes(): Swagger2SpecBuilder;
     withHost(value: string): Swagger2SpecBuilder;
     withSchemes(value: string[]): Swagger2SpecBuilder;
-    withTopLevelXProperties(properties: GenericProperty[] ): Swagger2SpecBuilder;
+    withTopLevelXProperty(property: GenericProperty): Swagger2SpecBuilder;
 }
 
-const swagger2Spec: Swagger2 = {
+const createSwagger2SpecBuilder = (swagger2Spec: Swagger2): Swagger2SpecBuilder => {
+    return {
+        build: () => {
+            return _.cloneDeep(swagger2Spec);
+        },
+        withBasePath: (value) => {
+            const copyOfSwagger2Spec = _.cloneDeep(swagger2Spec);
+            const copyOfValue = _.cloneDeep(value);
+            copyOfSwagger2Spec.basePath = copyOfValue;
+            return createSwagger2SpecBuilder(copyOfSwagger2Spec);
+        },
+        withCompleteInfoObject: () => {
+            const copyOfSwagger2Spec = _.cloneDeep(swagger2Spec);
+            copyOfSwagger2Spec.info = {
+                contact: {
+                    email: 'contact email',
+                    name: 'contact name',
+                    url: 'contact url'
+                },
+                description: 'spec description',
+                license: {
+                    name: 'license name',
+                    url: 'license url'
+                },
+                termsOfService: 'terms of service',
+                title: 'spec title',
+                version: 'version'
+            };
+            return createSwagger2SpecBuilder(copyOfSwagger2Spec);
+        },
+        withEmptySchemes: () => {
+            const copyOfSwagger2Spec = _.cloneDeep(swagger2Spec);
+            copyOfSwagger2Spec.schemes = [];
+            return createSwagger2SpecBuilder(copyOfSwagger2Spec);
+        },
+        withHost: (value) => {
+            const copyOfSwagger2Spec = _.cloneDeep(swagger2Spec);
+            const copyOfValue = _.cloneDeep(value);
+            copyOfSwagger2Spec.host = copyOfValue;
+            return createSwagger2SpecBuilder(copyOfSwagger2Spec);
+        },
+        withSchemes: (value) => {
+            const copyOfSwagger2Spec = _.cloneDeep(swagger2Spec);
+            const copyOfValue = _.cloneDeep(value);
+            copyOfSwagger2Spec.schemes = copyOfValue;
+            return createSwagger2SpecBuilder(copyOfSwagger2Spec);
+        },
+        withTopLevelXProperty: (property) => {
+            const copyOfSwagger2Spec = _.cloneDeep(swagger2Spec);
+            const copyOfProperty = _.cloneDeep(property);
+            _.set(copyOfSwagger2Spec, copyOfProperty.key, copyOfProperty.value);
+            return createSwagger2SpecBuilder(copyOfSwagger2Spec);
+        }
+    };
+};
+
+const defaultSwagger2Spec: Swagger2 = {
     info: {
         title: 'spec title',
         version: 'spec version'
@@ -20,34 +78,4 @@ const swagger2Spec: Swagger2 = {
     swagger: '2.0'
 };
 
-const swagger2SpecBuilder = (newSwagger2Spec?: Swagger2): Swagger2SpecBuilder => {
-    return {
-        build: () => {
-            return newSwagger2Spec || swagger2Spec;
-        },
-        withBasePath: (value) => {
-            const copyOfSwagger2Spec = _.cloneDeep(swagger2Spec);
-            copyOfSwagger2Spec.basePath = value;
-            return swagger2SpecBuilder(copyOfSwagger2Spec);
-        },
-        withHost: (value) => {
-            const copyOfSwagger2Spec = _.cloneDeep(swagger2Spec);
-            copyOfSwagger2Spec.host = value;
-            return swagger2SpecBuilder(copyOfSwagger2Spec);
-        },
-        withSchemes: (value) => {
-            const copyOfSwagger2Spec = _.cloneDeep(swagger2Spec);
-            copyOfSwagger2Spec.schemes = value;
-            return swagger2SpecBuilder(copyOfSwagger2Spec);
-        },
-        withTopLevelXProperties: (properties) => {
-            const copyOfSwagger2Spec = _.cloneDeep(swagger2Spec);
-            for (const property of properties) {
-                _.set(copyOfSwagger2Spec, property .key, property.value);
-            }
-            return swagger2SpecBuilder(copyOfSwagger2Spec);
-        }
-    };
-};
-
-export default swagger2SpecBuilder();
+export default createSwagger2SpecBuilder(defaultSwagger2Spec);

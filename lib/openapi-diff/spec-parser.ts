@@ -9,7 +9,7 @@ import {
     GenericProperty,
     ParsedInfoObject,
     ParsedSpec,
-    ParsedTopLevelArrayMember
+    ParsedTopLevelProperty
 } from './types';
 
 const parseInfoObject = (spec: Swagger2 | OpenApi3): ParsedInfoObject => {
@@ -26,9 +26,10 @@ const parseTopLevelXProperties = (spec: Swagger2 | OpenApi3): GenericProperty[] 
     return topLevelPropertiesArray;
 };
 
-const parseTopLevelArrayProperties = (arrayName: string, inputArray: string[]): ParsedTopLevelArrayMember[] => {
-
-    const parsedSchemesArray: ParsedTopLevelArrayMember[] = [];
+const parseTopLevelArrayProperties = (arrayName: string,
+                                      inputArray: string[]
+): Array<ParsedTopLevelProperty<string>> => {
+    const parsedSchemesArray: Array<ParsedTopLevelProperty<string>> = [];
 
     if (inputArray.length) {
         inputArray.forEach((value, index) => {

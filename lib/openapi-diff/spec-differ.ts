@@ -155,6 +155,10 @@ const nonBreakingChanges: DiffEntryTaxonomy[] = [
     'schemes.property.arrayContent.add'
 ];
 
+const findTopLevelXPropertiesInSpec = (parsedSpec: ParsedSpec): string[] => {
+    return _.filter(_.keys(parsedSpec), utils.isXProperty);
+};
+
 interface CreateDiffEntityOptions {
     oldObject: any;
     newObject: any;
@@ -323,7 +327,19 @@ const findDiffsInArray = (oldParsedSpec: ParsedSpec,
         arrayContentDeletionDiffs);
 };
 
+const findDiffsInCollectionOfProperties = (oldParsedSpec: ParsedSpec,
+                                           newParsedSpec: ParsedSpec,
+                                           properties: string[],
+                                           severity: DiffEntrySeverity): DiffEntry[] => {
+
+    const property = properties[0];
+    return findDiffsInProperty(oldParsedSpec, newParsedSpec, property, severity);
+};
+
 const findDiffsInSpecs = (oldParsedSpec: ParsedSpec, newParsedSpec: ParsedSpec): DiffEntry[] => {
+    const xProperties = _.uniq(_.concat(findTopLevelXPropertiesInSpec(oldParsedSpec),
+        findTopLevelXPropertiesInSpec(newParsedSpec)));
+
     const basePathDiffs = findDiffsInProperty(oldParsedSpec, newParsedSpec, 'basePath', 'breaking');
     const hostDiffs = findDiffsInProperty(oldParsedSpec, newParsedSpec, 'host', 'breaking');
     const openApiDiffs = findDiffsInProperty(oldParsedSpec, newParsedSpec, 'openapi', 'non-breaking');

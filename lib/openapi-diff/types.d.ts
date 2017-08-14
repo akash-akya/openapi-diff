@@ -55,7 +55,7 @@ export interface ParsedInfoObject {
     description?: string;
     termsOfService?: string;
     contact?: ParsedContactObject;
-    licence?: ParsedLicenseObject;
+    license?: ParsedLicenseObject;
     version?: string; // TODO: this is a bug in the OAS3 type definition
     [xProperty: string]: any;
 }
@@ -65,28 +65,18 @@ export interface ParsedLicenseObject {
     url?: string;
 }
 
-export interface ParsedTopLevelProperty {
+export interface ParsedTopLevelProperty<T> {
     originalPath: string[];
-    value?: string;
-}
-
-export interface ParsedTopLevelArrayProperty {
-    originalPath: string[];
-    value?: ParsedTopLevelArrayMember[];
-}
-
-export interface ParsedTopLevelArrayMember {
-    originalPath: string[];
-    value: string;
+    value?: T;
 }
 
 export interface ParsedSpec {
-    basePath: ParsedTopLevelProperty;
-    host: ParsedTopLevelProperty;
+    basePath: ParsedTopLevelProperty<string>;
+    host: ParsedTopLevelProperty<string>;
     info: ParsedInfoObject;
-    openapi: ParsedTopLevelProperty;
-    schemes: ParsedTopLevelArrayProperty;
-    [xProperty: string]: any;
+    openapi: ParsedTopLevelProperty<string>;
+    schemes: ParsedTopLevelProperty<Array<ParsedTopLevelProperty<string>>>;
+    [xProperty: string]: any; // TODO: why can't this be ParsedTopLevelProperty ?
 }
 
 // Result types
