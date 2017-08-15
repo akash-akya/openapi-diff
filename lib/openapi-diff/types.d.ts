@@ -27,7 +27,9 @@ export type DiffEntryTaxonomy =
     'schemes.property.arrayContent.delete' |
     'schemes.property.edit' |
     'schemes.property.delete' |
-    'unclassified.change';
+    'unclassified.add' |
+    'unclassified.delete' |
+    'unclassified.edit';
 
 export type DiffEntryType =
     'add' |
@@ -76,6 +78,7 @@ export interface ParsedSpec {
     info: ParsedInfoObject;
     openapi: ParsedTopLevelProperty<string>;
     schemes: ParsedTopLevelProperty<Array<ParsedTopLevelProperty<string>>>;
+    xProperties: {[name: string]: ParsedTopLevelProperty<any>};
     [xProperty: string]: any; // TODO: why can't this be ParsedTopLevelProperty ?
 }
 

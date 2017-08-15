@@ -7,8 +7,12 @@ describe('specDiffer', () => {
 
         it('should classify the change as a breaking edition in the host property', () => {
 
-            const oldParsedSpec = parsedSpecBuilder.withHost('host info').build();
-            const newParsedSpec = parsedSpecBuilder.withHost('NEW host info').build();
+            const oldParsedSpec = parsedSpecBuilder
+                .withHost('host info')
+                .build();
+            const newParsedSpec = parsedSpecBuilder
+                .withHost('NEW host info')
+                .build();
 
             const result = specDiffer.diff(oldParsedSpec, newParsedSpec);
 
@@ -29,8 +33,12 @@ describe('specDiffer', () => {
 
         it('should classify the change as a breaking addition of the host property', () => {
 
-            const oldParsedSpec = parsedSpecBuilder.withNoHost().build();
-            const newParsedSpec = parsedSpecBuilder.withHost('NEW host info').build();
+            const oldParsedSpec = parsedSpecBuilder
+                .withNoHost()
+                .build();
+            const newParsedSpec = parsedSpecBuilder
+                .withHost('NEW host info')
+                .build();
 
             const result = specDiffer.diff(oldParsedSpec, newParsedSpec);
 
@@ -51,8 +59,12 @@ describe('specDiffer', () => {
 
         it('should classify the change as a breaking deletion of the host property', () => {
 
-            const oldParsedSpec = parsedSpecBuilder.withHost('OLD host info').build();
-            const newParsedSpec = parsedSpecBuilder.withNoHost().build();
+            const oldParsedSpec = parsedSpecBuilder
+                .withHost('OLD host info')
+                .build();
+            const newParsedSpec = parsedSpecBuilder
+                .withNoHost()
+                .build();
 
             const result = specDiffer.diff(oldParsedSpec, newParsedSpec);
 

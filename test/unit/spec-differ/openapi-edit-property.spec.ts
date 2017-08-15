@@ -7,8 +7,12 @@ describe('specDiffer', () => {
 
         describe('from a Swagger 2.0 spec', () => {
 
-            const oldParsedSpec = parsedSpecBuilder.withOpenApi(['swagger'], '2.0').build();
-            const newParsedSpec = parsedSpecBuilder.withOpenApi(['swagger'], '2.1').build();
+            const oldParsedSpec = parsedSpecBuilder
+                .withSwagger2()
+                .build();
+            const newParsedSpec = parsedSpecBuilder
+                .withOpenApi(['swagger'], '2.1')
+                .build();
 
             const result = specDiffer.diff(oldParsedSpec, newParsedSpec);
 
@@ -28,8 +32,12 @@ describe('specDiffer', () => {
 
         describe('from a OpenApi 3.0 spec', () => {
 
-            const oldParsedSpec = parsedSpecBuilder.withOpenApi3().build();
-            const newParsedSpec = parsedSpecBuilder.withOpenApi(['openapi'], '3.0.1').build();
+            const oldParsedSpec = parsedSpecBuilder
+                .withOpenApi3()
+                .build();
+            const newParsedSpec = parsedSpecBuilder
+                .withOpenApi(['openapi'], '3.0.1')
+                .build();
 
             const result = specDiffer.diff(oldParsedSpec, newParsedSpec);
 

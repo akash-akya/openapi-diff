@@ -13,9 +13,13 @@ describe('specDiffer', () => {
 
         it('should classify the change as a non-breaking edition in the info property', () => {
 
-            const oldParsedSpec = parsedSpecBuilder.build();
+            const oldParsedSpec = parsedSpecBuilder
+                .withInfoObject(parsedSpecInfoBuilder
+                    .withTitle('spec title'))
+                .build();
             const newParsedSpec = parsedSpecBuilder
-                .withInfoObject(parsedSpecInfoBuilder.withTitle('NEW spec title'))
+                .withInfoObject(parsedSpecInfoBuilder
+                    .withTitle('NEW spec title'))
                 .build();
 
             const result = specDiffer.diff(oldParsedSpec, newParsedSpec);
@@ -37,12 +41,15 @@ describe('specDiffer', () => {
 
         it('should classify the change as a non-breaking edition in the info property', () => {
 
-            const oldParsedSpec = parsedSpecBuilder.build();
+            const oldParsedSpec = parsedSpecBuilder
+                .withInfoObject(parsedSpecInfoBuilder
+                    .withTitle('spec title')
+                    .withVersion('spec version'))
+                .build();
             const newParsedSpec = parsedSpecBuilder
                 .withInfoObject(parsedSpecInfoBuilder
                     .withTitle('NEW spec title')
-                    .withVersion('NEW spec version')
-                )
+                    .withVersion('NEW spec version'))
                 .build();
 
             const result = specDiffer.diff(oldParsedSpec, newParsedSpec);

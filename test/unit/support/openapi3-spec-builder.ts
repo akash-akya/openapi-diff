@@ -2,34 +2,36 @@ import * as _ from 'lodash';
 import {GenericProperty} from '../../../lib/openapi-diff/types';
 
 import {OpenAPIObject as OpenApi3} from 'openapi3-ts';
+import {
+    genericSpecInfoBuilder,
+    GenericSpecInfoBuilder
+} from './openapi-generic-spec-builder/openapi-generic-info-builder';
 
-export interface OpenApi3SpecBuilder {
-    build(): OpenApi3;
-    withBasicInfoObject(): OpenApi3SpecBuilder;
-    withTopLevelXProperty(property: GenericProperty): OpenApi3SpecBuilder;
+class OpenApi3SpecBuilder {
+    private openApi3Spec: OpenApi3;
+
+    constructor(openApi3Spec: OpenApi3) {
+        this.openApi3Spec = openApi3Spec;
+    }
+
+    public build(): OpenApi3 {
+        return _.cloneDeep(this.openApi3Spec);
+    }
+
+    public withInfoObject(builder: GenericSpecInfoBuilder) {
+        const copyOfOpenApi3Spec = _.cloneDeep(this.openApi3Spec);
+        copyOfOpenApi3Spec.info = builder.build();
+        return new OpenApi3SpecBuilder(copyOfOpenApi3Spec);
+    }
+
+    public withTopLevelXProperty(property: GenericProperty): OpenApi3SpecBuilder {
+        const copyOfOpenApi3Spec = _.cloneDeep(this.openApi3Spec);
+        const copyOfProperty = _.cloneDeep(property);
+        _.set(copyOfOpenApi3Spec, copyOfProperty.key, copyOfProperty.value);
+        return new OpenApi3SpecBuilder(copyOfOpenApi3Spec);
+    }
+
 }
-
-const createOpenApi3SpecBuilder = (openApi3Spec: OpenApi3): OpenApi3SpecBuilder => {
-    return {
-        build: () => {
-            return _.cloneDeep(openApi3Spec);
-        },
-        withBasicInfoObject: () => {
-            const copyOfOpenApi3Spec = _.cloneDeep(openApi3Spec);
-            copyOfOpenApi3Spec.info = {
-                title: 'spec title',
-                version: 'spec version'
-            };
-            return createOpenApi3SpecBuilder(copyOfOpenApi3Spec);
-        },
-        withTopLevelXProperty: (property) => {
-            const copyOfOpenApi3Spec = _.cloneDeep(openApi3Spec);
-            const copyOfProperty = _.cloneDeep(property);
-            _.set(copyOfOpenApi3Spec, copyOfProperty.key, copyOfProperty.value);
-            return createOpenApi3SpecBuilder(copyOfOpenApi3Spec);
-        }
-    };
-};
 
 const defaultOpenApi3Spec: OpenApi3 = {
     components: {
@@ -52,4 +54,6 @@ const defaultOpenApi3Spec: OpenApi3 = {
     paths: {}
 };
 
-export default createOpenApi3SpecBuilder(defaultOpenApi3Spec);
+export { genericSpecInfoBuilder };
+
+export const openApi3SpecBuilder = new OpenApi3SpecBuilder(defaultOpenApi3Spec);

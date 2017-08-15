@@ -7,8 +7,12 @@ describe('specDiffer', () => {
 
         it('should classify the change as a breaking edition in the basePath property', () => {
 
-            const oldParsedSpec = parsedSpecBuilder.withBasePath('basePath info').build();
-            const newParsedSpec = parsedSpecBuilder.withBasePath('NEW basePath info').build();
+            const oldParsedSpec = parsedSpecBuilder
+                .withBasePath('basePath info')
+                .build();
+            const newParsedSpec = parsedSpecBuilder
+                .withBasePath('NEW basePath info')
+                .build();
 
             const result = specDiffer.diff(oldParsedSpec, newParsedSpec);
 
@@ -29,8 +33,12 @@ describe('specDiffer', () => {
 
         it('should classify the change as a breaking addition of the basePath property', () => {
 
-            const oldParsedSpec = parsedSpecBuilder.withNoBasePath().build();
-            const newParsedSpec = parsedSpecBuilder.withBasePath('NEW basePath info').build();
+            const oldParsedSpec = parsedSpecBuilder
+                .withNoBasePath()
+                .build();
+            const newParsedSpec = parsedSpecBuilder
+                .withBasePath('NEW basePath info')
+                .build();
 
             const result = specDiffer.diff(oldParsedSpec, newParsedSpec);
 
@@ -51,8 +59,12 @@ describe('specDiffer', () => {
 
         it('should classify the change as a breaking deletion of the basePath property', () => {
 
-            const oldParsedSpec = parsedSpecBuilder.withBasePath('OLD basePath info').build();
-            const newParsedSpec = parsedSpecBuilder.withNoBasePath().build();
+            const oldParsedSpec = parsedSpecBuilder
+                .withBasePath('OLD basePath info')
+                .build();
+            const newParsedSpec = parsedSpecBuilder
+                .withNoBasePath()
+                .build();
 
             const result = specDiffer.diff(oldParsedSpec, newParsedSpec);
 

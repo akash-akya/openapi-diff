@@ -56,7 +56,8 @@ const legacyProcessDiff = (parsedSpec: ParsedSpec, rawDiff: IDiff[] | undefined)
                 'schemes.property.arrayContent.add',
                 'schemes.property.arrayContent.delete',
                 'schemes.property.delete',
-                'schemes.property.edit'
+                'schemes.property.edit',
+                'unclassified.change'
             ];
             if (ignoredTaxonomies.indexOf(taxonomy) === -1) {
                 processedDiff.push(processedEntry);
@@ -155,10 +156,6 @@ const nonBreakingChanges: DiffEntryTaxonomy[] = [
     'schemes.property.arrayContent.add'
 ];
 
-const findTopLevelXPropertiesInSpec = (parsedSpec: ParsedSpec): string[] => {
-    return _.filter(_.keys(parsedSpec), utils.isXProperty);
-};
-
 interface CreateDiffEntityOptions {
     oldObject: any;
     newObject: any;
@@ -167,14 +164,20 @@ interface CreateDiffEntityOptions {
     severity: DiffEntrySeverity;
 }
 
+const findScopeForDiff = (propertyName: string): string => {
+    return propertyName.includes('xProperties') ? 'unclassified' : `${propertyName}.property`;
+};
+
 const createDiffEntity = ({oldObject, newObject, propertyName, type, severity}: CreateDiffEntityOptions): DiffEntry => {
+    const scope = findScopeForDiff(propertyName);
+
     return {
         newValue: newObject ? newObject.value : undefined,
         oldValue: oldObject ? oldObject.value : undefined,
         printablePath: oldObject ? oldObject.originalPath : newObject.originalPath,
-        scope: `${propertyName}.property`,
+        scope,
         severity,
-        taxonomy: `${propertyName}.property.${type}` as DiffEntryTaxonomy,
+        taxonomy: `${scope}.${type}` as DiffEntryTaxonomy,
         type
     };
 };
@@ -183,7 +186,7 @@ const findAdditionDiffsInProperty = (oldObject: any,
                                      newObject: any,
                                      propertyName: string,
                                      severity: DiffEntrySeverity): DiffEntry[] => {
-    const isAddition = _.isUndefined(oldObject.value) && !!newObject.value;
+    const isAddition = (_.isUndefined(oldObject) || _.isUndefined(oldObject.value)) && !!newObject.value;
 
     if (isAddition) {
         return [createDiffEntity({newObject, oldObject, propertyName, severity, type: 'add'})];
@@ -196,7 +199,7 @@ const findDeletionDiffsInProperty = (oldObject: any,
                                      newObject: any,
                                      propertyName: string,
                                      severity: DiffEntrySeverity): DiffEntry[] => {
-    const isDeletion = !!oldObject.value && _.isUndefined(newObject.value);
+    const isDeletion = (!_.isUndefined(oldObject) && !!oldObject.value) && _.isUndefined(newObject.value);
 
     if (isDeletion) {
         return [createDiffEntity({newObject, oldObject, propertyName, severity, type: 'delete'})];
@@ -209,7 +212,7 @@ const findEditionDiffsInProperty = (oldObject: any,
                                     newObject: any,
                                     propertyName: string,
                                     severity: DiffEntrySeverity): DiffEntry[] => {
-    const isEdition = !!oldObject.value && !!newObject.value && (oldObject.value !== newObject.value);
+    const isEdition = (!_.isUndefined(oldObject) && !!oldObject.value) && !!newObject.value && (oldObject.value !== newObject.value);
 
     if (isEdition) {
         return [createDiffEntity({newObject, oldObject, propertyName, severity, type: 'edit'})];
@@ -222,8 +225,9 @@ const findDiffsInProperty = (oldParsedSpec: ParsedSpec,
                              newParsedSpec: ParsedSpec,
                              propertyName: string,
                              severity: DiffEntrySeverity): DiffEntry[] => {
-    const oldObject = oldParsedSpec[propertyName];
-    const newObject = newParsedSpec[propertyName];
+
+    const oldObject = _.get(oldParsedSpec, propertyName);
+    const newObject = _.get(newParsedSpec, propertyName);
 
     const additionDiffs: DiffEntry[] = findAdditionDiffsInProperty(oldObject, newObject, propertyName, severity);
     const deletionDiffs: DiffEntry[] = findDeletionDiffsInProperty(oldObject, newObject, propertyName, severity);
@@ -327,25 +331,28 @@ const findDiffsInArray = (oldParsedSpec: ParsedSpec,
         arrayContentDeletionDiffs);
 };
 
-const findDiffsInCollectionOfProperties = (oldParsedSpec: ParsedSpec,
-                                           newParsedSpec: ParsedSpec,
-                                           properties: string[],
-                                           severity: DiffEntrySeverity): DiffEntry[] => {
-
-    const property = properties[0];
-    return findDiffsInProperty(oldParsedSpec, newParsedSpec, property, severity);
-};
-
 const findDiffsInSpecs = (oldParsedSpec: ParsedSpec, newParsedSpec: ParsedSpec): DiffEntry[] => {
-    const xProperties = _.uniq(_.concat(findTopLevelXPropertiesInSpec(oldParsedSpec),
-        findTopLevelXPropertiesInSpec(newParsedSpec)));
+    const xPropertyUniqueNames = _.uniq(_.concat([],
+        _.keys(oldParsedSpec.xProperties),
+        _.keys(newParsedSpec.xProperties)));
 
     const basePathDiffs = findDiffsInProperty(oldParsedSpec, newParsedSpec, 'basePath', 'breaking');
     const hostDiffs = findDiffsInProperty(oldParsedSpec, newParsedSpec, 'host', 'breaking');
     const openApiDiffs = findDiffsInProperty(oldParsedSpec, newParsedSpec, 'openapi', 'non-breaking');
     const schemesDiffs = findDiffsInArray(oldParsedSpec, newParsedSpec, 'schemes');
 
-    return _.concat<DiffEntry>([], basePathDiffs, hostDiffs, openApiDiffs, schemesDiffs);
+    let xPropertyDiffs: DiffEntry[] = [];
+    for (const xPropertyName of xPropertyUniqueNames) {
+        const newDiffs = findDiffsInProperty(
+            oldParsedSpec,
+            newParsedSpec,
+            `xProperties.${xPropertyName}`,
+            'unclassified'
+        );
+        xPropertyDiffs = _.concat(xPropertyDiffs, _.flattenDeep(newDiffs));
+    }
+
+    return _.concat<DiffEntry>([], basePathDiffs, hostDiffs, openApiDiffs, schemesDiffs, xPropertyDiffs);
 };
 
 export default {

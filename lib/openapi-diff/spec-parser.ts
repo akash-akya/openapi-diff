@@ -61,11 +61,12 @@ const parseSwagger2Spec = (swagger2Spec: Swagger2): ParsedSpec => {
         schemes: {
             originalPath: ['schemes'],
             value: swagger2Spec.schemes ? parseTopLevelArrayProperties('schemes', swagger2Spec.schemes) : undefined
-        }
+        },
+        xProperties: {}
     };
 
     for (const entry of parseTopLevelXProperties(swagger2Spec)) {
-        _.set(parsedSpec, entry.key, {originalPath: [ entry.key ], value: entry.value});
+        _.set(parsedSpec.xProperties, entry.key, {originalPath: [ entry.key ], value: entry.value});
     }
 
     return parsedSpec;
@@ -89,11 +90,12 @@ const parseOpenApi3Spec = (openApi3Spec: OpenApi3): ParsedSpec => {
         schemes: {
             originalPath: ['schemes'],
             value: undefined
-        }
+        },
+        xProperties: {}
     };
 
     for (const entry of parseTopLevelXProperties(openApi3Spec)) {
-        _.set(parsedSpec, entry.key, {originalPath: [ entry.key ], value: entry.value});
+        _.set(parsedSpec.xProperties, entry.key, {originalPath: [ entry.key ], value: entry.value});
     }
 
     return parsedSpec;

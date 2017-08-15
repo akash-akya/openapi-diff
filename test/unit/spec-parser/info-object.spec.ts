@@ -1,9 +1,7 @@
 import specParser from '../../../lib/openapi-diff/spec-parser';
-import openApi3SpecBuilder from '../support/openapi3-spec-builder';
-import {parsedSpecBuilder, parsedSpecInfoBuilder} from '../support/parsed-spec-builder';
-import swagger2SpecBuilder from '../support/swagger2-spec-builder';
-
-import {OpenAPIObject as OpenApi3} from 'openapi3-ts';
+import { openApi3SpecBuilder } from '../support/openapi3-spec-builder';
+import { parsedSpecBuilder, parsedSpecInfoBuilder } from '../support/parsed-spec-builder';
+import { genericSpecInfoBuilder, swagger2SpecBuilder } from '../support/swagger2-spec-builder';
 
 describe('specParser, with regards to the info object,', () => {
 
@@ -13,12 +11,20 @@ describe('specParser, with regards to the info object,', () => {
 
             it('should generate a parsed spec copying across the info object properties and their values', () => {
 
-                const originalSpec = swagger2SpecBuilder.build();
+                const originalSpec = swagger2SpecBuilder
+                    .withInfoObject(genericSpecInfoBuilder
+                        .withTitle('spec title')
+                        .withVersion('spec version'))
+                    .build();
 
                 const actualResult = specParser.parse(originalSpec);
 
-                const expectedResult = parsedSpecBuilder.build();
-                expect(actualResult).toEqual(expectedResult);
+                const expectedResult = parsedSpecBuilder
+                    .withInfoObject(parsedSpecInfoBuilder
+                        .withTitle('spec title')
+                        .withVersion('spec version'))
+                    .build();
+                expect(actualResult.info).toEqual(expectedResult.info);
             });
         });
     });
@@ -29,56 +35,42 @@ describe('specParser, with regards to the info object,', () => {
 
             it('should generate a parsed spec copying across the info object properties and their values', () => {
 
-                const originalSpec = openApi3SpecBuilder.build();
+                const originalSpec = openApi3SpecBuilder
+                    .withInfoObject(genericSpecInfoBuilder
+                        .withTitle('spec title')
+                        .withVersion('spec version'))
+                    .build();
 
                 const actualResult = specParser.parse(originalSpec);
 
                 const expectedResult = parsedSpecBuilder
                     .withOpenApi3()
+                    .withInfoObject(parsedSpecInfoBuilder
+                        .withTitle('spec title')
+                        .withVersion('spec version'))
                     .build();
-                expect(actualResult).toEqual(expectedResult);
+                expect(actualResult.info).toEqual(expectedResult.info);
             });
         });
     });
-
-    const buildSimpleOpenApi3Spec = (): OpenApi3 => {
-        const spec = {
-            components: {
-                callbacks: {},
-                examples: {},
-                headers: {},
-                links: {},
-                parameters: {},
-                paths: {},
-                requestBodies: {},
-                responses: {},
-                schemas: {},
-                securitySchemes: {}
-            },
-            info: {
-                title: 'spec title',
-                version: 'spec version'
-            },
-            openapi: '3.0.0',
-            paths: {}
-        };
-        return spec;
-    };
 
     describe('when the original spec has an x-property included in the info object', () => {
 
         it('should generate a parsed spec copying accross the x-property and its value', () => {
 
-            const originalSpec = buildSimpleOpenApi3Spec();
-            originalSpec.info['x-external-id'] = 'some id';
+            const originalSpec = openApi3SpecBuilder
+                .withInfoObject(genericSpecInfoBuilder
+                    .withXProperty('x-external-id', 'some id'))
+                .build();
 
             const actualResult = specParser.parse(originalSpec);
 
             const expectedResult = parsedSpecBuilder
                 .withOpenApi3()
-                .withInfoObject(parsedSpecInfoBuilder.withXProperty('x-external-id', 'some id'))
+                .withInfoObject(parsedSpecInfoBuilder
+                    .withXProperty('x-external-id', 'some id'))
                 .build();
-            expect(actualResult).toEqual(expectedResult);
+            expect(actualResult.info).toEqual(expectedResult.info);
         });
     });
 });

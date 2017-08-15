@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 
-import {ParsedInfoObject} from '../../../../lib/openapi-diff/types';
+import { ParsedInfoObject } from '../../../../lib/openapi-diff/types';
 
 export class ParsedSpecInfoBuilder {
     private parsedInfo: ParsedInfoObject;

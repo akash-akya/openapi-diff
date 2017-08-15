@@ -1,7 +1,7 @@
 import specParser from '../../../lib/openapi-diff/spec-parser';
-import openApi3SpecBuilder from '../support/openapi3-spec-builder';
-import {parsedSpecBuilder} from '../support/parsed-spec-builder';
-import swagger2SpecBuilder from '../support/swagger2-spec-builder';
+import { openApi3SpecBuilder } from '../support/openapi3-spec-builder';
+import { parsedSpecBuilder } from '../support/parsed-spec-builder';
+import { swagger2SpecBuilder } from '../support/swagger2-spec-builder';
 
 describe('specParser, with regards to the swagger/openapi object,', () => {
 
@@ -9,12 +9,15 @@ describe('specParser, with regards to the swagger/openapi object,', () => {
 
         it('should generate a parsed spec copying across the swagger property and its value', () => {
 
-            const originalSpec = swagger2SpecBuilder.build();
+            const originalSpec = swagger2SpecBuilder
+                .build();
 
             const actualResult = specParser.parse(originalSpec);
 
-            const expectedResult = parsedSpecBuilder.build();
-            expect(actualResult).toEqual(expectedResult);
+            const expectedResult = parsedSpecBuilder
+                .withSwagger2()
+                .build();
+            expect(actualResult.openapi).toEqual(expectedResult.openapi);
         });
     });
 
@@ -22,14 +25,15 @@ describe('specParser, with regards to the swagger/openapi object,', () => {
 
         it('should generate a parsed spec copying across the openapi property and its value', () => {
 
-            const originalSpec = openApi3SpecBuilder.build();
+            const originalSpec = openApi3SpecBuilder
+                .build();
 
             const actualResult = specParser.parse(originalSpec);
 
             const expectedResult = parsedSpecBuilder
                 .withOpenApi3()
                 .build();
-            expect(actualResult).toEqual(expectedResult);
+            expect(actualResult.openapi).toEqual(expectedResult.openapi);
         });
     });
 });

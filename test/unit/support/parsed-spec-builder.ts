@@ -62,6 +62,12 @@ class ParsedSpecBuilder {
         return new ParsedSpecBuilder(copyOfParsedSpec);
     }
 
+    public withNoTopLevelXProperties(): ParsedSpecBuilder {
+        const copyOfParsedSpec = _.cloneDeep(this.parsedSpec);
+        copyOfParsedSpec.xProperties = {};
+        return new ParsedSpecBuilder(copyOfParsedSpec);
+    }
+
     public withOpenApi3(): ParsedSpecBuilder {
         const copyOfParsedSpec = _.cloneDeep(this.parsedSpec);
         copyOfParsedSpec.openapi = {
@@ -89,11 +95,20 @@ class ParsedSpecBuilder {
         return new ParsedSpecBuilder(copyOfParsedSpec);
     }
 
+    public withSwagger2(): ParsedSpecBuilder {
+        const copyOfParsedSpec = _.cloneDeep(this.parsedSpec);
+        copyOfParsedSpec.openapi = {
+            originalPath: ['swagger'],
+            value: '2.0'
+        };
+        return new ParsedSpecBuilder(copyOfParsedSpec);
+    }
+
     public withTopLevelXProperty(property: NamedGenericProperty): ParsedSpecBuilder {
         const copyOfParsedSpec = _.cloneDeep(this.parsedSpec);
         const copyOfProperty = _.cloneDeep(property);
         _.set(
-            copyOfParsedSpec,
+            copyOfParsedSpec.xProperties,
             copyOfProperty.name,
             {originalPath: copyOfProperty.originalPath, value: copyOfProperty.value}
         );
@@ -101,7 +116,7 @@ class ParsedSpecBuilder {
     }
 }
 
-const defaultParsedSpec = {
+const defaultParsedSpec: ParsedSpec = {
     basePath: {
         originalPath: ['basePath'],
         value: undefined
@@ -118,9 +133,10 @@ const defaultParsedSpec = {
     schemes: {
         originalPath: ['schemes'],
         value: undefined
-    }
+    },
+    xProperties: {}
 };
 
-export {parsedSpecInfoBuilder};
+export { parsedSpecInfoBuilder };
 
 export const parsedSpecBuilder = new ParsedSpecBuilder(defaultParsedSpec);
