@@ -3,6 +3,7 @@ import * as url from 'url';
 import * as VError from 'verror';
 
 import { OpenAPIObject } from 'openapi3-ts';
+
 import { Spec } from 'swagger-schema-official';
 
 import {

@@ -3,9 +3,9 @@ import {GenericProperty} from '../../../lib/openapi-diff/types';
 
 import {Spec as Swagger2} from 'swagger-schema-official';
 import {
-    genericSpecInfoBuilder,
-    GenericSpecInfoBuilder
-} from './openapi-generic-spec-builder/openapi-generic-info-builder';
+    swagger2SpecInfoBuilder,
+    Swagger2SpecInfoBuilder
+} from './swagger-2-spec-builder/swagger-2-spec-info-builder';
 
 class Swagger2SpecBuilder {
     private swagger2Spec: Swagger2;
@@ -50,7 +50,7 @@ class Swagger2SpecBuilder {
         return new Swagger2SpecBuilder(copyOfSwagger2Spec);
     }
 
-    public withInfoObject(builder: GenericSpecInfoBuilder) {
+    public withInfoObject(builder: Swagger2SpecInfoBuilder) {
         const copyOfSwagger2Spec = _.cloneDeep(this.swagger2Spec);
         copyOfSwagger2Spec.info = builder.build();
         return new Swagger2SpecBuilder(copyOfSwagger2Spec);
@@ -86,6 +86,6 @@ const defaultSwagger2Spec: Swagger2 = {
     swagger: '2.0'
 };
 
-export {genericSpecInfoBuilder};
+export { swagger2SpecInfoBuilder };
 
 export const swagger2SpecBuilder = new Swagger2SpecBuilder(defaultSwagger2Spec);

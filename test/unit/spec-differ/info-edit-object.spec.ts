@@ -9,6 +9,86 @@ import {
 
 describe('specDiffer', () => {
 
+    describe('when there is an addition in the info property', () => {
+
+        it('should classify the change as a non-breaking addition in the info property', () => {
+
+            const oldParsedSpec = parsedSpecBuilder
+                .withInfoObject(parsedSpecInfoBuilder
+                    .withNoDescription())
+                .build();
+            const newParsedSpec = parsedSpecBuilder
+                .withInfoObject(parsedSpecInfoBuilder
+                    .withDescription('NEW spec description'))
+                .build();
+
+            const result = specDiffer.diff(oldParsedSpec, newParsedSpec);
+
+            expect(result.length).toEqual(1);
+            expect(result[0]).toEqual(jasmine.objectContaining({
+                newValue: 'NEW spec description',
+                oldValue: undefined,
+                printablePath: ['info', 'description'],
+                scope: 'info.description.property',
+                severity: 'non-breaking' as DiffEntrySeverity,
+                taxonomy: 'info.description.property.add' as DiffEntryTaxonomy,
+                type: 'add' as DiffEntryType
+            }));
+        });
+    });
+
+    describe('when there is a deletion in the info property', () => {
+
+        it('should classify the change as a non-breaking addition in the info property', () => {
+
+            const oldParsedSpec = parsedSpecBuilder
+                .withInfoObject(parsedSpecInfoBuilder
+                    .withContact({
+                        name: 'email',
+                        originalPath: ['info', 'contact', 'email'],
+                        value: 'contact email'
+                    }, {
+                        name: 'name',
+                        originalPath: ['info', 'contact', 'name'],
+                        value: 'contact name'
+                    }, {
+                        name: 'url',
+                        originalPath: ['info', 'contact', 'url'],
+                        value: 'contact url'
+                    }))
+                .build();
+            const newParsedSpec = parsedSpecBuilder
+                .withInfoObject(parsedSpecInfoBuilder
+                    .withContact({
+                        name: 'email',
+                        originalPath: ['info', 'contact', 'email'],
+                        value: 'contact email'
+                    }, {
+                        name: 'name',
+                        originalPath: ['info', 'contact', 'name'],
+                        value: undefined
+                    }, {
+                        name: 'url',
+                        originalPath: ['info', 'contact', 'url'],
+                        value: 'contact url'
+                    }))
+                .build();
+
+            const result = specDiffer.diff(oldParsedSpec, newParsedSpec);
+
+            expect(result.length).toEqual(1);
+            expect(result[0]).toEqual(jasmine.objectContaining({
+                newValue: undefined,
+                oldValue: 'contact name',
+                printablePath: ['info', 'contact', 'name'],
+                scope: 'info.contact.name.property',
+                severity: 'non-breaking' as DiffEntrySeverity,
+                taxonomy: 'info.contact.name.property.delete' as DiffEntryTaxonomy,
+                type: 'delete' as DiffEntryType
+            }));
+        });
+    });
+
     describe('when there is an edition in the info property', () => {
 
         it('should classify the change as a non-breaking edition in the info property', () => {
@@ -29,48 +109,107 @@ describe('specDiffer', () => {
                 newValue: 'NEW spec title',
                 oldValue: 'spec title',
                 printablePath: ['info', 'title'],
-                scope: 'info.object',
+                scope: 'info.title.property',
                 severity: 'non-breaking' as DiffEntrySeverity,
-                taxonomy: 'info.object.edit' as DiffEntryTaxonomy,
+                taxonomy: 'info.title.property.edit' as DiffEntryTaxonomy,
                 type: 'edit' as DiffEntryType
             }));
         });
     });
 
-    describe('when there are multiple editions in the info property', () => {
+    describe('when there is an addition of an ^x- property in the info object', () => {
 
-        it('should classify the change as a non-breaking edition in the info property', () => {
+        it('should classify the change as an unclassified addition in the info ^x- property', () => {
 
             const oldParsedSpec = parsedSpecBuilder
-                .withInfoObject(parsedSpecInfoBuilder
-                    .withTitle('spec title')
-                    .withVersion('spec version'))
+                .withInfoObject(parsedSpecInfoBuilder)
                 .build();
             const newParsedSpec = parsedSpecBuilder
                 .withInfoObject(parsedSpecInfoBuilder
-                    .withTitle('NEW spec title')
-                    .withVersion('NEW spec version'))
+                    .withXProperty({
+                        name: 'x-external-id',
+                        originalPath: ['info', 'x-external-id'],
+                        value: 'NEW x value'
+                    }))
                 .build();
 
             const result = specDiffer.diff(oldParsedSpec, newParsedSpec);
 
-            expect(result.length).toEqual(2);
+            expect(result.length).toEqual(1);
             expect(result[0]).toEqual(jasmine.objectContaining({
-                newValue: 'NEW spec title',
-                oldValue: 'spec title',
-                printablePath: ['info', 'title'],
-                scope: 'info.object',
-                severity: 'non-breaking' as DiffEntrySeverity,
-                taxonomy: 'info.object.edit' as DiffEntryTaxonomy,
-                type: 'edit' as DiffEntryType
+                newValue: 'NEW x value',
+                oldValue: undefined,
+                printablePath: ['info', 'x-external-id'],
+                scope: 'unclassified',
+                severity: 'unclassified' as DiffEntrySeverity,
+                taxonomy: 'unclassified.add' as DiffEntryTaxonomy,
+                type: 'add' as DiffEntryType
             }));
-            expect(result[1]).toEqual(jasmine.objectContaining({
-                newValue: 'NEW spec version',
-                oldValue: 'spec version',
-                printablePath: ['info', 'version'],
-                scope: 'info.object',
-                severity: 'non-breaking' as DiffEntrySeverity,
-                taxonomy: 'info.object.edit' as DiffEntryTaxonomy,
+        });
+    });
+
+    describe('when there is a deletion in an ^x- property in the info object', () => {
+
+        it('should classify the change as an unclassified deletion in the info ^x- property', () => {
+
+            const oldParsedSpec = parsedSpecBuilder
+                .withInfoObject(parsedSpecInfoBuilder
+                    .withXProperty({
+                        name: 'x-external-id',
+                        originalPath: ['info', 'x-external-id'],
+                        value: 'x value'
+                    }))
+                .build();
+            const newParsedSpec = parsedSpecBuilder
+                .withInfoObject(parsedSpecInfoBuilder)
+                .build();
+
+            const result = specDiffer.diff(oldParsedSpec, newParsedSpec);
+
+            expect(result.length).toEqual(1);
+            expect(result[0]).toEqual(jasmine.objectContaining({
+                newValue: undefined,
+                oldValue: 'x value',
+                printablePath: ['info', 'x-external-id'],
+                scope: 'unclassified',
+                severity: 'unclassified' as DiffEntrySeverity,
+                taxonomy: 'unclassified.delete' as DiffEntryTaxonomy,
+                type: 'delete' as DiffEntryType
+            }));
+        });
+    });
+
+    describe('when there is an edition in an ^x- property in the info object', () => {
+
+        it('should classify the change as an unclassified edition in the info ^x- property', () => {
+
+            const oldParsedSpec = parsedSpecBuilder
+                .withInfoObject(parsedSpecInfoBuilder
+                    .withXProperty({
+                        name: 'x-external-id',
+                        originalPath: ['info', 'x-external-id'],
+                        value: 'x value'
+                    }))
+                .build();
+            const newParsedSpec = parsedSpecBuilder
+                .withInfoObject(parsedSpecInfoBuilder
+                    .withXProperty({
+                        name: 'x-external-id',
+                        originalPath: ['info', 'x-external-id'],
+                        value: 'NEW x value'
+                    }))
+                .build();
+
+            const result = specDiffer.diff(oldParsedSpec, newParsedSpec);
+
+            expect(result.length).toEqual(1);
+            expect(result[0]).toEqual(jasmine.objectContaining({
+                newValue: 'NEW x value',
+                oldValue: 'x value',
+                printablePath: ['info', 'x-external-id'],
+                scope: 'unclassified',
+                severity: 'unclassified' as DiffEntrySeverity,
+                taxonomy: 'unclassified.edit' as DiffEntryTaxonomy,
                 type: 'edit' as DiffEntryType
             }));
         });

@@ -1,11 +1,11 @@
 import * as _ from 'lodash';
-import {GenericProperty} from '../../../lib/openapi-diff/types';
+import { GenericProperty } from '../../../lib/openapi-diff/types';
 
-import {OpenAPIObject as OpenApi3} from 'openapi3-ts';
+import { OpenAPIObject as OpenApi3 } from 'openapi3-ts';
 import {
-    genericSpecInfoBuilder,
-    GenericSpecInfoBuilder
-} from './openapi-generic-spec-builder/openapi-generic-info-builder';
+    openApi3SpecInfoBuilder,
+    OpenApi3SpecInfoBuilder
+} from './openapi-3-spec-builder/openapi-3-spec-info-builder';
 
 class OpenApi3SpecBuilder {
     private openApi3Spec: OpenApi3;
@@ -18,7 +18,7 @@ class OpenApi3SpecBuilder {
         return _.cloneDeep(this.openApi3Spec);
     }
 
-    public withInfoObject(builder: GenericSpecInfoBuilder) {
+    public withInfoObject(builder: OpenApi3SpecInfoBuilder) {
         const copyOfOpenApi3Spec = _.cloneDeep(this.openApi3Spec);
         copyOfOpenApi3Spec.info = builder.build();
         return new OpenApi3SpecBuilder(copyOfOpenApi3Spec);
@@ -54,6 +54,6 @@ const defaultOpenApi3Spec: OpenApi3 = {
     paths: {}
 };
 
-export { genericSpecInfoBuilder };
+export { openApi3SpecInfoBuilder };
 
 export const openApi3SpecBuilder = new OpenApi3SpecBuilder(defaultOpenApi3Spec);

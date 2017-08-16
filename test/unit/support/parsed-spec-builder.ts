@@ -4,8 +4,8 @@ import {
     ParsedSpec,
     ParsedTopLevelProperty
 } from '../../../lib/openapi-diff/types';
-import {NamedGenericProperty} from './parsed-spec-builder/named-generic-property';
-import {parsedSpecInfoBuilder, ParsedSpecInfoBuilder} from './parsed-spec-builder/parsed-spec-info-builder';
+import { NamedGenericProperty } from './parsed-spec-builder/named-generic-property';
+import { parsedSpecInfoBuilder, ParsedSpecInfoBuilder } from './parsed-spec-builder/parsed-spec-info-builder';
 
 class ParsedSpecBuilder {
     private parsedSpec: ParsedSpec;

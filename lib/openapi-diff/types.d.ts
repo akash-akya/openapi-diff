@@ -46,25 +46,25 @@ export type DiffEntrySeverity =
 
 // Parsed Spec types
 
-export interface ParsedContactObject {
-    name?: string;
-    url?: string;
-    email?: string;
+export interface ParsedInfoObject {
+    title: ParsedTopLevelProperty<string>;
+    description: ParsedTopLevelProperty<string>;
+    termsOfService: ParsedTopLevelProperty<string>;
+    contact: ParsedContactObject;
+    license: ParsedLicenseObject;
+    version: ParsedTopLevelProperty<string>;
+    xProperties: { [name: string]: ParsedTopLevelProperty<any> };
 }
 
-export interface ParsedInfoObject {
-    title: string;
-    description?: string;
-    termsOfService?: string;
-    contact?: ParsedContactObject;
-    license?: ParsedLicenseObject;
-    version?: string; // TODO: this is a bug in the OAS3 type definition
-    [xProperty: string]: any;
+export interface ParsedContactObject {
+    name: ParsedTopLevelProperty<string>;
+    url: ParsedTopLevelProperty<string>;
+    email: ParsedTopLevelProperty<string>;
 }
 
 export interface ParsedLicenseObject {
-    name: string;
-    url?: string;
+    name: ParsedTopLevelProperty<string>;
+    url: ParsedTopLevelProperty<string>;
 }
 
 export interface ParsedTopLevelProperty<T> {
@@ -78,8 +78,7 @@ export interface ParsedSpec {
     info: ParsedInfoObject;
     openapi: ParsedTopLevelProperty<string>;
     schemes: ParsedTopLevelProperty<Array<ParsedTopLevelProperty<string>>>;
-    xProperties: {[name: string]: ParsedTopLevelProperty<any>};
-    [xProperty: string]: any; // TODO: why can't this be ParsedTopLevelProperty ?
+    xProperties: { [name: string]: ParsedTopLevelProperty<any> };
 }
 
 // Result types

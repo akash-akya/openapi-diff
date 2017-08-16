@@ -1,34 +1,103 @@
 import * as _ from 'lodash';
 
-import utils from './utils';
-
-import {OpenAPIObject as OpenApi3} from 'openapi3-ts';
-import {Spec as Swagger2} from 'swagger-schema-official';
+import {
+    ContactObject as OpenApi3InfoContactObject,
+    LicenseObject as OpenApi3InfoLicenseObject,
+    OpenAPIObject as OpenApi3
+} from 'openapi3-ts';
+import {
+    Contact as Swagger2InfoContactObject,
+    License as Swagger2InfoLicenseObject,
+    Spec as Swagger2
+} from 'swagger-schema-official';
 
 import {
-    GenericProperty,
-    ParsedInfoObject,
+    GenericProperty, ParsedContactObject,
+    ParsedInfoObject, ParsedLicenseObject,
     ParsedSpec,
     ParsedTopLevelProperty
 } from './types';
 
-const parseInfoObject = (spec: Swagger2 | OpenApi3): ParsedInfoObject => {
-    return spec.info;
+const parseInfoContactObject = (infoContactObject?: Swagger2InfoContactObject |
+    OpenApi3InfoContactObject): ParsedContactObject => {
+    return {
+        email: {
+            originalPath: ['info', 'contact', 'email'],
+            value: infoContactObject ? infoContactObject.email : undefined
+        },
+        name: {
+            originalPath: ['info', 'contact', 'name'],
+            value: infoContactObject ? infoContactObject.name : undefined
+        },
+        url: {
+            originalPath: ['info', 'contact', 'url'],
+            value: infoContactObject ? infoContactObject.url : undefined
+        }
+    };
 };
 
-const parseTopLevelXProperties = (spec: Swagger2 | OpenApi3): GenericProperty[] => {
+const parseInfoLicenseObject = (infoLicenseObject?: Swagger2InfoLicenseObject |
+    OpenApi3InfoLicenseObject): ParsedLicenseObject => {
+    return {
+        name: {
+            originalPath: ['info', 'license', 'name'],
+            value: infoLicenseObject ? infoLicenseObject.name : undefined
+        },
+        url: {
+            originalPath: ['info', 'license', 'url'],
+            value: infoLicenseObject ? infoLicenseObject.url : undefined
+        }
+    };
+};
+
+const parseInfoObject = (spec: Swagger2 | OpenApi3): ParsedInfoObject => {
+    const parsedInfo: ParsedInfoObject = {
+        contact: parseInfoContactObject(spec.info.contact),
+        description: {
+            originalPath: ['info', 'description'],
+            value: spec.info.description
+        },
+        license: parseInfoLicenseObject(spec.info.license),
+        termsOfService: {
+            originalPath: ['info', 'termsOfService'],
+            value: spec.info.termsOfService
+        },
+        title: {
+            originalPath: ['info', 'title'],
+            value: spec.info.title
+        },
+        version: {
+            originalPath: ['info', 'version'],
+            value: spec.info.version
+        },
+        xProperties: {}
+    };
+
+    for (const entry of getXPropertiesInObject(spec.info)) {
+        _.set(parsedInfo.xProperties, entry.key, {originalPath: ['info', entry.key], value: entry.value});
+    }
+
+    return parsedInfo;
+};
+
+const isXProperty = (propertyPath: string): boolean => {
+    return propertyPath.startsWith('x-');
+};
+
+const getXPropertiesInObject = (object: any): GenericProperty[] => {
     const topLevelPropertiesArray: GenericProperty[] = [];
-    _.forIn(spec, (value, key) => {
-        if (utils.isXProperty(key)) {
+
+    _.forIn(object, (value, key) => {
+        if (isXProperty(key)) {
             topLevelPropertiesArray.push({key, value});
         }
     });
+
     return topLevelPropertiesArray;
 };
 
 const parseTopLevelArrayProperties = (arrayName: string,
-                                      inputArray: string[]
-): Array<ParsedTopLevelProperty<string>> => {
+                                      inputArray: string[]): Array<ParsedTopLevelProperty<string>> => {
     const parsedSchemesArray: Array<ParsedTopLevelProperty<string>> = [];
 
     if (inputArray.length) {
@@ -65,8 +134,8 @@ const parseSwagger2Spec = (swagger2Spec: Swagger2): ParsedSpec => {
         xProperties: {}
     };
 
-    for (const entry of parseTopLevelXProperties(swagger2Spec)) {
-        _.set(parsedSpec.xProperties, entry.key, {originalPath: [ entry.key ], value: entry.value});
+    for (const entry of getXPropertiesInObject(swagger2Spec)) {
+        _.set(parsedSpec.xProperties, entry.key, {originalPath: [entry.key], value: entry.value});
     }
 
     return parsedSpec;
@@ -94,8 +163,8 @@ const parseOpenApi3Spec = (openApi3Spec: OpenApi3): ParsedSpec => {
         xProperties: {}
     };
 
-    for (const entry of parseTopLevelXProperties(openApi3Spec)) {
-        _.set(parsedSpec.xProperties, entry.key, {originalPath: [ entry.key ], value: entry.value});
+    for (const entry of getXPropertiesInObject(openApi3Spec)) {
+        _.set(parsedSpec.xProperties, entry.key, {originalPath: [entry.key], value: entry.value});
     }
 
     return parsedSpec;
