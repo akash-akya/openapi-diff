@@ -1,10 +1,11 @@
 import * as _ from 'lodash';
 
 import {
-    ParsedSpec,
-    ParsedTopLevelProperty
+    ParsedProperty,
+    ParsedSpec
 } from '../../../lib/openapi-diff/types';
 import { NamedGenericProperty } from './parsed-spec-builder/named-generic-property';
+
 import { parsedSpecInfoBuilder, ParsedSpecInfoBuilder } from './parsed-spec-builder/parsed-spec-info-builder';
 
 class ParsedSpecBuilder {
@@ -88,7 +89,7 @@ class ParsedSpecBuilder {
         return new ParsedSpecBuilder(copyOfParsedSpec);
     }
 
-    public withSchemes(value: Array<ParsedTopLevelProperty<string>>): ParsedSpecBuilder {
+    public withSchemes(value: Array<ParsedProperty<string>>): ParsedSpecBuilder {
         const copyOfParsedSpec = _.cloneDeep(this.parsedSpec);
         const copyOfValue = _.cloneDeep(value);
         copyOfParsedSpec.schemes.value = copyOfValue;

@@ -9,8 +9,7 @@
       "email": "apiteam@swagger.io"
     },
     "license": {
-      "name": "Apache 2.0",
-      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+      "name": "Apache 2.0"
     }
   },
   "host": "petstore.swagger.io",
@@ -39,6 +38,7 @@
   "schemes": [
     "http"
   ],
+  "x-external-id": "some x value",
   "paths": {
     "/pet": {
       "post": {

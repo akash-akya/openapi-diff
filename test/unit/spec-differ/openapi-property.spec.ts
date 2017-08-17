@@ -22,9 +22,9 @@ describe('specDiffer', () => {
                     newValue: '2.1',
                     oldValue: '2.0',
                     printablePath: ['swagger'],
-                    scope: 'openapi.property',
+                    scope: 'openapi',
                     severity: 'non-breaking',
-                    taxonomy: 'openapi.property.edit',
+                    taxonomy: 'openapi.edit',
                     type: 'edit'
                 });
             });
@@ -47,9 +47,9 @@ describe('specDiffer', () => {
                     newValue: '3.0.1',
                     oldValue: '3.0.0',
                     printablePath: ['openapi'],
-                    scope: 'openapi.property',
+                    scope: 'openapi',
                     severity: 'non-breaking',
-                    taxonomy: 'openapi.property.edit',
+                    taxonomy: 'openapi.edit',
                     type: 'edit'
                 });
             });

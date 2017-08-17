@@ -23,18 +23,18 @@ describe('specDiffer', () => {
                 newValue: 'https',
                 oldValue: undefined,
                 printablePath: ['schemes', '0'],
-                scope: 'schemes.property',
+                scope: 'schemes',
                 severity: 'non-breaking',
-                taxonomy: 'schemes.property.arrayContent.add',
+                taxonomy: 'schemes.arrayContent.add',
                 type: 'arrayContent.add'
             });
             expect(result[1]).toEqual({
                 newValue: undefined,
                 oldValue: 'http',
                 printablePath: ['schemes', '0'],
-                scope: 'schemes.property',
+                scope: 'schemes',
                 severity: 'breaking',
-                taxonomy: 'schemes.property.arrayContent.delete',
+                taxonomy: 'schemes.arrayContent.delete',
                 type: 'arrayContent.delete'
             });
         });
@@ -58,9 +58,9 @@ describe('specDiffer', () => {
                 newValue: 'http',
                 oldValue: undefined,
                 printablePath: ['schemes', '0'],
-                scope: 'schemes.property',
+                scope: 'schemes',
                 severity: 'non-breaking',
-                taxonomy: 'schemes.property.arrayContent.add',
+                taxonomy: 'schemes.arrayContent.add',
                 type: 'arrayContent.add'
             });
         });
@@ -84,9 +84,9 @@ describe('specDiffer', () => {
                 newValue: undefined,
                 oldValue: 'http',
                 printablePath: ['schemes', '0'],
-                scope: 'schemes.property',
+                scope: 'schemes',
                 severity: 'breaking',
-                taxonomy: 'schemes.property.arrayContent.delete',
+                taxonomy: 'schemes.arrayContent.delete',
                 type: 'arrayContent.delete'
             });
         });
@@ -111,9 +111,9 @@ describe('specDiffer', () => {
                 newValue: [{originalPath: ['schemes', '0'], value: 'https'}],
                 oldValue: undefined,
                 printablePath: ['schemes'],
-                scope: 'schemes.property',
+                scope: 'schemes',
                 severity: 'breaking',
-                taxonomy: 'schemes.property.add',
+                taxonomy: 'schemes.add',
                 type: 'add'
             });
         });
@@ -138,9 +138,9 @@ describe('specDiffer', () => {
                 newValue: undefined,
                 oldValue: [{originalPath: ['schemes', '0'], value: 'http'}],
                 printablePath: ['schemes'],
-                scope: 'schemes.property',
+                scope: 'schemes',
                 severity: 'breaking',
-                taxonomy: 'schemes.property.delete',
+                taxonomy: 'schemes.delete',
                 type: 'delete'
             });
         });
@@ -169,27 +169,27 @@ describe('specDiffer', () => {
                 newValue: 'ws',
                 oldValue: undefined,
                 printablePath: ['schemes', '1'],
-                scope: 'schemes.property',
+                scope: 'schemes',
                 severity: 'non-breaking',
-                taxonomy: 'schemes.property.arrayContent.add',
+                taxonomy: 'schemes.arrayContent.add',
                 type: 'arrayContent.add'
             });
             expect(result[1]).toEqual({
                 newValue: 'wss',
                 oldValue: undefined,
                 printablePath: ['schemes', '2'],
-                scope: 'schemes.property',
+                scope: 'schemes',
                 severity: 'non-breaking',
-                taxonomy: 'schemes.property.arrayContent.add',
+                taxonomy: 'schemes.arrayContent.add',
                 type: 'arrayContent.add'
             });
             expect(result[2]).toEqual({
                 newValue: undefined,
                 oldValue: 'https',
                 printablePath: ['schemes', '1'],
-                scope: 'schemes.property',
+                scope: 'schemes',
                 severity: 'breaking',
-                taxonomy: 'schemes.property.arrayContent.delete',
+                taxonomy: 'schemes.arrayContent.delete',
                 type: 'arrayContent.delete'
             });
         });

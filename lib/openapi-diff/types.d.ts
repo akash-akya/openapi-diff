@@ -1,6 +1,4 @@
 // Diff types
-
-import IDiff = deepDiff.IDiff;
 import * as q from 'q';
 
 export interface DiffEntry {
@@ -14,19 +12,45 @@ export interface DiffEntry {
 }
 
 export type DiffEntryTaxonomy =
-    'basePath.property.add' |
-    'basePath.property.delete' |
-    'basePath.property.edit' |
-    'host.property.add' |
-    'host.property.delete' |
-    'host.property.edit' |
-    'info.object.edit' |
-    'openapi.property.edit' |
-    'schemes.property.add' |
-    'schemes.property.arrayContent.add' |
-    'schemes.property.arrayContent.delete' |
-    'schemes.property.edit' |
-    'schemes.property.delete' |
+    'basePath.add' |
+    'basePath.delete' |
+    'basePath.edit' |
+    'host.add' |
+    'host.delete' |
+    'host.edit' |
+    'info.title.add' |
+    'info.title.delete' |
+    'info.title.edit' |
+    'info.description.add' |
+    'info.description.delete' |
+    'info.description.edit' |
+    'info.termsOfService.add' |
+    'info.termsOfService.delete' |
+    'info.termsOfService.edit' |
+    'info.version.add' |
+    'info.version.delete' |
+    'info.version.edit' |
+    'info.contact.name.add' |
+    'info.contact.name.delete' |
+    'info.contact.name.edit' |
+    'info.contact.email.add' |
+    'info.contact.email.delete' |
+    'info.contact.email.edit' |
+    'info.contact.url.add' |
+    'info.contact.url.delete' |
+    'info.contact.url.edit' |
+    'info.license.name.add' |
+    'info.license.name.delete' |
+    'info.license.name.edit' |
+    'info.license.url.add' |
+    'info.license.url.delete' |
+    'info.license.url.edit' |
+    'openapi.edit' |
+    'schemes.add' |
+    'schemes.arrayContent.add' |
+    'schemes.arrayContent.delete' |
+    'schemes.edit' |
+    'schemes.delete' |
     'unclassified.add' |
     'unclassified.delete' |
     'unclassified.edit';
@@ -47,38 +71,38 @@ export type DiffEntrySeverity =
 // Parsed Spec types
 
 export interface ParsedInfoObject {
-    title: ParsedTopLevelProperty<string>;
-    description: ParsedTopLevelProperty<string>;
-    termsOfService: ParsedTopLevelProperty<string>;
+    title: ParsedProperty<string>;
+    description: ParsedProperty<string>;
+    termsOfService: ParsedProperty<string>;
     contact: ParsedContactObject;
     license: ParsedLicenseObject;
-    version: ParsedTopLevelProperty<string>;
-    xProperties: { [name: string]: ParsedTopLevelProperty<any> };
+    version: ParsedProperty<string>;
+    xProperties: { [name: string]: ParsedProperty<any> };
 }
 
 export interface ParsedContactObject {
-    name: ParsedTopLevelProperty<string>;
-    url: ParsedTopLevelProperty<string>;
-    email: ParsedTopLevelProperty<string>;
+    name: ParsedProperty<string>;
+    url: ParsedProperty<string>;
+    email: ParsedProperty<string>;
 }
 
 export interface ParsedLicenseObject {
-    name: ParsedTopLevelProperty<string>;
-    url: ParsedTopLevelProperty<string>;
+    name: ParsedProperty<string>;
+    url: ParsedProperty<string>;
 }
 
-export interface ParsedTopLevelProperty<T> {
+export interface ParsedProperty<T> {
     originalPath: string[];
     value?: T;
 }
 
 export interface ParsedSpec {
-    basePath: ParsedTopLevelProperty<string>;
-    host: ParsedTopLevelProperty<string>;
+    basePath: ParsedProperty<string>;
+    host: ParsedProperty<string>;
     info: ParsedInfoObject;
-    openapi: ParsedTopLevelProperty<string>;
-    schemes: ParsedTopLevelProperty<Array<ParsedTopLevelProperty<string>>>;
-    xProperties: { [name: string]: ParsedTopLevelProperty<any> };
+    openapi: ParsedProperty<string>;
+    schemes: ParsedProperty<Array<ParsedProperty<string>>>;
+    xProperties: { [name: string]: ParsedProperty<any> };
 }
 
 // Result types
@@ -89,16 +113,6 @@ export interface ResultObject {
 }
 
 // Various other types
-export interface ChangeTypeMapper {
-    D: (change: IDiff) => DiffEntryType;
-    E: (change: IDiff) => DiffEntryType;
-    N: (change: IDiff) => DiffEntryType;
-    A: (change: IDiff) => DiffEntryType;
-    'A.N': (change: IDiff) => DiffEntryType;
-    'A.D': (change: IDiff) => DiffEntryType;
-    [key: string]: (change: IDiff) => DiffEntryType;
-}
-
 export interface FileSystem {
     readFile: JsonLoaderFunction;
 }

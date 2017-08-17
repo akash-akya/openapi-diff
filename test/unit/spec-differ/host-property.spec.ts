@@ -21,9 +21,9 @@ describe('specDiffer', () => {
                 newValue: 'NEW host info',
                 oldValue: 'host info',
                 printablePath: ['host'],
-                scope: 'host.property',
+                scope: 'host',
                 severity: 'breaking',
-                taxonomy: 'host.property.edit',
+                taxonomy: 'host.edit',
                 type: 'edit'
             });
         });
@@ -47,9 +47,9 @@ describe('specDiffer', () => {
                 newValue: 'NEW host info',
                 oldValue: undefined,
                 printablePath: ['host'],
-                scope: 'host.property',
+                scope: 'host',
                 severity: 'breaking',
-                taxonomy: 'host.property.add',
+                taxonomy: 'host.add',
                 type: 'add'
             });
         });
@@ -73,9 +73,9 @@ describe('specDiffer', () => {
                 newValue: undefined,
                 oldValue: 'OLD host info',
                 printablePath: ['host'],
-                scope: 'host.property',
+                scope: 'host',
                 severity: 'breaking',
-                taxonomy: 'host.property.delete',
+                taxonomy: 'host.delete',
                 type: 'delete'
             });
         });

@@ -2,8 +2,13 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Test API",
+    "license": {
+      "name": "spec license name",
+      "url": "spec license url"
+    },
     "version": "Test version",
     "x-info-property": "Some content"
   },
-  "x-generic-property": "Some content"
+  "x-generic-property": "Some content",
+  "x-deleted-property": "Some deleted content"
 }

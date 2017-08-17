@@ -218,7 +218,7 @@ describe('openapi-diff', () => {
         }).catch((error) => {
             expect(error.message).toEqual(jasmine.stringMatching('3 breaking changes found.'));
             expect(error.message).toEqual(jasmine.stringMatching('5 non-breaking changes found.'));
-            expect(error.message).toEqual(jasmine.stringMatching('0 unclassified changes found.'));
+            expect(error.message).toEqual(jasmine.stringMatching('1 unclassified changes found.'));
 
             expect(error.message).toContain('Breaking: the path [host] was modified ' +
                 'from \'petstore.swagger.io\' to \'petstore.swagger.org\'');
@@ -234,14 +234,17 @@ describe('openapi-diff', () => {
             expect(error.message).toContain('Non-breaking: the path [info/version] was modified ' +
                 'from \'1.0.0\' to \'1.0.1\'');
 
-            expect(error.message).toContain('Non-breaking: the path [info/license/name] was modified ' +
-                'from \'Apache 2.0\' to \'Apache 2.1\'');
+            expect(error.message).toContain('Non-breaking: the path [info/license/url] was added ' +
+                'with value \'http://www.apache.org/licenses/LICENSE-2.0.html\'');
 
             expect(error.message).toContain('Non-breaking: the value \'https\' was added ' +
                 'to the array in the path [schemes/0]');
 
             expect(error.message).toContain('Non-breaking: the value \'ws\' was added ' +
                 'to the array in the path [schemes/1]');
+
+            expect(error.message).toContain('Unclassified: the path [x-external-id] ' +
+                'with value \'some x value\' was removed');
 
             expect(error.message).toEqual(jasmine.stringMatching('DANGER: Breaking changes found!'));
 
@@ -255,8 +258,8 @@ describe('openapi-diff', () => {
             oldSpecLocation: 'test/e2e/fixtures/openapi-3-old.json'
         }).then((result) => {
             expect(result).toEqual(jasmine.stringMatching('0 breaking changes found.'));
-            expect(result).toEqual(jasmine.stringMatching('3 non-breaking changes found.'));
-            expect(result).toEqual(jasmine.stringMatching('2 unclassified changes found.'));
+            expect(result).toEqual(jasmine.stringMatching('5 non-breaking changes found.'));
+            expect(result).toEqual(jasmine.stringMatching('4 unclassified changes found.'));
 
             expect(result).toContain('Non-breaking: the path [openapi] was modified ' +
                 'from \'3.0.0\' to \'3.0.0-RC1\'');
@@ -267,11 +270,23 @@ describe('openapi-diff', () => {
             expect(result).toContain('Non-breaking: the path [info/title] was modified ' +
                 'from \'Test API\' to \'New test API\'');
 
+            expect(result).toContain('Non-breaking: the path [info/description] was added ' +
+                'with value \'Brand new spec description\'');
+
+            expect(result).toContain('Non-breaking: the path [info/license/url] with value ' +
+                '\'spec license url\' was removed');
+
             expect(result).toContain('Unclassified: the path [info/x-info-property] was modified ' +
                 'from \'Some content\' to \'Some new content\'');
 
             expect(result).toContain('Unclassified: the path [x-generic-property] was modified ' +
                 'from \'Some content\' to \'Some new content\'');
+
+            expect(result).toContain('Unclassified: the path [info/x-brand-new-property] was added ' +
+                'with value \'Some brand new content\'');
+
+            expect(result).toContain('Unclassified: the path [x-deleted-property] with value ' +
+                '\'Some deleted content\' was removed');
         }).then(done, done.fail);
     });
 });

@@ -21,9 +21,9 @@ describe('specDiffer', () => {
                 newValue: 'NEW basePath info',
                 oldValue: 'basePath info',
                 printablePath: ['basePath'],
-                scope: 'basePath.property',
+                scope: 'basePath',
                 severity: 'breaking',
-                taxonomy: 'basePath.property.edit',
+                taxonomy: 'basePath.edit',
                 type: 'edit'
             });
         });
@@ -47,9 +47,9 @@ describe('specDiffer', () => {
                 newValue: 'NEW basePath info',
                 oldValue: undefined,
                 printablePath: ['basePath'],
-                scope: 'basePath.property',
+                scope: 'basePath',
                 severity: 'breaking',
-                taxonomy: 'basePath.property.add',
+                taxonomy: 'basePath.add',
                 type: 'add'
             });
         });
@@ -73,9 +73,9 @@ describe('specDiffer', () => {
                 newValue: undefined,
                 oldValue: 'OLD basePath info',
                 printablePath: ['basePath'],
-                scope: 'basePath.property',
+                scope: 'basePath',
                 severity: 'breaking',
-                taxonomy: 'basePath.property.delete',
+                taxonomy: 'basePath.delete',
                 type: 'delete'
             });
         });

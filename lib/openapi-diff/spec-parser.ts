@@ -12,10 +12,12 @@ import {
 } from 'swagger-schema-official';
 
 import {
-    GenericProperty, ParsedContactObject,
-    ParsedInfoObject, ParsedLicenseObject,
-    ParsedSpec,
-    ParsedTopLevelProperty
+    GenericProperty,
+    ParsedContactObject,
+    ParsedInfoObject,
+    ParsedLicenseObject,
+    ParsedProperty,
+    ParsedSpec
 } from './types';
 
 const parseInfoContactObject = (infoContactObject?: Swagger2InfoContactObject |
@@ -97,8 +99,8 @@ const getXPropertiesInObject = (object: any): GenericProperty[] => {
 };
 
 const parseTopLevelArrayProperties = (arrayName: string,
-                                      inputArray: string[]): Array<ParsedTopLevelProperty<string>> => {
-    const parsedSchemesArray: Array<ParsedTopLevelProperty<string>> = [];
+                                      inputArray: string[]): Array<ParsedProperty<string>> => {
+    const parsedSchemesArray: Array<ParsedProperty<string>> = [];
 
     if (inputArray.length) {
         inputArray.forEach((value, index) => {
