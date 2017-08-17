@@ -1,143 +1,176 @@
 import specParser from '../../../lib/openapi-diff/spec-parser';
-
-import { OpenAPIObject } from 'openapi3-ts';
-import { Spec } from 'swagger-schema-official';
-
-import { ParsedSpec } from '../../../lib/openapi-diff/types';
+import { openApi3SpecBuilder } from '../support/openapi-3-spec-builder';
+import { parsedSpecBuilder } from '../support/parsed-spec-builder';
+import { swagger2SpecBuilder } from '../support/swagger-2-spec-builder';
 
 describe('specParser, with regards to the top level object,', () => {
 
     describe('when the original spec has x-properties at the top level', () => {
 
-        it('should generate a parsed spec copying across the x-property and its value', () => {
+        describe('and it is in Swagger 2 format', () => {
 
-            const originalSpec: OpenAPIObject = {
-                components: {
-                    callbacks: {},
-                    examples: {},
-                    headers: {},
-                    links: {},
-                    parameters: {},
-                    paths: {},
-                    requestBodies: {},
-                    responses: {},
-                    schemas: {},
-                    securitySchemes: {}
-                },
-                info: {
-                    title: 'spec title',
-                    version: 'version'
-                },
-                openapi: '3.0.0',
-                paths: {},
-                'x-external-id': 'some id',
-                'x-internal-id': 'some other id'
-            };
-            const resultingSpec: ParsedSpec = specParser.parse(originalSpec);
-            expect(resultingSpec['x-external-id']).toBe('some id');
-            expect(resultingSpec['x-internal-id']).toBe('some other id');
+            it('should generate a parsed spec copying across the x-property and its value', () => {
+
+                const originalSpec = swagger2SpecBuilder
+                    .withTopLevelXProperty({
+                        key: 'x-external-id',
+                        value: 'some external id'
+                    })
+                    .withTopLevelXProperty({
+                        key: 'x-internal-id',
+                        value: 'some internal id'
+                    })
+                    .build();
+
+                const actualResult = specParser.parse(originalSpec);
+
+                const expectedResult = parsedSpecBuilder
+                    .withTopLevelXProperty({
+                        name: 'x-external-id',
+                        originalPath: ['x-external-id'],
+                        value: 'some external id'
+                    })
+                    .withTopLevelXProperty({
+                        name: 'x-internal-id',
+                        originalPath: ['x-internal-id'],
+                        value: 'some internal id'
+                    })
+                    .build();
+                expect(actualResult.xProperties).toEqual(expectedResult.xProperties);
+            });
+        });
+
+        describe('and it is in OpenApi 3 format', () => {
+
+            it('should generate a parsed spec copying across the x-property and its value', () => {
+
+                const originalSpec = openApi3SpecBuilder
+                    .withTopLevelXProperty({
+                        key: 'x-external-id',
+                        value: 'some external id'
+                    })
+                    .withTopLevelXProperty({
+                        key: 'x-internal-id',
+                        value: 'some internal id'
+                    })
+                    .build();
+
+                const actualResult = specParser.parse(originalSpec);
+
+                const expectedResult = parsedSpecBuilder
+                    .withOpenApi3()
+                    .withTopLevelXProperty({
+                        name: 'x-external-id',
+                        originalPath: ['x-external-id'],
+                        value: 'some external id'
+                    })
+                    .withTopLevelXProperty({
+                        name: 'x-internal-id',
+                        originalPath: ['x-internal-id'],
+                        value: 'some internal id'
+                    })
+                    .build();
+                expect(actualResult.xProperties).toEqual(expectedResult.xProperties);
+            });
         });
     });
 
-    describe('when the original spec is in Swagger 2 format', () => {
+    describe('with regards to the host property', () => {
 
-        describe('with regards to the host property', () => {
-
-            let originalSpec: Spec;
-
-            beforeEach(() => {
-                originalSpec = {
-                    host: 'some host url',
-                    info: {
-                        title: 'spec title',
-                        version: 'version'
-                    },
-                    paths: {},
-                    swagger: '2.0'
-                };
-            });
+        describe('and it is in Swagger 2 format', () => {
 
             it('should generate a parsed spec copying across the host property and its value when present', () => {
-                const resultingSpec: ParsedSpec = specParser.parse(originalSpec);
-                expect(resultingSpec.host).toBe('some host url');
+
+                const originalSpec = swagger2SpecBuilder
+                    .withHost('some host url')
+                    .build();
+
+                const actualResult = specParser.parse(originalSpec);
+
+                const expectedResult = parsedSpecBuilder
+                    .withHost('some host url')
+                    .build();
+                expect(actualResult.host).toEqual(expectedResult.host);
             });
 
-            it('should generate a parsed spec without host property when not present', () => {
-                delete(originalSpec.host);
-                const resultingSpec: ParsedSpec = specParser.parse(originalSpec);
-                expect(resultingSpec.host).not.toBeDefined();
-            });
-        });
+            it('should generate a parsed spec with undefined value for host property when not present', () => {
 
-        describe('with regards to the basePath property', () => {
+                const originalSpec = swagger2SpecBuilder
+                    .withNoHost()
+                    .build();
 
-            let originalSpec: Spec;
+                const actualResult = specParser.parse(originalSpec);
 
-            beforeEach(() => {
-                originalSpec = {
-                    basePath: 'some basePath info',
-                    info: {
-                        title: 'spec title',
-                        version: 'version'
-                    },
-                    paths: {},
-                    swagger: '2.0'
-                };
-            });
-
-            it('should generate a parsed spec copying across the basePath property and its value', () => {
-                const resultingSpec: ParsedSpec = specParser.parse(originalSpec);
-                expect(resultingSpec.basePath).toBe('some basePath info');
-            });
-
-            it('should generate a parsed spec without basePath property when not present', () => {
-                delete(originalSpec.basePath);
-                const resultingSpec: ParsedSpec = specParser.parse(originalSpec);
-                expect(resultingSpec.basePath).not.toBeDefined();
+                const expectedResult = parsedSpecBuilder
+                    .withNoHost()
+                    .build();
+                expect(actualResult.host).toEqual(expectedResult.host);
             });
         });
 
-        describe('with regards to the schemes property', () => {
+        describe('and it is in OpenApi 3 format', () => {
 
-            let originalSpec: Spec;
+            it('should generate a parsed spec with undefined value for the host property ', () => {
 
-            beforeEach(() => {
-               originalSpec = {
-                   info: {
-                       title: 'spec title',
-                       version: 'version'
-                   },
-                   paths: {},
-                   schemes: ['http', 'https'],
-                   swagger: '2.0'
-               };
+                const originalSpec = openApi3SpecBuilder.build();
+
+                const actualResult = specParser.parse(originalSpec);
+
+                const expectedResult = parsedSpecBuilder
+                    .withOpenApi3()
+                    .withNoHost()
+                    .build();
+                expect(actualResult.host).toEqual(expectedResult.host);
+            });
+        });
+    });
+
+    describe('with regards to the basePath property', () => {
+
+        describe('and it is in Swagger 2 format', () => {
+
+            it('should generate a parsed spec copying across the basePath property and value when present', () => {
+
+                const originalSpec = swagger2SpecBuilder
+                    .withBasePath('some basePath info')
+                    .build();
+
+                const actualResult = specParser.parse(originalSpec);
+
+                const expectedResult = parsedSpecBuilder
+                    .withBasePath('some basePath info')
+                    .build();
+                expect(actualResult.basePath).toEqual(expectedResult.basePath);
             });
 
-            it('should generate a parsed spec copying across the basePath property and its value', () => {
-                const resultingSpec: ParsedSpec = specParser.parse(originalSpec);
-                expect(resultingSpec.schemes).toEqual(['http', 'https']);
-            });
+            it('should generate a parsed spec with undefined value for basePath property when not present', () => {
+                const originalSpec = swagger2SpecBuilder
+                    .withNoBasePath()
+                    .build();
 
-            it('should generate a parsed spec with schemes property even if it was empty in the first place', () => {
-                originalSpec.schemes = [];
-                const resultingSpec: ParsedSpec = specParser.parse(originalSpec);
-                if (resultingSpec.schemes) {
-                    expect(resultingSpec.schemes.length).toEqual(0);
-                } else {
-                    fail('schemes property was not defined when it should');
-                }
-            });
+                const actualResult = specParser.parse(originalSpec);
 
-            it('should generate a parsed spec without schemes property when not present', () => {
-                delete(originalSpec.schemes);
-                const resultingSpec: ParsedSpec = specParser.parse(originalSpec);
-                expect(resultingSpec.schemes).not.toBeDefined();
+                const expectedResult = parsedSpecBuilder
+                    .withNoBasePath()
+                    .build();
+                expect(actualResult.basePath).toEqual(expectedResult.basePath);
             });
+        });
 
-            it('should generate a parsed spec with an ordered schemes property to simplify diffing', () => {
-                originalSpec.schemes = ['https', 'http'];
-                const resultingSpec: ParsedSpec = specParser.parse(originalSpec);
-                expect(resultingSpec.schemes).toEqual(['http', 'https']);
+        describe('and it is in OpenApi 3 format', () => {
+
+            it('should generate a parsed spec with undefined value for the basePath property ', () => {
+
+                const originalSpec = openApi3SpecBuilder
+                    .build();
+
+                const actualResult = specParser.parse(originalSpec);
+
+                const expectedResult = parsedSpecBuilder
+                    .withOpenApi3()
+                    .withNoBasePath()
+                    .build();
+                expect(actualResult.basePath).toEqual(expectedResult.basePath);
             });
         });
     });

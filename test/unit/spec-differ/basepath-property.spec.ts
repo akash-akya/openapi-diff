@@ -1,137 +1,83 @@
 import specDiffer from '../../../lib/openapi-diff/spec-differ';
-
-import {
-    DiffChange,
-    ParsedSpec
-} from '../../../lib/openapi-diff/types';
-
-let result: DiffChange[];
+import {parsedSpecBuilder} from '../support/parsed-spec-builder';
 
 describe('specDiffer', () => {
 
-    const buildParsedSpecWithoutBasePathProperty = (): ParsedSpec => {
-        const spec = {
-            info: {
-                title: 'spec title',
-                version: 'version'
-            },
-            openapi: {
-                originalPath: ['swagger'],
-                parsedValue: '2.0'
-            }
-        };
-        return spec;
-    };
-
     describe('when there is an edition in the basePath property', () => {
 
-        beforeEach(() => {
-            const oldParsedSpec = buildParsedSpecWithoutBasePathProperty();
-            oldParsedSpec.basePath = 'basePath info';
-            const newParsedSpec = buildParsedSpecWithoutBasePathProperty();
-            newParsedSpec.basePath = 'NEW basePath info';
-            result = specDiffer.diff(oldParsedSpec, newParsedSpec);
-        });
+        it('should classify the change as a breaking edition in the basePath property', () => {
 
-        it('should classify the edition in the basePath property as breaking', () => {
+            const oldParsedSpec = parsedSpecBuilder
+                .withBasePath('basePath info')
+                .build();
+            const newParsedSpec = parsedSpecBuilder
+                .withBasePath('NEW basePath info')
+                .build();
+
+            const result = specDiffer.diff(oldParsedSpec, newParsedSpec);
+
             expect(result.length).toEqual(1);
-            expect(result[0].severity).toEqual('breaking');
-        });
-
-        it('should locate the scope of the change in the basePath property', () => {
-            expect(result[0].scope).toEqual('basePath.property');
-        });
-
-        it('should populate the taxonomy and type of a change in the basePath property as an edition in it', () => {
-            expect(result[0].taxonomy).toEqual('basePath.property.edit');
-            expect(result[0].type).toEqual('edit');
-        });
-
-        it('should populate the paths of a single change in the basePath property correctly', () => {
-            expect(result[0].path[0]).toEqual('basePath');
-            expect(result[0].printablePath[0]).toEqual('basePath');
-        });
-
-        it('should copy the rest of the individual diff attributes across', () => {
-            expect(result[0].lhs).toEqual('basePath info');
-            expect(result[0].rhs).toEqual('NEW basePath info');
-            expect(result[0].index).toBeNull();
-            expect(result[0].item).toBeNull();
-            expect(result[0].kind).toEqual('E');
+            expect(result[0]).toEqual({
+                newValue: 'NEW basePath info',
+                oldValue: 'basePath info',
+                printablePath: ['basePath'],
+                scope: 'basePath',
+                severity: 'breaking',
+                taxonomy: 'basePath.edit',
+                type: 'edit'
+            });
         });
     });
 
     describe('when the basePath property is added in the new spec', () => {
 
-        beforeEach(() => {
-            const oldParsedSpec = buildParsedSpecWithoutBasePathProperty();
-            const newParsedSpec = buildParsedSpecWithoutBasePathProperty();
-            newParsedSpec.basePath = 'NEW basePath info';
-            result = specDiffer.diff(oldParsedSpec, newParsedSpec);
-        });
+        it('should classify the change as a breaking addition of the basePath property', () => {
 
-        it('should classify the addition of the basePath property as breaking', () => {
+            const oldParsedSpec = parsedSpecBuilder
+                .withNoBasePath()
+                .build();
+            const newParsedSpec = parsedSpecBuilder
+                .withBasePath('NEW basePath info')
+                .build();
+
+            const result = specDiffer.diff(oldParsedSpec, newParsedSpec);
+
             expect(result.length).toEqual(1);
-            expect(result[0].severity).toEqual('breaking');
-        });
-
-        it('should locate the scope of the change in the basePath property', () => {
-            expect(result[0].scope).toEqual('basePath.property');
-        });
-
-        it('should populate the taxonomy and type of a new basePath property as an addition', () => {
-            expect(result[0].taxonomy).toEqual('basePath.property.add');
-            expect(result[0].type).toEqual('add');
-        });
-
-        it('should populate the paths of an added basePath property correctly', () => {
-            expect(result[0].path[0]).toEqual('basePath');
-            expect(result[0].printablePath[0]).toEqual('basePath');
-        });
-
-        it('should copy the rest of the individual diff attributes across', () => {
-            expect(result[0].lhs).toBeNull();
-            expect(result[0].rhs).toEqual('NEW basePath info');
-            expect(result[0].index).toBeNull();
-            expect(result[0].item).toBeNull();
-            expect(result[0].kind).toEqual('N');
+            expect(result[0]).toEqual({
+                newValue: 'NEW basePath info',
+                oldValue: undefined,
+                printablePath: ['basePath'],
+                scope: 'basePath',
+                severity: 'breaking',
+                taxonomy: 'basePath.add',
+                type: 'add'
+            });
         });
     });
 
     describe('when the basePath property is deleted in the new spec', () => {
 
-        beforeEach(() => {
-            const oldParsedSpec = buildParsedSpecWithoutBasePathProperty();
-            oldParsedSpec.basePath = 'OLD basePath info';
-            const newParsedSpec = buildParsedSpecWithoutBasePathProperty();
-            result = specDiffer.diff(oldParsedSpec, newParsedSpec);
-        });
+        it('should classify the change as a breaking deletion of the basePath property', () => {
 
-        it('should classify the addition of the basePath property as breaking', () => {
+            const oldParsedSpec = parsedSpecBuilder
+                .withBasePath('OLD basePath info')
+                .build();
+            const newParsedSpec = parsedSpecBuilder
+                .withNoBasePath()
+                .build();
+
+            const result = specDiffer.diff(oldParsedSpec, newParsedSpec);
+
             expect(result.length).toEqual(1);
-            expect(result[0].severity).toEqual('breaking');
-        });
-
-        it('should locate the scope of the change in the basePath property', () => {
-            expect(result[0].scope).toEqual('basePath.property');
-        });
-
-        it('should populate the taxonomy and type of a new basePath property as a deletion', () => {
-            expect(result[0].taxonomy).toEqual('basePath.property.delete');
-            expect(result[0].type).toEqual('delete');
-        });
-
-        it('should populate the paths of an added basePath property correctly', () => {
-            expect(result[0].path[0]).toEqual('basePath');
-            expect(result[0].printablePath[0]).toEqual('basePath');
-        });
-
-        it('should copy the rest of the individual diff attributes across', () => {
-            expect(result[0].lhs).toEqual('OLD basePath info');
-            expect(result[0].rhs).toBeNull();
-            expect(result[0].index).toBeNull();
-            expect(result[0].item).toBeNull();
-            expect(result[0].kind).toEqual('D');
+            expect(result[0]).toEqual({
+                newValue: undefined,
+                oldValue: 'OLD basePath info',
+                printablePath: ['basePath'],
+                scope: 'basePath',
+                severity: 'breaking',
+                taxonomy: 'basePath.delete',
+                type: 'delete'
+            });
         });
     });
 });

@@ -2,8 +2,13 @@
   "openapi": "3.0.0-RC1",
   "info": {
     "title": "New test API",
+    "description": "Brand new spec description",
+    "license": {
+      "name": "spec license name"
+    },
     "version": "New test version",
-    "x-info-property": "Some new content"
+    "x-info-property": "Some new content",
+    "x-brand-new-property": "Some brand new content"
   },
   "x-generic-property": "Some new content"
 }

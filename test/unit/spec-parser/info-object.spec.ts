@@ -1,137 +1,229 @@
 import specParser from '../../../lib/openapi-diff/spec-parser';
-
-import { OpenAPIObject } from 'openapi3-ts';
-
-import { ParsedSpec } from '../../../lib/openapi-diff/types';
-
-let resultingSpec: ParsedSpec;
+import {openApi3SpecBuilder, openApi3SpecInfoBuilder} from '../support/openapi-3-spec-builder';
+import {parsedSpecBuilder, parsedSpecInfoBuilder} from '../support/parsed-spec-builder';
+import {swagger2SpecBuilder, swagger2SpecInfoBuilder} from '../support/swagger-2-spec-builder';
 
 describe('specParser, with regards to the info object,', () => {
 
-    const buildSimpleOpenApi3Spec = (): OpenAPIObject => {
-        const spec = {
-            components: {
-                callbacks: {},
-                examples: {},
-                headers: {},
-                links: {},
-                parameters: {},
-                paths: {},
-                requestBodies: {},
-                responses: {},
-                schemas: {},
-                securitySchemes: {}
-            },
-            info: {
-                title: 'spec title',
-                version: 'spec version'
-            },
-            openapi: '3.0.0',
-            paths: {}
-        };
-        return spec;
-    };
+    describe('when the input spec is in Swagger 2.0 format', () => {
 
-    const buildOpenApi3SpecWithCompleteInfoObject = (): OpenAPIObject => {
-        const spec = {
-            components: {
-                callbacks: {},
-                examples: {},
-                headers: {},
-                links: {},
-                parameters: {},
-                paths: {},
-                requestBodies: {},
-                responses: {},
-                schemas: {},
-                securitySchemes: {}
-            },
-            info: {
-                contact: {
-                    email: 'contact email',
-                    name: 'contact name',
-                    url: 'contact url'
-                },
-                description: 'spec description',
-                licence: {
-                    name: 'licence name',
-                    url: 'licence url'
-                },
-                termsOfService: 'terms of service',
-                title: 'spec title',
-                version: 'version'
-            },
-            openapi: '3.0.0',
-            paths: {}
-        };
-        return spec;
-    };
+        describe('and the info object is minimal', () => {
 
-    describe('when the original spec has all the default fields populated', () => {
+            it('should generate a parsed spec copying across the info object properties and their values', () => {
 
-        beforeEach(() => {
-            const originalSpec = buildOpenApi3SpecWithCompleteInfoObject();
-            resultingSpec = specParser.parse(originalSpec);
+                const originalSpec = swagger2SpecBuilder
+                    .withInfoObject(swagger2SpecInfoBuilder
+                        .withTitle('spec title')
+                        .withVersion('spec version'))
+                    .build();
+
+                const actualResult = specParser.parse(originalSpec);
+
+                const expectedResult = parsedSpecBuilder
+                    .withInfoObject(parsedSpecInfoBuilder
+                        .withTitle('spec title')
+                        .withVersion('spec version'))
+                    .build();
+                expect(actualResult.info).toEqual(expectedResult.info);
+            });
         });
 
-        it('should generate a parsed spec with an info object', () => {
-            expect(resultingSpec.info).toBeDefined();
+        describe('and the info object is complete at the primitive level', () => {
+
+            it('should generate a parsed spec copying across the info object properties and their values', () => {
+
+                const originalSpec = swagger2SpecBuilder
+                    .withInfoObject(swagger2SpecInfoBuilder
+                        .withDescription('spec description')
+                        .withTermsOfService('spec terms'))
+                    .build();
+
+                const actualResult = specParser.parse(originalSpec);
+
+                const expectedResult = parsedSpecBuilder
+                    .withInfoObject(parsedSpecInfoBuilder
+                        .withDescription('spec description')
+                        .withTermsOfService('spec terms'))
+                    .build();
+                expect(actualResult.info).toEqual(expectedResult.info);
+            });
         });
 
-        it('should generate a parsed spec copying across all the default fields to the info object', () => {
-            expect(resultingSpec.info.title).toBe('spec title');
-            expect(resultingSpec.info.description).toBe('spec description');
-            expect(resultingSpec.info.termsOfService).toBe('terms of service');
+        describe('and the info object is complete at the object level', () => {
 
-            if (resultingSpec.info.contact) {
-                expect(resultingSpec.info.contact.name).toBe('contact name');
-                expect(resultingSpec.info.contact.url).toBe('contact url');
-                expect(resultingSpec.info.contact.email).toBe('contact email');
-            } else {
-                fail('info contact object was not defined when it should');
-            }
+            it('should generate a parsed spec copying across the info object properties and their values', () => {
 
-            if (resultingSpec.info.licence) {
-                expect(resultingSpec.info.licence.name).toBe('licence name');
-                expect(resultingSpec.info.licence.url).toBe('licence url');
-                expect(resultingSpec.info.version).toBe('version');
-            } else {
-                fail('info licence object was not defined when it should');
-            }
+                const originalSpec = swagger2SpecBuilder
+                    .withInfoObject(swagger2SpecInfoBuilder
+                        .withContact('contact email', 'contact name', 'contact url')
+                        .withLicense('license name', 'license url'))
+                    .build();
+
+                const actualResult = specParser.parse(originalSpec);
+
+                const expectedResult = parsedSpecBuilder
+                    .withInfoObject(parsedSpecInfoBuilder
+                        .withContact({
+                            name: 'email',
+                            originalPath: ['info', 'contact', 'email'],
+                            value: 'contact email'
+                        }, {
+                            name: 'name',
+                            originalPath: ['info', 'contact', 'name'],
+                            value: 'contact name'
+                        }, {
+                            name: 'url',
+                            originalPath: ['info', 'contact', 'url'],
+                            value: 'contact url'
+                        })
+                        .withLicense({
+                            name: 'name',
+                            originalPath: ['info', 'license', 'name'],
+                            value: 'license name'
+                        }, {
+                            name: 'url',
+                            originalPath: ['info', 'license', 'url'],
+                            value: 'license url'
+                        }))
+                    .build();
+                expect(actualResult.info).toEqual(expectedResult.info);
+            });
+        });
+
+        describe('and the original spec has an x-property included in the info object', () => {
+
+            it('should generate a parsed spec copying across the x-property and its value', () => {
+
+                const originalSpec = swagger2SpecBuilder
+                    .withInfoObject(swagger2SpecInfoBuilder
+                        .withXProperty('external-id', 'some id'))
+                    .build();
+
+                const actualResult = specParser.parse(originalSpec);
+
+                const expectedResult = parsedSpecBuilder
+                    .withInfoObject(parsedSpecInfoBuilder
+                        .withXProperty({
+                            name: 'x-external-id',
+                            originalPath: ['info', 'x-external-id'],
+                            value: 'some id'
+                        }))
+                    .build();
+                expect(actualResult.info).toEqual(expectedResult.info);
+            });
         });
     });
 
-    describe('when the original spec has only the required fields populated', () => {
+    describe('when the input spec is in OpenApi 3.0.0 format', () => {
 
-        beforeEach(() => {
-            const originalSpec = buildSimpleOpenApi3Spec();
-            resultingSpec = specParser.parse(originalSpec);
+        describe('and the info object is minimal', () => {
+
+            it('should generate a parsed spec copying across the info object properties and their values', () => {
+
+                const originalSpec = openApi3SpecBuilder
+                    .withInfoObject(openApi3SpecInfoBuilder
+                        .withTitle('spec title')
+                        .withVersion('spec version'))
+                    .build();
+
+                const actualResult = specParser.parse(originalSpec);
+
+                const expectedResult = parsedSpecBuilder
+                    .withOpenApi3()
+                    .withInfoObject(parsedSpecInfoBuilder
+                        .withTitle('spec title')
+                        .withVersion('spec version'))
+                    .build();
+                expect(actualResult.info).toEqual(expectedResult.info);
+            });
         });
 
-        it('should generate a parsed spec with an info object', () => {
-            expect(resultingSpec.info).toBeDefined();
+        describe('and the info object is complete at the primitive level', () => {
+
+            it('should generate a parsed spec copying across the info object properties and their values', () => {
+
+                const originalSpec = openApi3SpecBuilder
+                    .withInfoObject(openApi3SpecInfoBuilder
+                        .withDescription('spec description')
+                        .withTermsOfService('spec terms'))
+                    .build();
+
+                const actualResult = specParser.parse(originalSpec);
+
+                const expectedResult = parsedSpecBuilder
+                    .withOpenApi3()
+                    .withInfoObject(parsedSpecInfoBuilder
+                        .withDescription('spec description')
+                        .withTermsOfService('spec terms'))
+                    .build();
+                expect(actualResult.info).toEqual(expectedResult.info);
+            });
         });
 
-        it('should generate a parsed spec copying across only the required fields to the info object', () => {
-            expect(resultingSpec.info.title).toBe('spec title');
-            expect(resultingSpec.info.version).toBe('spec version');
+        describe('and the info object is complete at the object level', () => {
+
+            it('should generate a parsed spec copying across the info object properties and their values', () => {
+
+                const originalSpec = openApi3SpecBuilder
+                    .withInfoObject(openApi3SpecInfoBuilder
+                        .withContact('contact email', 'contact name', 'contact url')
+                        .withLicense('license name', 'license url'))
+                    .build();
+
+                const actualResult = specParser.parse(originalSpec);
+
+                const expectedResult = parsedSpecBuilder
+                    .withOpenApi3()
+                    .withInfoObject(parsedSpecInfoBuilder
+                        .withContact({
+                            name: 'email',
+                            originalPath: ['info', 'contact', 'email'],
+                            value: 'contact email'
+                        }, {
+                            name: 'name',
+                            originalPath: ['info', 'contact', 'name'],
+                            value: 'contact name'
+                        }, {
+                            name: 'url',
+                            originalPath: ['info', 'contact', 'url'],
+                            value: 'contact url'
+                        })
+                        .withLicense({
+                            name: 'name',
+                            originalPath: ['info', 'license', 'name'],
+                            value: 'license name'
+                        }, {
+                            name: 'url',
+                            originalPath: ['info', 'license', 'url'],
+                            value: 'license url'
+                        }))
+                    .build();
+                expect(actualResult.info).toEqual(expectedResult.info);
+            });
         });
     });
 
     describe('when the original spec has an x-property included in the info object', () => {
 
-        beforeEach(() => {
-            const originalSpec = buildSimpleOpenApi3Spec();
-            originalSpec.info['x-external-id'] = 'some id';
-            resultingSpec = specParser.parse(originalSpec);
-        });
-
-        it('should generate a parsed spec with an info object', () => {
-            expect(resultingSpec.info).toBeDefined();
-        });
-
         it('should generate a parsed spec copying across the x-property and its value', () => {
-            expect(resultingSpec.info['x-external-id']).toBe('some id');
+
+            const originalSpec = openApi3SpecBuilder
+                .withInfoObject(openApi3SpecInfoBuilder
+                    .withXProperty('external-id', 'some id'))
+                .build();
+
+            const actualResult = specParser.parse(originalSpec);
+
+            const expectedResult = parsedSpecBuilder
+                .withOpenApi3()
+                .withInfoObject(parsedSpecInfoBuilder
+                    .withXProperty({
+                        name: 'x-external-id',
+                        originalPath: ['info', 'x-external-id'],
+                        value: 'some id'
+                    }))
+                .build();
+            expect(actualResult.info).toEqual(expectedResult.info);
         });
     });
 });

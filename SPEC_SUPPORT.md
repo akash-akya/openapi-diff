@@ -7,16 +7,16 @@ This is a list of all the Swagger 2 / OpenAPI 3 objects and properties supported
 | Field | Supported | Notes |
 |---|---|---|
 | swagger | yes | |
-| info | partial | Editions to the info object are fully supported, additions and deletions will be detected and left unclassified (to be fully supported soon) |
+| info | yes | Also supports x-properties within the info object |
 | host | yes | |
 | basePath | yes | |
-| schemes | yes | Reordering the schemes array but preserving the same values is understood as a non-change and won't be reported by the tool |
-| ^x- | partial | Editions to x-properties at the top level are fully supported, additions and deletions will be detected and left unclassified (to be fully supported soon) |
+| schemes | yes | |
+| ^x- | yes | |
 
 ## OpenAPI 3.0.0
 
 | Field | Supported | Notes |
 |---|---|---|
 | openapi | yes | |
-| info | partial | Editions to the info object are fully supported, additions and deletions will be detected and left unclassified (to be fully supported soon) |
-| ^x- | partial | Editions to x-properties at the top level are fully supported, additions and deletions will be detected and left unclassified (to be fully supported soon) |
+| info | yes | Also supports x-properties within the info object |
+| ^x- | yes | |

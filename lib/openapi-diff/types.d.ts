@@ -1,33 +1,61 @@
 // Diff types
-
-import IDiff = deepDiff.IDiff;
 import * as q from 'q';
 
-export interface DiffChange extends IDiff {
-    severity: DiffChangeSeverity;
+export interface DiffEntry {
+    oldValue?: any;
+    newValue?: any;
     printablePath: string[];
     scope: string;
-    taxonomy: DiffChangeTaxonomy;
-    type: DiffChangeType;
+    severity: DiffEntrySeverity;
+    taxonomy: DiffEntryTaxonomy;
+    type: DiffEntryType;
 }
 
-export type DiffChangeTaxonomy =
-    'basePath.property.add' |
-    'basePath.property.delete' |
-    'basePath.property.edit' |
-    'host.property.add' |
-    'host.property.delete' |
-    'host.property.edit' |
-    'info.object.edit' |
-    'openapi.property.edit' |
-    'schemes.property.add' |
-    'schemes.property.arrayContent.add' |
-    'schemes.property.arrayContent.delete' |
-    'schemes.property.edit' |
-    'schemes.property.delete' |
-    'unclassified.change';
+export type DiffEntryTaxonomy =
+    'basePath.add' |
+    'basePath.delete' |
+    'basePath.edit' |
+    'host.add' |
+    'host.delete' |
+    'host.edit' |
+    'info.title.add' |
+    'info.title.delete' |
+    'info.title.edit' |
+    'info.description.add' |
+    'info.description.delete' |
+    'info.description.edit' |
+    'info.termsOfService.add' |
+    'info.termsOfService.delete' |
+    'info.termsOfService.edit' |
+    'info.version.add' |
+    'info.version.delete' |
+    'info.version.edit' |
+    'info.contact.name.add' |
+    'info.contact.name.delete' |
+    'info.contact.name.edit' |
+    'info.contact.email.add' |
+    'info.contact.email.delete' |
+    'info.contact.email.edit' |
+    'info.contact.url.add' |
+    'info.contact.url.delete' |
+    'info.contact.url.edit' |
+    'info.license.name.add' |
+    'info.license.name.delete' |
+    'info.license.name.edit' |
+    'info.license.url.add' |
+    'info.license.url.delete' |
+    'info.license.url.edit' |
+    'openapi.edit' |
+    'schemes.add' |
+    'schemes.arrayContent.add' |
+    'schemes.arrayContent.delete' |
+    'schemes.edit' |
+    'schemes.delete' |
+    'unclassified.add' |
+    'unclassified.delete' |
+    'unclassified.edit';
 
-export type DiffChangeType =
+export type DiffEntryType =
     'add' |
     'arrayContent.add' |
     'arrayContent.delete' |
@@ -35,46 +63,46 @@ export type DiffChangeType =
     'edit' |
     'unknown';
 
-export type DiffChangeSeverity =
+export type DiffEntrySeverity =
     'breaking' |
     'non-breaking' |
     'unclassified';
 
 // Parsed Spec types
 
-export interface ParsedContactObject {
-    name?: string;
-    url?: string;
-    email?: string;
+export interface ParsedInfoObject {
+    title: ParsedProperty<string>;
+    description: ParsedProperty<string>;
+    termsOfService: ParsedProperty<string>;
+    contact: ParsedContactObject;
+    license: ParsedLicenseObject;
+    version: ParsedProperty<string>;
+    xProperties: { [name: string]: ParsedProperty<any> };
 }
 
-export interface ParsedInfoObject {
-    title: string;
-    description?: string;
-    termsOfService?: string;
-    contact?: ParsedContactObject;
-    licence?: ParsedLicenseObject;
-    version?: string; // TODO: this is a bug in the OAS3 type definition
-    [xProperty: string]: any;
+export interface ParsedContactObject {
+    name: ParsedProperty<string>;
+    url: ParsedProperty<string>;
+    email: ParsedProperty<string>;
 }
 
 export interface ParsedLicenseObject {
-    name: string;
-    url?: string;
+    name: ParsedProperty<string>;
+    url: ParsedProperty<string>;
 }
 
-export interface ParsedOpenApiProperty {
+export interface ParsedProperty<T> {
     originalPath: string[];
-    parsedValue: string;
+    value?: T;
 }
 
 export interface ParsedSpec {
-    basePath?: string;
-    host?: string;
+    basePath: ParsedProperty<string>;
+    host: ParsedProperty<string>;
     info: ParsedInfoObject;
-    openapi: ParsedOpenApiProperty;
-    schemes?: string[];
-    [xProperty: string]: any;
+    openapi: ParsedProperty<string>;
+    schemes: ParsedProperty<Array<ParsedProperty<string>>>;
+    xProperties: { [name: string]: ParsedProperty<any> };
 }
 
 // Result types
@@ -85,16 +113,6 @@ export interface ResultObject {
 }
 
 // Various other types
-export interface ChangeTypeMapper {
-    D: (change: IDiff) => DiffChangeType;
-    E: (change: IDiff) => DiffChangeType;
-    N: (change: IDiff) => DiffChangeType;
-    A: (change: IDiff) => DiffChangeType;
-    'A.N': (change: IDiff) => DiffChangeType;
-    'A.D': (change: IDiff) => DiffChangeType;
-    [key: string]: (change: IDiff) => DiffChangeType;
-}
-
 export interface FileSystem {
     readFile: JsonLoaderFunction;
 }

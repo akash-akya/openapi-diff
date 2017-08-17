@@ -1,45 +1,45 @@
 import * as _ from 'lodash';
 
 import {
-    DiffChange,
-    DiffChangeSeverity,
+    DiffEntry,
+    DiffEntrySeverity,
     ResultObject
 } from './types';
 
-const buildChangeSentence = (targetChange: DiffChange): string => {
+const buildChangeSentence = (targetChange: DiffEntry): string => {
     const changeDescription: any = {
-        add: ((change: DiffChange): string => {
+        add: ((change: DiffEntry): string => {
             return `${_.capitalize(change.severity)}: the path [${change.printablePath.join('/')}] `
-                   + `was added with value \'${change.rhs}\'`;
+                   + `was added with value \'${change.newValue}\'`;
         }),
-        'arrayContent.add': ((change: DiffChange): string => {
-            return `${_.capitalize(change.severity)}: the value \'${change.rhs}\' was added to the`
+        'arrayContent.add': ((change: DiffEntry): string => {
+            return `${_.capitalize(change.severity)}: the value \'${change.newValue}\' was added to the`
                     + ` array in the path [${change.printablePath.join('/')}]`;
         }),
-        'arrayContent.delete': ((change: DiffChange): string => {
-            return `${_.capitalize(change.severity)}: the value \'${change.lhs}\' was removed from the`
+        'arrayContent.delete': ((change: DiffEntry): string => {
+            return `${_.capitalize(change.severity)}: the value \'${change.oldValue}\' was removed from the`
                    + ` array in the path [${change.printablePath.join('/')}]`;
         }),
-        delete: ((change: DiffChange): string => {
+        delete: ((change: DiffEntry): string => {
             return `${_.capitalize(change.severity)}: the path [${change.printablePath.join('/')}] `
-                   + `with value \'${change.lhs}\' was removed`;
+                   + `with value \'${change.oldValue}\' was removed`;
         }),
-        edit: ((change: DiffChange): string => {
+        edit: ((change: DiffEntry): string => {
             return `${_.capitalize(change.severity)}: the path [${change.printablePath.join('/')}] `
-            + `was modified from \'${change.lhs}\' to \'${change.rhs}\'`;
+            + `was modified from \'${change.oldValue}\' to \'${change.newValue}\'`;
         })
     };
 
     return changeDescription[targetChange.type](targetChange);
 };
 
-const countSeverities = (changes: DiffChange[], changeSeverity: DiffChangeSeverity): number => {
+const countSeverities = (changes: DiffEntry[], changeSeverity: DiffEntrySeverity): number => {
     const changeCount = _.filter(changes, ['severity', changeSeverity]).length;
     return changeCount;
 };
 
 export default {
-    build: (results: DiffChange[]): ResultObject => {
+    build: (results: DiffEntry[]): ResultObject => {
         const numberOfBreakingChanges = countSeverities(results, 'breaking');
 
         const changeList: string[] = [];
