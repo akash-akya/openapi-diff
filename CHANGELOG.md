@@ -1,3 +1,13 @@
+<a name="0.5.0"></a>
+# [0.5.0](https://bitbucket.org/atlassian/openapi-diff/compare/0.4.0...0.5.0) (2017-08-17)
+
+
+### Features
+
+* support to add/edit/delete Swagger 2's schemes property ([b0a4634](https://bitbucket.org/atlassian/openapi-diff/commits/b0a4634))
+
+
+
 <a name="0.4.0"></a>
 # [0.4.0](https://bitbucket.org/atlassian/openapi-diff/compare/0.3.0...v0.4.0) (2017-08-01)
 

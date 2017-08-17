@@ -1,30 +1,30 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const _ = require("lodash");
-const VError = require("verror");
-const buildChangeSentence = (change) => {
-    let changeSentence;
-    switch (change.type) {
-        case 'add': {
-            changeSentence = `${_.capitalize(change.severity)}: the path [${change.printablePath.join('/')}] `
-                + `was added with value \'${change.rhs}\'`;
-            break;
-        }
-        case 'delete': {
-            changeSentence = `${_.capitalize(change.severity)}: the path [${change.printablePath.join('/')}] `
-                + `with value \'${change.lhs}\' was removed`;
-            break;
-        }
-        case 'edit': {
-            changeSentence = `${_.capitalize(change.severity)}: the path [${change.printablePath.join('/')}] `
-                + `was modified from \'${change.lhs}\' to \'${change.rhs}\'`;
-            break;
-        }
-        default: {
-            throw new VError(`ERROR: unable to handle ${change.type} as a change type`);
-        }
-    }
-    return changeSentence;
+const buildChangeSentence = (targetChange) => {
+    const changeDescription = {
+        add: ((change) => {
+            return `${_.capitalize(change.severity)}: the path [${change.printablePath.join('/')}] `
+                + `was added with value \'${change.newValue}\'`;
+        }),
+        'arrayContent.add': ((change) => {
+            return `${_.capitalize(change.severity)}: the value \'${change.newValue}\' was added to the`
+                + ` array in the path [${change.printablePath.join('/')}]`;
+        }),
+        'arrayContent.delete': ((change) => {
+            return `${_.capitalize(change.severity)}: the value \'${change.oldValue}\' was removed from the`
+                + ` array in the path [${change.printablePath.join('/')}]`;
+        }),
+        delete: ((change) => {
+            return `${_.capitalize(change.severity)}: the path [${change.printablePath.join('/')}] `
+                + `with value \'${change.oldValue}\' was removed`;
+        }),
+        edit: ((change) => {
+            return `${_.capitalize(change.severity)}: the path [${change.printablePath.join('/')}] `
+                + `was modified from \'${change.oldValue}\' to \'${change.newValue}\'`;
+        })
+    };
+    return changeDescription[targetChange.type](targetChange);
 };
 const countSeverities = (changes, changeSeverity) => {
     const changeCount = _.filter(changes, ['severity', changeSeverity]).length;
