@@ -50,12 +50,12 @@
     "gulp-git": "^2.4.1",
     "gulp-jasmine": "^2.4.2",
     "gulp-tslint": "^8.1.2",
-    "gulp-typescript": "^3.1.7",
+    "gulp-typescript": "^3.2.2",
     "jasmine": "^2.8.0",
     "minimist": "^1.2.0",
     "run-sequence": "^2.1.0",
     "tslint": "5.7.0",
-    "typescript": "2.3.4"
+    "typescript": "2.4.0"
   },
   "dependencies": {
     "commander": "^2.11.0",
