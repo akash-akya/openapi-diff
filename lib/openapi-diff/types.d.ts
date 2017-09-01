@@ -1,5 +1,4 @@
 // Diff types
-import * as q from 'q';
 
 export interface DiffEntry {
     oldValue?: any;
@@ -126,8 +125,8 @@ export interface HttpClient {
     get: JsonLoaderFunction;
 }
 
-export type JsonLoaderFunction = (location: string) => q.Promise<string>;
+export type JsonLoaderFunction = (location: string) => Promise<string>;
 
 export interface OpenAPIDiff {
-    run: (oldSpecPath: string, newSpecPath: string) => q.Promise<ResultObject>;
+    run: (oldSpecPath: string, newSpecPath: string) => Promise<ResultObject>;
 }

@@ -1,5 +1,3 @@
-import * as q from 'q';
-
 import { HttpClient } from '../../../lib/openapi-diff/types';
 
 export default {
@@ -8,7 +6,7 @@ export default {
         const mockHttpClient = jasmine.createSpyObj('mockHttpClient', ['get']);
 
         mockHttpClient.get.and.callFake(() => {
-            return q.reject(error);
+            return Promise.reject(error);
         });
 
         return mockHttpClient;
@@ -18,7 +16,7 @@ export default {
         const mockHttpClient = jasmine.createSpyObj('mockHttpClient', ['get']);
 
         mockHttpClient.get.and.callFake(() => {
-            return q.resolve(body);
+            return Promise.resolve(body);
         });
 
         return mockHttpClient;

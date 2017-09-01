@@ -1,25 +1,23 @@
 import * as fs from 'fs';
-import * as q from 'q';
 import * as VError from 'verror';
 
-import { resolve } from 'path';
+import * as path from 'path';
 
 import { FileSystem } from '../types';
 
 const fileSystem: FileSystem = {
     readFile: (location) => {
-        const deferred = q.defer<string>();
-        const filePath = resolve(location);
+        const filePath = path.resolve(location);
 
-        fs.readFile(filePath, 'utf8', (error, fileContents) => {
-            if (error) {
-                deferred.reject(new VError(error, `ERROR: unable to read ${location}`));
-            } else {
-                deferred.resolve(fileContents);
-            }
+        return new Promise((resolve, reject) => {
+            fs.readFile(filePath, 'utf8', (error, fileContents) => {
+                if (error) {
+                    reject(new VError(error, `ERROR: unable to read ${location}`));
+                } else {
+                    resolve(fileContents.toString());
+                }
+            });
         });
-
-        return deferred.promise;
     }
 };
 
