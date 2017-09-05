@@ -1,4 +1,4 @@
-import { HttpClient } from '../../../lib/openapi-diff/types';
+import { HttpClient } from '../../../../lib/openapi-diff/types';
 
 export default {
     createWithReturnError: (error: NodeJS.ErrnoException): HttpClient => {

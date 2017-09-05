@@ -1,10 +1,11 @@
 import {exec} from 'child_process';
-import * as path from 'path';
-import ErrnoException = NodeJS.ErrnoException;
-
 import * as express from 'express';
 import * as http from 'http';
+import * as path from 'path';
+import ErrnoException = NodeJS.ErrnoException;
 import * as VError from 'verror';
+
+import expectToFail from '../support/expect-to-fail';
 
 interface InvokeCommandOptions {
     newSpecLocation: string;
@@ -59,31 +60,27 @@ describe('openapi-diff', () => {
     });
 
     it('should error gently when unable to find files on the local filesystem', async () => {
-        try {
-            await invokeCommand({
-                newSpecLocation: 'test/e2e/fixtures/non-existing-new.json',
-                oldSpecLocation: 'test/e2e/fixtures/non-existing-old.json'
-            });
-        } catch (error) {
-            expect(error).toEqual(jasmine.stringMatching('ERROR: unable to read ' +
-                'test/e2e/fixtures/non-existing-old.json'));
+        const error = await expectToFail(invokeCommand({
+            newSpecLocation: 'test/e2e/fixtures/non-existing-new.json',
+            oldSpecLocation: 'test/e2e/fixtures/non-existing-old.json'
+        }));
 
-            expect(error).toEqual(jasmine.stringMatching('Exit code: 2'));
-        }
+        expect(error).toEqual(jasmine.stringMatching('ERROR: unable to read ' +
+            'test/e2e/fixtures/non-existing-old.json'));
+
+        expect(error).toEqual(jasmine.stringMatching('Exit code: 2'));
     });
 
     it('should error gently when unable to parse files as json from the local filesystem', async () => {
-        try {
-            await invokeCommand({
-                newSpecLocation: 'test/e2e/fixtures/not-a-json.txt',
-                oldSpecLocation: 'test/e2e/fixtures/not-a-json.txt'
-            });
-        } catch (error) {
-            expect(error).toEqual(jasmine.stringMatching('ERROR: unable to parse ' +
-                'test/e2e/fixtures/not-a-json.txt as a JSON file'));
+        const error = await expectToFail(invokeCommand({
+            newSpecLocation: 'test/e2e/fixtures/not-a-json.txt',
+            oldSpecLocation: 'test/e2e/fixtures/not-a-json.txt'
+        }));
 
-            expect(error).toEqual(jasmine.stringMatching('Exit code: 2'));
-        }
+        expect(error).toEqual(jasmine.stringMatching('ERROR: unable to parse ' +
+            'test/e2e/fixtures/not-a-json.txt as a JSON file'));
+
+        expect(error).toEqual(jasmine.stringMatching('Exit code: 2'));
     });
 
     it('should work with URL locations', async () => {
@@ -100,45 +97,39 @@ describe('openapi-diff', () => {
     });
 
     it('should error gently when unable to use the URLs provided', async () => {
-        try {
-            await invokeCommand({
-                newSpecLocation: 'htt://localhost:3000/basic-new.json',
-                oldSpecLocation: 'htt://localhost:3000/basic-old.json'
-            });
-        } catch (error) {
-            expect(error).toEqual(jasmine.stringMatching('ERROR: unable to open ' +
-                'htt://localhost:3000/basic-old.json'));
+        const error = await expectToFail(invokeCommand({
+            newSpecLocation: 'htt://localhost:3000/basic-new.json',
+            oldSpecLocation: 'htt://localhost:3000/basic-old.json'
+        }));
 
-            expect(error).toEqual(jasmine.stringMatching('Exit code: 2'));
-        }
+        expect(error).toEqual(jasmine.stringMatching('ERROR: unable to open ' +
+            'htt://localhost:3000/basic-old.json'));
+
+        expect(error).toEqual(jasmine.stringMatching('Exit code: 2'));
     });
 
     it('should error gently when unable to fetch files over http', async () => {
-        try {
-            await invokeCommand({
-                newSpecLocation: 'http://localhost:3000/non-existing-new.json',
-                oldSpecLocation: 'http://localhost:3000/non-existing-old.json'
-            });
-        } catch (error) {
-            expect(error).toEqual(jasmine.stringMatching(
-                'ERROR: unable to fetch http://localhost:3000/non-existing-old.json. Response code: 404'));
+        const error = await expectToFail(invokeCommand({
+            newSpecLocation: 'http://localhost:3000/non-existing-new.json',
+            oldSpecLocation: 'http://localhost:3000/non-existing-old.json'
+        }));
 
-            expect(error).toEqual(jasmine.stringMatching('Exit code: 2'));
-        }
+        expect(error).toEqual(jasmine.stringMatching(
+            'ERROR: unable to fetch http://localhost:3000/non-existing-old.json. Response code: 404'));
+
+        expect(error).toEqual(jasmine.stringMatching('Exit code: 2'));
     });
 
     it('should error gently when unable to parse files as json over http', async () => {
-        try {
-            await invokeCommand({
-                newSpecLocation: 'http://localhost:3000/not-a-json.txt',
-                oldSpecLocation: 'http://localhost:3000/not-a-json.txt'
-            });
-        } catch (error) {
-            expect(error).toEqual(jasmine.stringMatching('ERROR: unable to parse ' +
-                'http://localhost:3000/not-a-json.txt as a JSON file'));
+        const error = await expectToFail(invokeCommand({
+            newSpecLocation: 'http://localhost:3000/not-a-json.txt',
+            oldSpecLocation: 'http://localhost:3000/not-a-json.txt'
+        }));
 
-            expect(error).toEqual(jasmine.stringMatching('Exit code: 2'));
-        }
+        expect(error).toEqual(jasmine.stringMatching('ERROR: unable to parse ' +
+            'http://localhost:3000/not-a-json.txt as a JSON file'));
+
+        expect(error).toEqual(jasmine.stringMatching('Exit code: 2'));
     });
 
     it('should succeed when the provided specs are equal', async () => {
@@ -166,89 +157,84 @@ describe('openapi-diff', () => {
     });
 
     it('should detect multiple types of changes', async () => {
-        try {
-            await invokeCommand({
-                newSpecLocation: 'test/e2e/fixtures/complex-new.json',
-                oldSpecLocation: 'test/e2e/fixtures/complex-old.json'
-            });
-        } catch (error) {
-            expect(error.message).toEqual(jasmine.stringMatching('2 breaking changes found.'));
-            expect(error.message).toEqual(jasmine.stringMatching('4 non-breaking changes found.'));
-            expect(error.message).toEqual(jasmine.stringMatching('2 unclassified changes found.'));
+        const error = await expectToFail(invokeCommand({
+            newSpecLocation: 'test/e2e/fixtures/complex-new.json',
+            oldSpecLocation: 'test/e2e/fixtures/complex-old.json'
+        }));
 
-            expect(error.message).toContain('Breaking: the path [host] with value \'some host info\' was removed');
+        expect(error.message).toEqual(jasmine.stringMatching('2 breaking changes found.'));
+        expect(error.message).toEqual(jasmine.stringMatching('4 non-breaking changes found.'));
+        expect(error.message).toEqual(jasmine.stringMatching('2 unclassified changes found.'));
 
-            expect(error.message).toContain('Breaking: the path [basePath] was modified ' +
-                'from \'/\' to \'/v2\'');
+        expect(error.message).toContain('Breaking: the path [host] with value \'some host info\' was removed');
 
-            expect(error.message).toContain('Non-breaking: the path [info/termsOfService] was modified ' +
-                'from \'some terms\' to \'some new terms\'');
+        expect(error.message).toContain('Breaking: the path [basePath] was modified ' +
+            'from \'/\' to \'/v2\'');
 
-            expect(error.message).toContain('Non-breaking: the path [info/contact/name] was modified ' +
-                'from \'Test name\' to \'New test name\'');
+        expect(error.message).toContain('Non-breaking: the path [info/termsOfService] was modified ' +
+            'from \'some terms\' to \'some new terms\'');
 
-            expect(error.message).toContain('Non-breaking: the path [info/license/url] was modified ' +
-                'from \'http://license.example.com\' to \'http://new.license.example.com\'');
+        expect(error.message).toContain('Non-breaking: the path [info/contact/name] was modified ' +
+            'from \'Test name\' to \'New test name\'');
 
-            expect(error.message).toContain('Non-breaking: the path [swagger] was modified ' +
-                'from \'2.0\' to \'2.1\'');
+        expect(error.message).toContain('Non-breaking: the path [info/license/url] was modified ' +
+            'from \'http://license.example.com\' to \'http://new.license.example.com\'');
 
-            expect(error.message).toContain('Unclassified: the path [info/x-info-property] was modified ' +
-                'from \'some content\' to \'some new content\'');
+        expect(error.message).toContain('Non-breaking: the path [swagger] was modified ' +
+            'from \'2.0\' to \'2.1\'');
 
-            expect(error.message).toContain('Unclassified: the path [x-generic-property] was modified ' +
-                'from \'some content\' to \'some new content\'');
+        expect(error.message).toContain('Unclassified: the path [info/x-info-property] was modified ' +
+            'from \'some content\' to \'some new content\'');
 
-            expect(error.message).not.toContain('the path [schemes');
+        expect(error.message).toContain('Unclassified: the path [x-generic-property] was modified ' +
+            'from \'some content\' to \'some new content\'');
 
-            expect(error.message).toEqual(jasmine.stringMatching('DANGER: Breaking changes found!'));
+        expect(error.message).not.toContain('the path [schemes');
 
-            expect(error).toEqual(jasmine.stringMatching('Exit code: 1'));
-        }
+        expect(error.message).toEqual(jasmine.stringMatching('DANGER: Breaking changes found!'));
+
+        expect(error).toEqual(jasmine.stringMatching('Exit code: 1'));
     });
 
     it('should be able to process real Swagger 2.0 files', async () => {
+        const error = await expectToFail(invokeCommand({
+            newSpecLocation: 'test/e2e/fixtures/petstore-swagger-2-new.json',
+            oldSpecLocation: 'test/e2e/fixtures/petstore-swagger-2-old.json'
+        }));
 
-        try {
-            await invokeCommand({
-                newSpecLocation: 'test/e2e/fixtures/petstore-swagger-2-new.json',
-                oldSpecLocation: 'test/e2e/fixtures/petstore-swagger-2-old.json'
-            });
-        } catch (error) {
-            expect(error.message).toEqual(jasmine.stringMatching('3 breaking changes found.'));
-            expect(error.message).toEqual(jasmine.stringMatching('5 non-breaking changes found.'));
-            expect(error.message).toEqual(jasmine.stringMatching('1 unclassified changes found.'));
+        expect(error.message).toEqual(jasmine.stringMatching('3 breaking changes found.'));
+        expect(error.message).toEqual(jasmine.stringMatching('5 non-breaking changes found.'));
+        expect(error.message).toEqual(jasmine.stringMatching('1 unclassified changes found.'));
 
-            expect(error.message).toContain('Breaking: the path [host] was modified ' +
-                'from \'petstore.swagger.io\' to \'petstore.swagger.org\'');
+        expect(error.message).toContain('Breaking: the path [host] was modified ' +
+            'from \'petstore.swagger.io\' to \'petstore.swagger.org\'');
 
-            expect(error.message).toContain('Breaking: the path [basePath] was added with value \'/v2\'');
+        expect(error.message).toContain('Breaking: the path [basePath] was added with value \'/v2\'');
 
-            expect(error.message).toContain('Breaking: the value \'http\' was removed ' +
-                'from the array in the path [schemes/0]');
+        expect(error.message).toContain('Breaking: the value \'http\' was removed ' +
+            'from the array in the path [schemes/0]');
 
-            expect(error.message).toContain('Non-breaking: the path [swagger] was modified ' +
-                'from \'2.0\' to \'2.1\'');
+        expect(error.message).toContain('Non-breaking: the path [swagger] was modified ' +
+            'from \'2.0\' to \'2.1\'');
 
-            expect(error.message).toContain('Non-breaking: the path [info/version] was modified ' +
-                'from \'1.0.0\' to \'1.0.1\'');
+        expect(error.message).toContain('Non-breaking: the path [info/version] was modified ' +
+            'from \'1.0.0\' to \'1.0.1\'');
 
-            expect(error.message).toContain('Non-breaking: the path [info/license/url] was added ' +
-                'with value \'http://www.apache.org/licenses/LICENSE-2.0.html\'');
+        expect(error.message).toContain('Non-breaking: the path [info/license/url] was added ' +
+            'with value \'http://www.apache.org/licenses/LICENSE-2.0.html\'');
 
-            expect(error.message).toContain('Non-breaking: the value \'https\' was added ' +
-                'to the array in the path [schemes/0]');
+        expect(error.message).toContain('Non-breaking: the value \'https\' was added ' +
+            'to the array in the path [schemes/0]');
 
-            expect(error.message).toContain('Non-breaking: the value \'ws\' was added ' +
-                'to the array in the path [schemes/1]');
+        expect(error.message).toContain('Non-breaking: the value \'ws\' was added ' +
+            'to the array in the path [schemes/1]');
 
-            expect(error.message).toContain('Unclassified: the path [x-external-id] ' +
-                'with value \'some x value\' was removed');
+        expect(error.message).toContain('Unclassified: the path [x-external-id] ' +
+            'with value \'some x value\' was removed');
 
-            expect(error.message).toEqual(jasmine.stringMatching('DANGER: Breaking changes found!'));
+        expect(error.message).toEqual(jasmine.stringMatching('DANGER: Breaking changes found!'));
 
-            expect(error).toEqual(jasmine.stringMatching('Exit code: 1'));
-        }
+        expect(error).toEqual(jasmine.stringMatching('Exit code: 1'));
     });
 
     it('should be able to process real OpenApi 3.0.0 files', async () => {

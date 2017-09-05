@@ -1,7 +1,8 @@
 import jsonLoader from '../../../lib/openapi-diff/json-loader';
 import {FileSystem, HttpClient} from '../../../lib/openapi-diff/types';
-import fileSystemMockGenerator from '../support/file-system-mock-generator';
-import httpClientMockGenerator from '../support/http-client-mock-generator';
+import expectToFail from '../../support/expect-to-fail';
+import fileSystemMockGenerator from '../support/mocks/file-system-mock-generator';
+import httpClientMockGenerator from '../support/mocks/http-client-mock-generator';
 
 describe('jsonLoader', () => {
     let naiveFileSystem: FileSystem;
@@ -25,11 +26,10 @@ describe('jsonLoader', () => {
 
             const mockFileSystem = fileSystemMockGenerator.createWithReturnError(new Error('test file system error'));
 
-            try {
-                await jsonLoader.load('non-existing-file.json', mockFileSystem, naiveHttpClient);
-            } catch (error) {
-                expect(error.message).toEqual(jasmine.stringMatching('test file system error'));
-            }
+            const error = await expectToFail(jsonLoader
+                .load('non-existing-file.json', mockFileSystem, naiveHttpClient));
+
+            expect(error.message).toEqual(jasmine.stringMatching('test file system error'));
         });
 
         it('should return the file contents parsed when able to read the file', async () => {
@@ -47,12 +47,11 @@ describe('jsonLoader', () => {
             const fileContents: string = 'this is not json';
             const mockFileSystem = fileSystemMockGenerator.createWithReturnValue(fileContents);
 
-            try {
-                await jsonLoader.load('existing-file-with-invalid.json', mockFileSystem, naiveHttpClient);
-            } catch (error) {
-                expect(error.message)
-                    .toContain('ERROR: unable to parse existing-file-with-invalid.json as a JSON file');
-            }
+            const error = await expectToFail(jsonLoader
+                .load('existing-file-with-invalid.json', mockFileSystem, naiveHttpClient));
+
+            expect(error.message)
+                .toContain('ERROR: unable to parse existing-file-with-invalid.json as a JSON file');
         });
     });
 
@@ -69,11 +68,10 @@ describe('jsonLoader', () => {
 
             const mockHttpClient = httpClientMockGenerator.createWithReturnError(new Error('test http client error'));
 
-            try {
-                await jsonLoader.load('http://url.that.errors.out', naiveFileSystem, mockHttpClient);
-            } catch (error) {
-                expect(error.message).toEqual(jasmine.stringMatching('test http client error'));
-            }
+            const error = await expectToFail(jsonLoader
+                .load('http://url.that.errors.out', naiveFileSystem, mockHttpClient));
+
+            expect(error.message).toEqual(jasmine.stringMatching('test http client error'));
         });
 
         it('should return the url contents parsed when able to open the url', async () => {
@@ -91,12 +89,11 @@ describe('jsonLoader', () => {
             const urlContents: string = 'this is not json';
             const mockHttpClient = httpClientMockGenerator.createWithReturnValue(urlContents);
 
-            try {
-                await jsonLoader.load('http://url.that.loads.but.has.no.json', naiveFileSystem, mockHttpClient);
-            } catch (error) {
-                expect(error.message)
-                    .toContain('ERROR: unable to parse http://url.that.loads.but.has.no.json as a JSON file');
-            }
+            const error = await expectToFail(jsonLoader
+                .load('http://url.that.loads.but.has.no.json', naiveFileSystem, mockHttpClient));
+
+            expect(error.message)
+                .toContain('ERROR: unable to parse http://url.that.loads.but.has.no.json as a JSON file');
         });
     });
 });

@@ -1,7 +1,7 @@
 import specParser from '../../../lib/openapi-diff/spec-parser';
-import {openApi3SpecBuilder, openApi3SpecInfoBuilder} from '../support/openapi-3-spec-builder';
-import {parsedSpecBuilder, parsedSpecInfoBuilder} from '../support/parsed-spec-builder';
-import {swagger2SpecBuilder, swagger2SpecInfoBuilder} from '../support/swagger-2-spec-builder';
+import {openApi3SpecBuilder, openApi3SpecInfoBuilder} from '../support/builders/openapi-3-spec-builder';
+import {parsedSpecBuilder, parsedSpecInfoBuilder} from '../support/builders/parsed-spec-builder';
+import {swagger2SpecBuilder, swagger2SpecInfoBuilder} from '../support/builders/swagger-2-spec-builder';
 
 describe('specParser, with regards to the info object,', () => {
 

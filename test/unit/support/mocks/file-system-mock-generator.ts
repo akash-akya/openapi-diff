@@ -1,4 +1,4 @@
-import {FileSystem} from '../../../lib/openapi-diff/types';
+import {FileSystem} from '../../../../lib/openapi-diff/types';
 
 export default {
     createWithReturnError: (error: NodeJS.ErrnoException): FileSystem => {

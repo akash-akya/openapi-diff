@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import {GenericProperty} from '../../../lib/openapi-diff/types';
+import {GenericProperty} from '../../../../lib/openapi-diff/types';
 
 import {Spec as Swagger2} from 'swagger-schema-official';
 import {

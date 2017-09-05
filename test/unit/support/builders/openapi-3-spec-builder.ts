@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import { GenericProperty } from '../../../lib/openapi-diff/types';
+import { GenericProperty } from '../../../../lib/openapi-diff/types';
 
 import { OpenAPIObject as OpenApi3 } from 'openapi3-ts';
 import {
