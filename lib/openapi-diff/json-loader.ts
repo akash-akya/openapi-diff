@@ -1,4 +1,3 @@
-import * as q from 'q';
 import * as url from 'url';
 import * as VError from 'verror';
 
@@ -17,20 +16,20 @@ const isUrl = (location: string): boolean => {
     return urlObject.protocol !== null;
 };
 
-const parseAsJson = (location: string, content: string): q.Promise<Spec | OpenAPIObject> => {
+const parseAsJson = (location: string, content: string): Promise<Spec | OpenAPIObject> => {
     try {
-        return q(JSON.parse(content));
+        return Promise.resolve(JSON.parse(content));
     } catch (error) {
-        return q.reject<OpenAPIObject>(new VError(error, `ERROR: unable to parse ${location} as a JSON file`));
+        return Promise.reject(new VError(error, `ERROR: unable to parse ${location} as a JSON file`));
     }
 };
 
 export default {
-    load: (location: string, fileSystem: FileSystem, httpClient: HttpClient) => {
+    load: async (location: string, fileSystem: FileSystem, httpClient: HttpClient) => {
         const loader: JsonLoaderFunction = isUrl(location) ? httpClient.get : fileSystem.readFile;
 
-        return loader(location).then((fileContents) => {
-            return parseAsJson(location, fileContents);
-        });
+        const fileContents = await loader(location);
+
+        return parseAsJson(location, fileContents);
     }
 };

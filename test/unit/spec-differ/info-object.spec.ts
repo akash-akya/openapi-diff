@@ -1,5 +1,5 @@
 import specDiffer from '../../../lib/openapi-diff/spec-differ';
-import {parsedSpecBuilder, parsedSpecInfoBuilder} from '../support/parsed-spec-builder';
+import {parsedSpecBuilder, parsedSpecInfoBuilder} from '../support/builders/parsed-spec-builder';
 
 describe('specDiffer', () => {
 

@@ -1,6 +1,4 @@
-import * as q from 'q';
-
-import { FileSystem } from '../../../lib/openapi-diff/types';
+import {FileSystem} from '../../../../lib/openapi-diff/types';
 
 export default {
     createWithReturnError: (error: NodeJS.ErrnoException): FileSystem => {
@@ -8,7 +6,7 @@ export default {
         const mockFileSystem = jasmine.createSpyObj('mockFileSystem', ['readFile']);
 
         mockFileSystem.readFile.and.callFake(() => {
-            return q.reject(error);
+            return Promise.reject(error);
         });
 
         return mockFileSystem;
@@ -18,7 +16,7 @@ export default {
         const mockFileSystem = jasmine.createSpyObj('mockFileSystem', ['readFile']);
 
         mockFileSystem.readFile.and.callFake(() => {
-            return q.resolve(fileContents);
+            return Promise.resolve(fileContents);
         });
 
         return mockFileSystem;
