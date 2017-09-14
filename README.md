@@ -20,6 +20,7 @@ openapi-diff /path/to/old/openapi.json /path/to/new/openapi.json
 ```
 
 The tool's output will display the amount and type of changes, and then list the changes with the relevant info. Changes are classified as follows:
+
 * Breaking: changes that would make existing consumers incompatible with the API (deletion of paths, adding required properties...)
 * Non-breaking: changes that would **not** make existing consumers incompatible with the API (addition of paths, turning a required property into optional...)
 * Unclassified: changes that have been detected by the tool but can't be classified (modifications to X-Properties and other unforeseen changes)
