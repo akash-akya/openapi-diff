@@ -4,18 +4,18 @@ export NVM_DIR="$HOME/.nvm"
 
 echo ==== Test using node 4.x ====
 rm -rf node_modules
-nvm install 4.8.3
+nvm install 4.8.4
 npm install
 npm test
 
 echo ==== Test using node 6.x ====
 rm -rf node_modules
-nvm install 6.11.1
+nvm install 6.11.4
 npm install
 npm test
 
 echo ==== Test using node 8.x ====
 rm -rf node_modules
-nvm install 8.0.0
+nvm install 8.7.0
 npm install --no-shrinkwrap
 npm test

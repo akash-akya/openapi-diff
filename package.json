@@ -54,12 +54,12 @@
     "minimist": "^1.2.0",
     "run-sequence": "^2.1.0",
     "tslint": "5.7.0",
-    "typescript": "2.4.0"
+    "typescript": "2.5.3"
   },
   "dependencies": {
     "commander": "^2.11.0",
     "lodash": "^4.17.4",
-    "openapi3-ts": "^0.3.1",
+    "openapi3-ts": "^0.5.0",
     "request": "^2.81.0",
     "verror": "^1.10.0"
   }
