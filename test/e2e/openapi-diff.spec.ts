@@ -44,7 +44,22 @@ describe('openapi-diff', () => {
         server.close(done);
     });
 
-    it('should work with absolute path files', async () => {
+    it('should work with absolute path yaml files', async () => {
+       const currentDir = path.resolve(process.cwd());
+
+       const result = await invokeCommand({
+           newSpecLocation: `${currentDir}/test/e2e/fixtures/basic-new.yaml`,
+           oldSpecLocation: `${currentDir}/test/e2e/fixtures/basic-old.yaml`
+       });
+
+       expect(result).toEqual(jasmine.stringMatching(`Old spec: ${currentDir}/test/e2e/fixtures/basic-old.yaml`));
+       expect(result).toEqual(jasmine.stringMatching(`New spec: ${currentDir}/test/e2e/fixtures/basic-new.yaml`));
+       expect(result).toEqual(jasmine.stringMatching('0 breaking changes found.'));
+       expect(result).toEqual(jasmine.stringMatching('1 non-breaking changes found.'));
+       expect(result).toEqual(jasmine.stringMatching('0 unclassified changes found.'));
+    });
+
+    it('should work with absolute path json files', async () => {
         const currentDir = path.resolve(process.cwd());
 
         const result = await invokeCommand({
@@ -73,12 +88,12 @@ describe('openapi-diff', () => {
 
     it('should error gently when unable to parse files as json from the local filesystem', async () => {
         const error = await expectToFail(invokeCommand({
-            newSpecLocation: 'test/e2e/fixtures/not-a-json.txt',
-            oldSpecLocation: 'test/e2e/fixtures/not-a-json.txt'
+            newSpecLocation: 'test/e2e/fixtures/not-a-json-or-yaml.txt',
+            oldSpecLocation: 'test/e2e/fixtures/not-a-json-or-yaml.txt'
         }));
 
         expect(error).toEqual(jasmine.stringMatching('ERROR: unable to parse ' +
-            'test/e2e/fixtures/not-a-json.txt as a JSON file'));
+            'test/e2e/fixtures/not-a-json-or-yaml.txt as a JSON or YAML file'));
 
         expect(error).toEqual(jasmine.stringMatching('Exit code: 2'));
     });
@@ -122,12 +137,12 @@ describe('openapi-diff', () => {
 
     it('should error gently when unable to parse files as json over http', async () => {
         const error = await expectToFail(invokeCommand({
-            newSpecLocation: 'http://localhost:3000/not-a-json.txt',
-            oldSpecLocation: 'http://localhost:3000/not-a-json.txt'
+            newSpecLocation: 'http://localhost:3000/not-a-json-or-yaml.txt',
+            oldSpecLocation: 'http://localhost:3000/not-a-json-or-yaml.txt'
         }));
 
         expect(error).toEqual(jasmine.stringMatching('ERROR: unable to parse ' +
-            'http://localhost:3000/not-a-json.txt as a JSON file'));
+            'http://localhost:3000/not-a-json-or-yaml.txt as a JSON or YAML file'));
 
         expect(error).toEqual(jasmine.stringMatching('Exit code: 2'));
     });

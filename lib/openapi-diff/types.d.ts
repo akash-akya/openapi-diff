@@ -113,7 +113,7 @@ export interface ResultObject {
 
 // Various other types
 export interface FileSystem {
-    readFile: JsonLoaderFunction;
+    readFile: ResourceLoaderFunction;
 }
 
 export interface GenericProperty {
@@ -122,10 +122,10 @@ export interface GenericProperty {
 }
 
 export interface HttpClient {
-    get: JsonLoaderFunction;
+    get: ResourceLoaderFunction;
 }
 
-export type JsonLoaderFunction = (location: string) => Promise<string>;
+export type ResourceLoaderFunction = (location: string) => Promise<string>;
 
 export interface OpenAPIDiff {
     run: (oldSpecPath: string, newSpecPath: string) => Promise<ResultObject>;

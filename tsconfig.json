@@ -11,6 +11,8 @@
     "noImplicitThis": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    "sourceMap": true,
+    "outDir": "build-output",
     "strictNullChecks": true,
     "target": "es6"
   },
