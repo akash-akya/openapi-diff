@@ -13,7 +13,7 @@ npm install --global openapi-diff
 ```
 
 ## Usage
-Invoke the tool with two paths to Swagger/OpenAPI files in order to find differences between them, these paths can either be paths to the specs in the local filesystem or URLs to the specs (sorry, no YML support just yet). 
+Invoke the tool with two paths to Swagger/OpenAPI files in order to find differences between them, these paths can either be paths to the specs in the local filesystem or URLs to the specs, both JSON and YAML are supported.
 The Open API specs should be in JSON format.
 ```
 openapi-diff /path/to/old/openapi.json /path/to/new/openapi.json 
