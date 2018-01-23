@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-
+// tslint:disable:no-implicit-dependencies
 import {Info as InfoObject} from 'swagger-schema-official';
 
 export class Swagger2SpecInfoBuilder {

@@ -2,21 +2,23 @@
 > A CLI tool to identify differences between Swagger/OpenAPI specs.
 
 ## Requirements
-- NodeJS 4.x or higher (tested using 4.x, 6.x and 8.x)
-- NPM 2.x or higher (tested using 2.x, 3.x and 5x)
+- nodejs 4.x or higher (tested using 4.x, 6.x, 8.x and 9.x)
+- npm 2.x or higher (tested using 2.x, 3.x and 5x) OR yarn 1.x or higher (tested using 1.x)
 
 ## Installation
 
-Install the tool using NPM:
+Install the tool using npm and add it to the package.json
 ```
-npm install --global openapi-diff
+npm install openapi-diff --save-dev
 ```
+
+Avoid installing the tool globally as this will lead to problems when multiple codebases try to use different versions of the tool on the same machine.
 
 ## Usage
 Invoke the tool with two paths to Swagger/OpenAPI files in order to find differences between them, these paths can either be paths to the specs in the local filesystem or URLs to the specs, both JSON and YAML are supported.
 ```
-openapi-diff /path/to/old/openapi.json /path/to/new/openapi.json
-openapi-diff /path/to/old/openapi.yml /path/to/new/openapi.yml
+./node_modules/.bin/openapi-diff /path/to/old/openapi.json /path/to/new/openapi.json
+./node_modules/.bin/openapi-diff /path/to/old/openapi.yml /path/to/new/openapi.yml
 ```
 
 The tool's output will display the amount and type of changes, and then list the changes with the relevant info. Changes are classified as follows:

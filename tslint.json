@@ -1,11 +1,12 @@
 {
-    "extends": ["tslint:latest"],
+    "extends": "tslint:latest",
     "rules": {
-      "cyclomatic-complexity": [true, 4],
-      "interface-name": [true, "never-prefix"],
-      "no-console": false,
-      "object-literal-key-quotes": [true, "as-needed"],
-      "quotemark": [true, "single"],
-      "trailing-comma": [true, {"multiline": "never", "singleline": "never"}]
+        "cyclomatic-complexity": [true, 4],
+        "interface-name": [true, "never-prefix"],
+        "no-console": [false],
+        "no-implicit-dependencies": [true, "dev"],
+        "quotemark": [true, "single"],
+        "trailing-comma": [true, {"multiline": "never", "singleline": "never"}],
+        "prefer-object-spread": false
     }
 }

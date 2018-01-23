@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
-import {GenericProperty} from '../../../../lib/openapi-diff/types';
-
+// tslint:disable:no-implicit-dependencies
 import {Spec as Swagger2} from 'swagger-schema-official';
+import {GenericProperty} from '../../../../lib/openapi-diff/types';
 import {
     swagger2SpecInfoBuilder,
     Swagger2SpecInfoBuilder

@@ -1,16 +1,15 @@
 import * as _ from 'lodash';
-
 import {
     ContactObject as OpenApi3InfoContactObject,
     LicenseObject as OpenApi3InfoLicenseObject,
     OpenAPIObject as OpenApi3
 } from 'openapi3-ts';
+// tslint:disable:no-implicit-dependencies
 import {
     Contact as Swagger2InfoContactObject,
     License as Swagger2InfoLicenseObject,
     Spec as Swagger2
 } from 'swagger-schema-official';
-
 import {
     GenericProperty,
     ParsedContactObject,

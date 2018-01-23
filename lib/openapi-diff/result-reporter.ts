@@ -8,7 +8,7 @@ import {
 
 const buildChangeSentence = (targetChange: DiffEntry): string => {
     const changeDescription: any = {
-        add: ((change: DiffEntry): string => {
+        'add': ((change: DiffEntry): string => {
             return `${_.capitalize(change.severity)}: the path [${change.printablePath.join('/')}] `
                    + `was added with value \'${change.newValue}\'`;
         }),
@@ -20,11 +20,11 @@ const buildChangeSentence = (targetChange: DiffEntry): string => {
             return `${_.capitalize(change.severity)}: the value \'${change.oldValue}\' was removed from the`
                    + ` array in the path [${change.printablePath.join('/')}]`;
         }),
-        delete: ((change: DiffEntry): string => {
+        'delete': ((change: DiffEntry): string => {
             return `${_.capitalize(change.severity)}: the path [${change.printablePath.join('/')}] `
                    + `with value \'${change.oldValue}\' was removed`;
         }),
-        edit: ((change: DiffEntry): string => {
+        'edit': ((change: DiffEntry): string => {
             return `${_.capitalize(change.severity)}: the path [${change.printablePath.join('/')}] `
             + `was modified from \'${change.oldValue}\' to \'${change.newValue}\'`;
         })

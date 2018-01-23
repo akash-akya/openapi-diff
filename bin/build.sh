@@ -3,19 +3,31 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" # This loads nvm
 
 echo ==== Test using node 4.x ====
+nvm install 4.8.7
 rm -rf node_modules
-nvm install 4.8.4
 npm install
 npm test
 
 echo ==== Test using node 6.x ====
+nvm install 6.12.3
 rm -rf node_modules
-nvm install 6.11.4
 npm install
 npm test
 
 echo ==== Test using node 8.x ====
+nvm install 8.9.4
 rm -rf node_modules
-nvm install 8.7.0
+npm install --no-shrinkwrap
+npm test
+
+echo ==== Test using yarn 1.x ====
+rm -rf node_modules
+npm install yarn@1.3.2 --no-shrinkwrap
+./node_modules/.bin/yarn install --no-lockfile
+./node_modules/.bin/yarn test
+
+echo ==== Test using node 9.x ====
+nvm install 9.4.0
+rm -rf node_modules
 npm install --no-shrinkwrap
 npm test
