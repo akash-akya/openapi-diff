@@ -1,0 +1,1 @@
+{A file that's not JSON or YAML for testing invalid input.

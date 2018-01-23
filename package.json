@@ -35,7 +35,8 @@
   "devDependencies": {
     "@types/commander": "^2.9.2",
     "@types/express": "^4.0.37",
-    "@types/jasmine": "^2.5.54",
+    "@types/jasmine": "^2.8.4",
+    "@types/js-yaml": "^3.10.1",
     "@types/lodash": "^4.14.74",
     "@types/request": "^2.0.3",
     "@types/swagger-schema-official": "^2.0.6",
@@ -58,6 +59,7 @@
   },
   "dependencies": {
     "commander": "^2.11.0",
+    "js-yaml": "^3.10.0",
     "lodash": "^4.17.4",
     "openapi3-ts": "^0.5.0",
     "request": "^2.81.0",

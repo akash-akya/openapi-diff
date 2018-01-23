@@ -1,10 +1,10 @@
-import jsonLoader from '../../../lib/openapi-diff/json-loader';
+import specLoader from '../../../lib/openapi-diff/spec-loader';
 import {FileSystem, HttpClient} from '../../../lib/openapi-diff/types';
 import expectToFail from '../../support/expect-to-fail';
 import fileSystemMockGenerator from '../support/mocks/file-system-mock-generator';
 import httpClientMockGenerator from '../support/mocks/http-client-mock-generator';
 
-describe('jsonLoader', () => {
+describe('specLoader', () => {
     let naiveFileSystem: FileSystem;
     let naiveHttpClient: HttpClient;
 
@@ -17,7 +17,7 @@ describe('jsonLoader', () => {
 
         it('should call the file system handler with the provided location', async () => {
 
-            await jsonLoader.load('input-file.json', naiveFileSystem, naiveHttpClient);
+            await specLoader.load('input-file.json', naiveFileSystem, naiveHttpClient);
 
             expect(naiveFileSystem.readFile).toHaveBeenCalledWith('input-file.json');
         });
@@ -26,7 +26,7 @@ describe('jsonLoader', () => {
 
             const mockFileSystem = fileSystemMockGenerator.createWithReturnError(new Error('test file system error'));
 
-            const error = await expectToFail(jsonLoader
+            const error = await expectToFail(specLoader
                 .load('non-existing-file.json', mockFileSystem, naiveHttpClient));
 
             expect(error.message).toEqual(jasmine.stringMatching('test file system error'));
@@ -37,21 +37,21 @@ describe('jsonLoader', () => {
             const fileContents: string = '{ "file": "contents" }';
             const mockFileSystem = fileSystemMockGenerator.createWithReturnValue(fileContents);
 
-            const results = await jsonLoader.load('ok-file.json', mockFileSystem, naiveHttpClient);
+            const results = await specLoader.load('ok-file.json', mockFileSystem, naiveHttpClient);
 
             expect(results).toEqual(JSON.parse(fileContents));
         });
 
-        it('should error out when unable to parse the file contents as json', async () => {
+        it('should error out when unable to parse the file contents as json or yaml', async () => {
 
-            const fileContents: string = 'this is not json';
+            const fileContents: string = '{this is not json or yaml';
             const mockFileSystem = fileSystemMockGenerator.createWithReturnValue(fileContents);
 
-            const error = await expectToFail(jsonLoader
+            const error = await expectToFail(specLoader
                 .load('existing-file-with-invalid.json', mockFileSystem, naiveHttpClient));
 
             expect(error.message)
-                .toContain('ERROR: unable to parse existing-file-with-invalid.json as a JSON file');
+                .toContain('ERROR: unable to parse existing-file-with-invalid.json as a JSON or YAML file');
         });
     });
 
@@ -59,7 +59,7 @@ describe('jsonLoader', () => {
 
         it('should call the http client handler with the provided location', async () => {
 
-            await jsonLoader.load('http://input.url', naiveFileSystem, naiveHttpClient);
+            await specLoader.load('http://input.url', naiveFileSystem, naiveHttpClient);
 
             expect(naiveHttpClient.get).toHaveBeenCalledWith('http://input.url');
         });
@@ -68,7 +68,7 @@ describe('jsonLoader', () => {
 
             const mockHttpClient = httpClientMockGenerator.createWithReturnError(new Error('test http client error'));
 
-            const error = await expectToFail(jsonLoader
+            const error = await expectToFail(specLoader
                 .load('http://url.that.errors.out', naiveFileSystem, mockHttpClient));
 
             expect(error.message).toEqual(jasmine.stringMatching('test http client error'));
@@ -79,21 +79,21 @@ describe('jsonLoader', () => {
             const urlContents: string = '{ "url": "contents" }';
             const mockHttpClient = httpClientMockGenerator.createWithReturnValue(urlContents);
 
-            const results = await jsonLoader.load('http://url.that.works', naiveFileSystem, mockHttpClient);
+            const results = await specLoader.load('http://url.that.works', naiveFileSystem, mockHttpClient);
 
             expect(results).toEqual(JSON.parse(urlContents));
         });
 
-        it('should error out when the url returns non-json content', async () => {
+        it('should error out when the url returns non-json and non-yaml content', async () => {
 
-            const urlContents: string = 'this is not json';
+            const urlContents: string = '{this is not json or yaml';
             const mockHttpClient = httpClientMockGenerator.createWithReturnValue(urlContents);
 
-            const error = await expectToFail(jsonLoader
-                .load('http://url.that.loads.but.has.no.json', naiveFileSystem, mockHttpClient));
+            const error = await expectToFail(specLoader
+                .load('http://url.that.loads.but.has.no.json.or.yaml', naiveFileSystem, mockHttpClient));
 
             expect(error.message)
-                .toContain('ERROR: unable to parse http://url.that.loads.but.has.no.json as a JSON file');
+                .toContain('ERROR: unable to parse http://url.that.loads.but.has.no.json.or.yaml');
         });
     });
 });

@@ -1,10 +1,10 @@
 import {OpenAPIDiff} from './openapi-diff/types';
 
-import jsonLoader from './openapi-diff/json-loader';
-import fileSystem from './openapi-diff/json-loader/file-system';
-import httpClient from './openapi-diff/json-loader/http-client';
+import fileSystem from './openapi-diff/resource-loader/file-system';
+import httpClient from './openapi-diff/resource-loader/http-client';
 import resultReporter from './openapi-diff/result-reporter';
 import specDiffer from './openapi-diff/spec-differ';
+import jsonLoader from './openapi-diff/spec-loader';
 import specParser from './openapi-diff/spec-parser';
 
 export const openApiDiff: OpenAPIDiff = {

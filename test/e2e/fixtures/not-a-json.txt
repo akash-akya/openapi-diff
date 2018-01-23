@@ -1,1 +1,0 @@
-A file that's not JSON for testing invalid input.
