@@ -1,3 +1,18 @@
+<a name="0.6.0"></a>
+# [0.6.0](https://bitbucket.org/atlassian/openapi-diff/compare/0.5.0...0.6.0) (2018-01-23)
+
+
+### Features
+
+* **core:** Load specs from YAML sources ([6d0f5e4](https://bitbucket.org/atlassian/openapi-diff/commits/6d0f5e4))
+
+
+### Reverts
+
+* unbump changelog dependencies for ci health ([18ae0d8](https://bitbucket.org/atlassian/openapi-diff/commits/18ae0d8))
+
+
+
 <a name="0.5.0"></a>
 # [0.5.0](https://bitbucket.org/atlassian/openapi-diff/compare/0.4.0...0.5.0) (2017-08-17)
 
