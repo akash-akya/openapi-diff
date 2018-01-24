@@ -113,7 +113,7 @@ describe('openapi-diff', () => {
 
     it('should error gently when unable to use the URLs provided', async () => {
         const error = await expectToFail(invokeCommand({
-            newSpecLocation: 'htt://localhost:3000/basic-new.json',
+            newSpecLocation: 'http://localhost:3000/basic-new.json',
             oldSpecLocation: 'htt://localhost:3000/basic-old.json'
         }));
 
@@ -125,7 +125,7 @@ describe('openapi-diff', () => {
 
     it('should error gently when unable to fetch files over http', async () => {
         const error = await expectToFail(invokeCommand({
-            newSpecLocation: 'http://localhost:3000/non-existing-new.json',
+            newSpecLocation: 'http://localhost:3000/basic-new.json',
             oldSpecLocation: 'http://localhost:3000/non-existing-old.json'
         }));
 
@@ -137,7 +137,7 @@ describe('openapi-diff', () => {
 
     it('should error gently when unable to parse files as json over http', async () => {
         const error = await expectToFail(invokeCommand({
-            newSpecLocation: 'http://localhost:3000/not-a-json-or-yaml.txt',
+            newSpecLocation: 'http://localhost:3000/basic-new.json',
             oldSpecLocation: 'http://localhost:3000/not-a-json-or-yaml.txt'
         }));
 
