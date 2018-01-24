@@ -1,10 +1,5 @@
 import * as _ from 'lodash';
-
-import {
-    DiffEntry,
-    DiffEntrySeverity,
-    ResultObject
-} from './types';
+import {DiffEntry, DiffEntrySeverity, ResultObject} from './types';
 
 const buildChangeSentence = (targetChange: DiffEntry): string => {
     const changeDescription: any = {
@@ -38,7 +33,7 @@ const countSeverities = (changes: DiffEntry[], changeSeverity: DiffEntrySeverity
     return changeCount;
 };
 
-export default {
+export const resultReporter = {
     build: (results: DiffEntry[]): ResultObject => {
         const numberOfBreakingChanges = countSeverities(results, 'breaking');
 

@@ -175,7 +175,7 @@ const isSwagger2 = (spec: Swagger2 | OpenApi3): boolean => {
     return !!(spec as Swagger2).swagger;
 };
 
-export default {
+export const specParser = {
     parse: (spec: Swagger2 | OpenApi3): ParsedSpec => {
         return isSwagger2(spec) ? parseSwagger2Spec(spec as Swagger2) : parseOpenApi3Spec(spec as OpenApi3);
     }

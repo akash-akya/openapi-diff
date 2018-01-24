@@ -3,10 +3,7 @@ import * as _ from 'lodash';
 import {Info as InfoObject} from 'swagger-schema-official';
 
 export class Swagger2SpecInfoBuilder {
-    private specInfo: InfoObject;
-
-    constructor(specInfo: InfoObject) {
-        this.specInfo = specInfo;
+    constructor(private readonly specInfo: InfoObject) {
     }
 
     public build(): InfoObject {

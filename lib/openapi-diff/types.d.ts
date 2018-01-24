@@ -112,21 +112,11 @@ export interface ResultObject {
 }
 
 // Various other types
-export interface FileSystem {
-    readFile: ResourceLoaderFunction;
-}
-
 export interface GenericProperty {
     key: string;
     value: any;
 }
 
-export interface HttpClient {
-    get: ResourceLoaderFunction;
-}
-
-export type ResourceLoaderFunction = (location: string) => Promise<string>;
-
-export interface OpenAPIDiff {
+export interface OpenApiDiff {
     run: (oldSpecPath: string, newSpecPath: string) => Promise<ResultObject>;
 }

@@ -51,7 +51,7 @@ const severityDictionary: DictionaryEntry[] = [
     {taxonomy: 'unclassified.edit', severity: 'unclassified'}
 ];
 
-export default {
+export const severityFinder = {
     lookup: (taxonomy: DiffEntryTaxonomy): DiffEntrySeverity => {
         const correspondingEntry: DictionaryEntry | undefined = _.find(severityDictionary, ['taxonomy', taxonomy]);
         return correspondingEntry ? correspondingEntry.severity : 'unclassified';

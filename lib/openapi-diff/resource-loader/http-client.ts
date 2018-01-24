@@ -1,10 +1,8 @@
 import * as request from 'request';
 import * as VError from 'verror';
 
-import { HttpClient } from '../types';
-
-const httpClient: HttpClient = {
-    get: (location) => {
+export class HttpClient {
+    public get(location: string): Promise<string> {
         return new Promise((resolve, reject) => {
             request.get(location, (error, response, body) => {
                 if (error) {
@@ -18,6 +16,4 @@ const httpClient: HttpClient = {
             });
         });
     }
-};
-
-export default httpClient;
+}

@@ -1,17 +1,15 @@
-import {OpenAPIDiff} from './openapi-diff/types';
+import {resultReporter} from './openapi-diff/result-reporter';
+import {specDiffer} from './openapi-diff/spec-differ';
+import {SpecLoader} from './openapi-diff/spec-loader';
+import {specParser} from './openapi-diff/spec-parser';
+import {OpenApiDiff, ResultObject} from './openapi-diff/types';
 
-import fileSystem from './openapi-diff/resource-loader/file-system';
-import httpClient from './openapi-diff/resource-loader/http-client';
-import resultReporter from './openapi-diff/result-reporter';
-import specDiffer from './openapi-diff/spec-differ';
-import jsonLoader from './openapi-diff/spec-loader';
-import specParser from './openapi-diff/spec-parser';
+export class OpenApiDiffImpl implements OpenApiDiff {
+    constructor(private readonly specLoader: SpecLoader) {}
 
-export const openApiDiff: OpenAPIDiff = {
-    run: async (oldSpecPath, newSpecPath) => {
-
-        const whenOldSpec = jsonLoader.load(oldSpecPath, fileSystem, httpClient);
-        const whenNewSpec = jsonLoader.load(newSpecPath, fileSystem, httpClient);
+    public async run(oldSpecPath: string, newSpecPath: string): Promise<ResultObject> {
+        const whenOldSpec = this.specLoader.load(oldSpecPath);
+        const whenNewSpec = this.specLoader.load(newSpecPath);
         const rawSpecs = await Promise.all([whenOldSpec, whenNewSpec]);
 
         const oldSpec = rawSpecs[0];
@@ -25,4 +23,4 @@ export const openApiDiff: OpenAPIDiff = {
         const results = resultReporter.build(diff);
         return results;
     }
-};
+}

@@ -1,4 +1,4 @@
-export default async (promise: Promise<any>): Promise<Error> => {
+export const expectToFail = async (promise: Promise<any>): Promise<Error> => {
     let result: any;
     try {
         result = await promise;

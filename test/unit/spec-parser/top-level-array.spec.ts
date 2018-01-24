@@ -1,4 +1,4 @@
-import specParser from '../../../lib/openapi-diff/spec-parser';
+import {specParser} from '../../../lib/openapi-diff/spec-parser';
 import {openApi3SpecBuilder} from '../support/builders/openapi-3-spec-builder';
 import {parsedSpecBuilder} from '../support/builders/parsed-spec-builder';
 import {swagger2SpecBuilder} from '../support/builders/swagger-2-spec-builder';

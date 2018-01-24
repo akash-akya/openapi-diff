@@ -1,8 +1,6 @@
 import * as _ from 'lodash';
 import * as VError from 'verror';
-
-import severityFinder from './severity-finder';
-
+import {severityFinder} from './severity-finder';
 import {
     DiffEntry,
     DiffEntrySeverity,
@@ -247,7 +245,7 @@ const findDiffsInSpecs = (oldParsedSpec: ParsedSpec, newParsedSpec: ParsedSpec):
     return _.concat([], infoDiffs, basePathDiffs, hostDiffs, openApiDiffs, schemesDiffs, topLevelXPropertyDiffs);
 };
 
-export default {
+export const specDiffer = {
     diff: (oldParsedSpec: ParsedSpec, newParsedSpec: ParsedSpec): DiffEntry[] => {
         return findDiffsInSpecs(oldParsedSpec, newParsedSpec);
     }

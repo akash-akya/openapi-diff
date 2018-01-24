@@ -1,54 +1,52 @@
-import specLoader from '../../../lib/openapi-diff/spec-loader';
-import {FileSystem, HttpClient} from '../../../lib/openapi-diff/types';
-import expectToFail from '../../support/expect-to-fail';
-import fileSystemMockGenerator from '../support/mocks/file-system-mock-generator';
-import httpClientMockGenerator from '../support/mocks/http-client-mock-generator';
+import {SpecLoader} from '../../../lib/openapi-diff/spec-loader';
+import {expectToFail} from '../../support/expect-to-fail';
+import {MockCliFactory} from '../support/mock-cli-factory';
+import {MockFileSystem} from '../support/mocks/mock-file-system';
+import {MockHttpClient} from '../support/mocks/mock-http-client';
 
 describe('specLoader', () => {
-    let naiveFileSystem: FileSystem;
-    let naiveHttpClient: HttpClient;
+    let mockHttpClient: MockHttpClient;
+    let mockFileSystem: MockFileSystem;
+    let specLoader: SpecLoader;
 
     beforeEach(() => {
-        naiveFileSystem = fileSystemMockGenerator.createWithReturnValue('{}');
-        naiveHttpClient = httpClientMockGenerator.createWithReturnValue('{}');
+        mockFileSystem = MockCliFactory.createMockFileSystem();
+        mockFileSystem.givenReadFileReturns('{}');
+        mockHttpClient = MockCliFactory.createMockHttpClient();
+        mockHttpClient.givenGetReturns('{}');
+
+        specLoader = new SpecLoader(mockHttpClient, mockFileSystem);
     });
 
     describe('when the input location is a file', () => {
-
         it('should call the file system handler with the provided location', async () => {
+            await specLoader.load('input-file.json');
 
-            await specLoader.load('input-file.json', naiveFileSystem, naiveHttpClient);
-
-            expect(naiveFileSystem.readFile).toHaveBeenCalledWith('input-file.json');
+            expect(mockFileSystem.readFile).toHaveBeenCalledWith('input-file.json');
         });
 
         it('should error out when the file system returns an error', async () => {
+            mockFileSystem.givenReadFileFailsWith(new Error('test file system error'));
 
-            const mockFileSystem = fileSystemMockGenerator.createWithReturnError(new Error('test file system error'));
-
-            const error = await expectToFail(specLoader
-                .load('non-existing-file.json', mockFileSystem, naiveHttpClient));
+            const error = await expectToFail(specLoader.load('non-existing-file.json'));
 
             expect(error.message).toEqual(jasmine.stringMatching('test file system error'));
         });
 
         it('should return the file contents parsed when able to read the file', async () => {
-
             const fileContents: string = '{ "file": "contents" }';
-            const mockFileSystem = fileSystemMockGenerator.createWithReturnValue(fileContents);
+            mockFileSystem.givenReadFileReturns(fileContents);
 
-            const results = await specLoader.load('ok-file.json', mockFileSystem, naiveHttpClient);
+            const results = await specLoader.load('ok-file.json');
 
             expect(results).toEqual(JSON.parse(fileContents));
         });
 
         it('should error out when unable to parse the file contents as json or yaml', async () => {
-
             const fileContents: string = '{this is not json or yaml';
-            const mockFileSystem = fileSystemMockGenerator.createWithReturnValue(fileContents);
+            mockFileSystem.givenReadFileReturns(fileContents);
 
-            const error = await expectToFail(specLoader
-                .load('existing-file-with-invalid.json', mockFileSystem, naiveHttpClient));
+            const error = await expectToFail(specLoader.load('existing-file-with-invalid.json'));
 
             expect(error.message)
                 .toContain('ERROR: unable to parse existing-file-with-invalid.json as a JSON or YAML file');
@@ -56,44 +54,36 @@ describe('specLoader', () => {
     });
 
     describe('when the input location is a URL', () => {
-
         it('should call the http client handler with the provided location', async () => {
+            await specLoader.load('http://input.url');
 
-            await specLoader.load('http://input.url', naiveFileSystem, naiveHttpClient);
-
-            expect(naiveHttpClient.get).toHaveBeenCalledWith('http://input.url');
+            expect(mockHttpClient.get).toHaveBeenCalledWith('http://input.url');
         });
 
         it('should error out when the http client returns an error', async () => {
+            mockHttpClient.givenGetFailsWith(new Error('test http client error'));
 
-            const mockHttpClient = httpClientMockGenerator.createWithReturnError(new Error('test http client error'));
-
-            const error = await expectToFail(specLoader
-                .load('http://url.that.errors.out', naiveFileSystem, mockHttpClient));
+            const error = await expectToFail(specLoader.load('http://url.that.errors.out'));
 
             expect(error.message).toEqual(jasmine.stringMatching('test http client error'));
         });
 
         it('should return the url contents parsed when able to open the url', async () => {
-
             const urlContents: string = '{ "url": "contents" }';
-            const mockHttpClient = httpClientMockGenerator.createWithReturnValue(urlContents);
+            mockHttpClient.givenGetReturns(urlContents);
 
-            const results = await specLoader.load('http://url.that.works', naiveFileSystem, mockHttpClient);
+            const results = await specLoader.load('http://url.that.works');
 
             expect(results).toEqual(JSON.parse(urlContents));
         });
 
         it('should error out when the url returns non-json and non-yaml content', async () => {
-
             const urlContents: string = '{this is not json or yaml';
-            const mockHttpClient = httpClientMockGenerator.createWithReturnValue(urlContents);
+            mockHttpClient.givenGetReturns(urlContents);
 
-            const error = await expectToFail(specLoader
-                .load('http://url.that.loads.but.has.no.json.or.yaml', naiveFileSystem, mockHttpClient));
+            const error = await expectToFail(specLoader.load('http://url.that.loads.but.has.no.json.or.yaml'));
 
-            expect(error.message)
-                .toContain('ERROR: unable to parse http://url.that.loads.but.has.no.json.or.yaml');
+            expect(error.message).toContain('ERROR: unable to parse http://url.that.loads.but.has.no.json.or.yaml');
         });
     });
 });

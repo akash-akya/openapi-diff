@@ -4,15 +4,12 @@ import {
     ParsedProperty,
     ParsedSpec
 } from '../../../../lib/openapi-diff/types';
-import { NamedGenericProperty } from './parsed-spec-builder/named-generic-property';
+import {NamedGenericProperty} from './parsed-spec-builder/named-generic-property';
 
-import { parsedSpecInfoBuilder, ParsedSpecInfoBuilder } from './parsed-spec-builder/parsed-spec-info-builder';
+import {parsedSpecInfoBuilder, ParsedSpecInfoBuilder} from './parsed-spec-builder/parsed-spec-info-builder';
 
 class ParsedSpecBuilder {
-    private parsedSpec: ParsedSpec;
-
-    constructor(parsedSpec: ParsedSpec) {
-        this.parsedSpec = parsedSpec;
+    constructor(private readonly parsedSpec: ParsedSpec) {
     }
 
     public build(): ParsedSpec {
@@ -138,6 +135,6 @@ const defaultParsedSpec: ParsedSpec = {
     xProperties: {}
 };
 
-export { parsedSpecInfoBuilder };
+export {parsedSpecInfoBuilder};
 
 export const parsedSpecBuilder = new ParsedSpecBuilder(defaultParsedSpec);

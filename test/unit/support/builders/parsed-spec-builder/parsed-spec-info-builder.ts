@@ -4,10 +4,7 @@ import {ParsedInfoObject} from '../../../../../lib/openapi-diff/types';
 import {NamedGenericProperty} from './named-generic-property';
 
 export class ParsedSpecInfoBuilder {
-    private parsedInfo: ParsedInfoObject;
-
-    constructor(parsedInfo: ParsedInfoObject) {
-        this.parsedInfo = parsedInfo;
+    constructor(private readonly parsedInfo: ParsedInfoObject) {
     }
 
     public build(): ParsedInfoObject {

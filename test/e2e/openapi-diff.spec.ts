@@ -5,7 +5,7 @@ import * as path from 'path';
 import ErrnoException = NodeJS.ErrnoException;
 import * as VError from 'verror';
 
-import expectToFail from '../support/expect-to-fail';
+import {expectToFail} from '../support/expect-to-fail';
 
 interface InvokeCommandOptions {
     newSpecLocation: string;
@@ -13,7 +13,6 @@ interface InvokeCommandOptions {
 }
 
 const invokeCommand = (options: InvokeCommandOptions): Promise<string> => {
-
     const command = `./bin/openapi-diff-local ${options.oldSpecLocation} ${options.newSpecLocation}`;
 
     return new Promise((resolve, reject) => {

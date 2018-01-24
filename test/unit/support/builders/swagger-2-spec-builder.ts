@@ -8,10 +8,7 @@ import {
 } from './swagger-2-spec-builder/swagger-2-spec-info-builder';
 
 class Swagger2SpecBuilder {
-    private swagger2Spec: Swagger2;
-
-    constructor(swagger2Spec: Swagger2) {
-        this.swagger2Spec = swagger2Spec;
+    constructor(private readonly swagger2Spec: Swagger2) {
     }
 
     public build(): Swagger2 {
@@ -86,6 +83,6 @@ const defaultSwagger2Spec: Swagger2 = {
     swagger: '2.0'
 };
 
-export { swagger2SpecInfoBuilder };
+export {swagger2SpecInfoBuilder};
 
 export const swagger2SpecBuilder = new Swagger2SpecBuilder(defaultSwagger2Spec);

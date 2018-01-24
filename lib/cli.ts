@@ -2,13 +2,12 @@
 
 import * as commander from 'commander';
 import * as _ from 'lodash';
-
-import {openApiDiff} from './openapi-diff';
+import {CliFactory} from './cli-factory';
 
 // tslint:disable:no-var-requires
 const packageJson = require('../package.json');
-
 const newLineChar = '\n';
+const openApiDiff = CliFactory.createOpenApiDiff();
 
 commander
     .version(packageJson.version)
