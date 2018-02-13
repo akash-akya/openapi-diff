@@ -7,6 +7,8 @@
         "no-implicit-dependencies": [true, "dev"],
         "quotemark": [true, "single"],
         "trailing-comma": [true, {"multiline": "never", "singleline": "never"}],
-        "prefer-object-spread": false
+        "prefer-object-spread": false,
+        "no-default-export": true,
+        "member-access": [true, "check-constructor"]
     }
 }

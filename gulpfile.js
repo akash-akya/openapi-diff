@@ -31,7 +31,7 @@ const getPackageJsonVersion = () => {
 const tsProjectBuildOutput = ts.createProject('tsconfig.json', {noEmit: false});
 
 gulp.task('bump-version', (callback) => {
-    return exec(`npm version ${getBumpType()} --no-git-tag-version`, (err, stdout, stderr) => {
+    exec(`npm version ${getBumpType()} --no-git-tag-version`, (err, stdout, stderr) => {
         console.log(stdout);
         console.log(stderr);
         callback(err);
@@ -108,7 +108,7 @@ gulp.task('e2e-test', () => {
 });
 
 gulp.task('lint-commits', (callback) => {
-    return exec('./node_modules/.bin/conventional-changelog-lint --from=HEAD~20 --preset angular',
+    exec('./node_modules/.bin/conventional-changelog-lint --from=HEAD~20 --preset angular',
         (err, stdout, stderr) => {
             console.log(stdout);
             console.log(stderr);
@@ -117,7 +117,7 @@ gulp.task('lint-commits', (callback) => {
 });
 
 gulp.task('lint-typescript', () => {
-    tsProjectBuildOutput.src()
+    return tsProjectBuildOutput.src()
         .pipe(tslint())
         .pipe(tslint.report());
 });

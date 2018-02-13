@@ -8,8 +8,7 @@ import {
 } from './swagger-2-spec-builder/swagger-2-spec-info-builder';
 
 class Swagger2SpecBuilder {
-    constructor(private readonly swagger2Spec: Swagger2) {
-    }
+    public constructor(private readonly swagger2Spec: Swagger2) {}
 
     public build(): Swagger2 {
         return _.cloneDeep(this.swagger2Spec);

@@ -4,8 +4,7 @@ import {GenericProperty} from '../../../../lib/openapi-diff/types';
 import {openApi3SpecInfoBuilder, OpenApi3SpecInfoBuilder} from './openapi-3-spec-builder/openapi-3-spec-info-builder';
 
 class OpenApi3SpecBuilder {
-    constructor(private readonly openApi3Spec: OpenApi3) {
-    }
+    public constructor(private readonly openApi3Spec: OpenApi3) {}
 
     public build(): OpenApi3 {
         return _.cloneDeep(this.openApi3Spec);

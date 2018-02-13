@@ -9,8 +9,7 @@ import {NamedGenericProperty} from './parsed-spec-builder/named-generic-property
 import {parsedSpecInfoBuilder, ParsedSpecInfoBuilder} from './parsed-spec-builder/parsed-spec-info-builder';
 
 class ParsedSpecBuilder {
-    constructor(private readonly parsedSpec: ParsedSpec) {
-    }
+    public constructor(private readonly parsedSpec: ParsedSpec) {}
 
     public build(): ParsedSpec {
         return _.cloneDeep(this.parsedSpec);

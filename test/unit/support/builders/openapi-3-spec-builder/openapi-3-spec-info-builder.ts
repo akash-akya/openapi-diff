@@ -3,8 +3,7 @@ import * as _ from 'lodash';
 import {InfoObject} from 'openapi3-ts';
 
 export class OpenApi3SpecInfoBuilder {
-    constructor(private readonly specInfo: InfoObject) {
-    }
+    public constructor(private readonly specInfo: InfoObject) {}
 
     public build(): InfoObject {
         return _.cloneDeep(this.specInfo);

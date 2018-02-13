@@ -5,7 +5,7 @@ import {specParser} from './openapi-diff/spec-parser';
 import {OpenApiDiff, ResultObject} from './openapi-diff/types';
 
 export class OpenApiDiffImpl implements OpenApiDiff {
-    constructor(private readonly specLoader: SpecLoader) {}
+    public constructor(private readonly specLoader: SpecLoader) {}
 
     public async run(oldSpecPath: string, newSpecPath: string): Promise<ResultObject> {
         const whenOldSpec = this.specLoader.load(oldSpecPath);

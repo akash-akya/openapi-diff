@@ -48,7 +48,7 @@ export class SpecLoader {
         return urlObject.protocol !== null;
     }
 
-    constructor(private readonly httpClient: HttpClient, private readonly fileSystem: FileSystem) {}
+    public constructor(private readonly httpClient: HttpClient, private readonly fileSystem: FileSystem) {}
 
     public async load(location: string): Promise<Spec | OpenAPIObject> {
         const fileContents = SpecLoader.isUrl(location)
