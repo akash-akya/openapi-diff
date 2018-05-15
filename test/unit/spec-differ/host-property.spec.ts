@@ -1,4 +1,5 @@
 import {specDiffer} from '../../../lib/openapi-diff/spec-differ';
+import {DiffEntry} from '../../../lib/openapi-diff/types';
 import {parsedSpecBuilder} from '../support/builders/parsed-spec-builder';
 
 describe('specDiffer', () => {
@@ -7,25 +8,25 @@ describe('specDiffer', () => {
 
         it('should classify the change as a breaking edition in the host property', () => {
 
-            const oldParsedSpec = parsedSpecBuilder
+            const parsedSourceSpec = parsedSpecBuilder
                 .withHost('host info')
                 .build();
-            const newParsedSpec = parsedSpecBuilder
+            const parsedDestinationSpec = parsedSpecBuilder
                 .withHost('NEW host info')
                 .build();
 
-            const result = specDiffer.diff(oldParsedSpec, newParsedSpec);
+            const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            expect(result.length).toEqual(1);
-            expect(result[0]).toEqual({
-                newValue: 'NEW host info',
-                oldValue: 'host info',
+            const expectedDiffEntry: DiffEntry = {
+                destinationValue: 'NEW host info',
                 printablePath: ['host'],
                 scope: 'host',
                 severity: 'breaking',
+                sourceValue: 'host info',
                 taxonomy: 'host.edit',
                 type: 'edit'
-            });
+            };
+            expect(result).toEqual([expectedDiffEntry]);
         });
     });
 
@@ -33,25 +34,25 @@ describe('specDiffer', () => {
 
         it('should classify the change as a breaking addition of the host property', () => {
 
-            const oldParsedSpec = parsedSpecBuilder
+            const parsedSourceSpec = parsedSpecBuilder
                 .withNoHost()
                 .build();
-            const newParsedSpec = parsedSpecBuilder
+            const parsedDestinationSpec = parsedSpecBuilder
                 .withHost('NEW host info')
                 .build();
 
-            const result = specDiffer.diff(oldParsedSpec, newParsedSpec);
+            const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            expect(result.length).toEqual(1);
-            expect(result[0]).toEqual({
-                newValue: 'NEW host info',
-                oldValue: undefined,
+            const expectedDiffEntry: DiffEntry = {
+                destinationValue: 'NEW host info',
                 printablePath: ['host'],
                 scope: 'host',
                 severity: 'breaking',
+                sourceValue: undefined,
                 taxonomy: 'host.add',
                 type: 'add'
-            });
+            };
+            expect(result).toEqual([expectedDiffEntry]);
         });
     });
 
@@ -59,25 +60,25 @@ describe('specDiffer', () => {
 
         it('should classify the change as a breaking deletion of the host property', () => {
 
-            const oldParsedSpec = parsedSpecBuilder
+            const parsedSourceSpec = parsedSpecBuilder
                 .withHost('OLD host info')
                 .build();
-            const newParsedSpec = parsedSpecBuilder
+            const parsedDestinationSpec = parsedSpecBuilder
                 .withNoHost()
                 .build();
 
-            const result = specDiffer.diff(oldParsedSpec, newParsedSpec);
+            const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            expect(result.length).toEqual(1);
-            expect(result[0]).toEqual({
-                newValue: undefined,
-                oldValue: 'OLD host info',
+            const expectedDiffEntry: DiffEntry = {
+                destinationValue: undefined,
                 printablePath: ['host'],
                 scope: 'host',
                 severity: 'breaking',
+                sourceValue: 'OLD host info',
                 taxonomy: 'host.delete',
                 type: 'delete'
-            });
+            };
+            expect(result).toEqual([expectedDiffEntry]);
         });
     });
 });

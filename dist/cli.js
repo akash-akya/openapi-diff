@@ -27,7 +27,7 @@ commander
         The <old> spec and <new> spec arguments should be paths to where the specs live in your filesystem.`)
     .action((oldSpecPath, newSpecPath) => __awaiter(this, void 0, void 0, function* () {
     try {
-        const results = yield openapi_diff_1.openApiDiff.run(oldSpecPath, newSpecPath);
+        const results = yield openapi_diff_1.openApiDiff.validate(oldSpecPath, newSpecPath);
         console.log(`* OpenAPI Diff v${packageJson.version} *`);
         console.log(newLineChar);
         console.log('Inputs');

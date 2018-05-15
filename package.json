@@ -63,5 +63,6 @@
     "openapi3-ts": "^0.6.2",
     "request": "^2.81.0",
     "verror": "^1.10.0"
-  }
+  },
+  "types": "lib/api-types.d.ts"
 }

@@ -1,4 +1,5 @@
 import {specDiffer} from '../../../lib/openapi-diff/spec-differ';
+import {DiffEntry} from '../../../lib/openapi-diff/types';
 import {parsedSpecBuilder} from '../support/builders/parsed-spec-builder';
 
 describe('specDiffer', () => {
@@ -7,25 +8,25 @@ describe('specDiffer', () => {
 
         it('should classify the change as a breaking edition in the basePath property', () => {
 
-            const oldParsedSpec = parsedSpecBuilder
+            const parsedSourceSpec = parsedSpecBuilder
                 .withBasePath('basePath info')
                 .build();
-            const newParsedSpec = parsedSpecBuilder
+            const parsedDestinationSpec = parsedSpecBuilder
                 .withBasePath('NEW basePath info')
                 .build();
 
-            const result = specDiffer.diff(oldParsedSpec, newParsedSpec);
+            const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            expect(result.length).toEqual(1);
-            expect(result[0]).toEqual({
-                newValue: 'NEW basePath info',
-                oldValue: 'basePath info',
+            const expectedDiffEntry: DiffEntry = {
+                destinationValue: 'NEW basePath info',
                 printablePath: ['basePath'],
                 scope: 'basePath',
                 severity: 'breaking',
+                sourceValue: 'basePath info',
                 taxonomy: 'basePath.edit',
                 type: 'edit'
-            });
+            };
+            expect(result).toEqual([expectedDiffEntry]);
         });
     });
 
@@ -33,25 +34,25 @@ describe('specDiffer', () => {
 
         it('should classify the change as a breaking addition of the basePath property', () => {
 
-            const oldParsedSpec = parsedSpecBuilder
+            const parsedSourceSpec = parsedSpecBuilder
                 .withNoBasePath()
                 .build();
-            const newParsedSpec = parsedSpecBuilder
+            const parsedDestinationSpec = parsedSpecBuilder
                 .withBasePath('NEW basePath info')
                 .build();
 
-            const result = specDiffer.diff(oldParsedSpec, newParsedSpec);
+            const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            expect(result.length).toEqual(1);
-            expect(result[0]).toEqual({
-                newValue: 'NEW basePath info',
-                oldValue: undefined,
+            const expectedDiffEntry: DiffEntry = {
+                destinationValue: 'NEW basePath info',
                 printablePath: ['basePath'],
                 scope: 'basePath',
                 severity: 'breaking',
+                sourceValue: undefined,
                 taxonomy: 'basePath.add',
                 type: 'add'
-            });
+            };
+            expect(result).toEqual([expectedDiffEntry]);
         });
     });
 
@@ -59,25 +60,25 @@ describe('specDiffer', () => {
 
         it('should classify the change as a breaking deletion of the basePath property', () => {
 
-            const oldParsedSpec = parsedSpecBuilder
+            const parsedSourceSpec = parsedSpecBuilder
                 .withBasePath('OLD basePath info')
                 .build();
-            const newParsedSpec = parsedSpecBuilder
+            const parsedDestinationSpec = parsedSpecBuilder
                 .withNoBasePath()
                 .build();
 
-            const result = specDiffer.diff(oldParsedSpec, newParsedSpec);
+            const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            expect(result.length).toEqual(1);
-            expect(result[0]).toEqual({
-                newValue: undefined,
-                oldValue: 'OLD basePath info',
+            const expectedDiffEntry: DiffEntry = {
+                destinationValue: undefined,
                 printablePath: ['basePath'],
                 scope: 'basePath',
                 severity: 'breaking',
+                sourceValue: 'OLD basePath info',
                 taxonomy: 'basePath.delete',
                 type: 'delete'
-            });
+            };
+            expect(result).toEqual([expectedDiffEntry]);
         });
     });
 });

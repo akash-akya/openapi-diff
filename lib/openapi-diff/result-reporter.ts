@@ -5,23 +5,23 @@ const buildChangeSentence = (targetChange: DiffEntry): string => {
     const changeDescription: any = {
         'add': ((change: DiffEntry): string => {
             return `${_.capitalize(change.severity)}: the path [${change.printablePath.join('/')}] `
-                   + `was added with value \'${change.newValue}\'`;
+                   + `was added with value \'${change.destinationValue}\'`;
         }),
         'arrayContent.add': ((change: DiffEntry): string => {
-            return `${_.capitalize(change.severity)}: the value \'${change.newValue}\' was added to the`
+            return `${_.capitalize(change.severity)}: the value \'${change.destinationValue}\' was added to the`
                     + ` array in the path [${change.printablePath.join('/')}]`;
         }),
         'arrayContent.delete': ((change: DiffEntry): string => {
-            return `${_.capitalize(change.severity)}: the value \'${change.oldValue}\' was removed from the`
+            return `${_.capitalize(change.severity)}: the value \'${change.sourceValue}\' was removed from the`
                    + ` array in the path [${change.printablePath.join('/')}]`;
         }),
         'delete': ((change: DiffEntry): string => {
             return `${_.capitalize(change.severity)}: the path [${change.printablePath.join('/')}] `
-                   + `with value \'${change.oldValue}\' was removed`;
+                   + `with value \'${change.sourceValue}\' was removed`;
         }),
         'edit': ((change: DiffEntry): string => {
             return `${_.capitalize(change.severity)}: the path [${change.printablePath.join('/')}] `
-            + `was modified from \'${change.oldValue}\' to \'${change.newValue}\'`;
+            + `was modified from \'${change.sourceValue}\' to \'${change.destinationValue}\'`;
         })
     };
 

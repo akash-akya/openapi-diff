@@ -1,4 +1,5 @@
 import {specDiffer} from '../../../lib/openapi-diff/spec-differ';
+import {DiffEntry} from '../../../lib/openapi-diff/types';
 import {parsedSpecBuilder} from '../support/builders/parsed-spec-builder';
 
 describe('specDiffer', () => {
@@ -7,14 +8,14 @@ describe('specDiffer', () => {
 
         it('should classify the change as an unclassified edition of the top level ^x- property', () => {
 
-            const oldParsedSpec = parsedSpecBuilder
+            const parsedSourceSpec = parsedSpecBuilder
                 .withTopLevelXProperty({
                     name: 'x-external-id',
                     originalPath: ['x-external-id'],
                     value: 'x value'
                 })
                 .build();
-            const newParsedSpec = parsedSpecBuilder
+            const parsedDestinationSpec = parsedSpecBuilder
                 .withTopLevelXProperty({
                     name: 'x-external-id',
                     originalPath: ['x-external-id'],
@@ -22,18 +23,18 @@ describe('specDiffer', () => {
                 })
                 .build();
 
-            const result = specDiffer.diff(oldParsedSpec, newParsedSpec);
+            const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            expect(result.length).toEqual(1);
-            expect(result[0]).toEqual({
-                newValue: 'NEW x value',
-                oldValue: 'x value',
+            const expectedDiffEntry: DiffEntry = {
+                destinationValue: 'NEW x value',
                 printablePath: ['x-external-id'],
                 scope: 'unclassified',
                 severity: 'unclassified',
+                sourceValue: 'x value',
                 taxonomy: 'unclassified.edit',
                 type: 'edit'
-            });
+            };
+            expect(result).toEqual([expectedDiffEntry]);
         });
     });
 
@@ -41,10 +42,10 @@ describe('specDiffer', () => {
 
         it('should classify the change as an unclassified addition of the top level ^x- property', () => {
 
-            const oldParsedSpec = parsedSpecBuilder
+            const parsedSourceSpec = parsedSpecBuilder
                 .withNoTopLevelXProperties()
                 .build();
-            const newParsedSpec = parsedSpecBuilder
+            const parsedDestinationSpec = parsedSpecBuilder
                 .withTopLevelXProperty({
                     name: 'x-external-id',
                     originalPath: ['x-external-id'],
@@ -52,18 +53,18 @@ describe('specDiffer', () => {
                 })
                 .build();
 
-            const result = specDiffer.diff(oldParsedSpec, newParsedSpec);
+            const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            expect(result.length).toEqual(1);
-            expect(result[0]).toEqual({
-                newValue: 'NEW x value',
-                oldValue: undefined,
+            const expectedDiffEntry: DiffEntry = {
+                destinationValue: 'NEW x value',
                 printablePath: ['x-external-id'],
                 scope: 'unclassified',
                 severity: 'unclassified',
+                sourceValue: undefined,
                 taxonomy: 'unclassified.add',
                 type: 'add'
-            });
+            };
+            expect(result).toEqual([expectedDiffEntry]);
         });
     });
 
@@ -71,29 +72,29 @@ describe('specDiffer', () => {
 
         it('should classify the change as an unclassified deletion of the top level ^x- property', () => {
 
-            const oldParsedSpec = parsedSpecBuilder
+            const parsedSourceSpec = parsedSpecBuilder
                 .withTopLevelXProperty({
                     name: 'x-external-id',
                     originalPath: ['x-external-id'],
                     value: 'x value'
                 })
                 .build();
-            const newParsedSpec = parsedSpecBuilder
+            const parsedDestinationSpec = parsedSpecBuilder
                 .withNoTopLevelXProperties()
                 .build();
 
-            const result = specDiffer.diff(oldParsedSpec, newParsedSpec);
+            const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            expect(result.length).toEqual(1);
-            expect(result[0]).toEqual({
-                newValue: undefined,
-                oldValue: 'x value',
+            const expectedDiffEntry: DiffEntry = {
+                destinationValue: undefined,
                 printablePath: ['x-external-id'],
                 scope: 'unclassified',
                 severity: 'unclassified',
+                sourceValue: 'x value',
                 taxonomy: 'unclassified.delete',
                 type: 'delete'
-            });
+            };
+            expect(result).toEqual([expectedDiffEntry]);
         });
     });
 
@@ -101,7 +102,7 @@ describe('specDiffer', () => {
 
         it('should detect and classify ^x- property additions, deletions and editions', () => {
 
-            const oldParsedSpec = parsedSpecBuilder
+            const parsedSourceSpec = parsedSpecBuilder
                 .withTopLevelXProperty({
                     name: 'x-deleted-prop',
                     originalPath: ['x-deleted-prop'],
@@ -113,7 +114,7 @@ describe('specDiffer', () => {
                     value: 'x edited old value'
                 })
                 .build();
-            const newParsedSpec = parsedSpecBuilder
+            const parsedDestinationSpec = parsedSpecBuilder
                 .withTopLevelXProperty({
                     name: 'x-added-prop',
                     originalPath: ['x-added-prop'],
@@ -126,36 +127,36 @@ describe('specDiffer', () => {
                 })
                 .build();
 
-            const result = specDiffer.diff(oldParsedSpec, newParsedSpec);
+            const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            expect(result.length).toEqual(3);
-            expect(result[0]).toEqual({
-                newValue: undefined,
-                oldValue: 'x deleted value',
+            const expectedDiffEntry1: DiffEntry = {
+                destinationValue: undefined,
                 printablePath: ['x-deleted-prop'],
                 scope: 'unclassified',
                 severity: 'unclassified',
+                sourceValue: 'x deleted value',
                 taxonomy: 'unclassified.delete',
                 type: 'delete'
-            });
-            expect(result[1]).toEqual({
-                newValue: 'x edited NEW value',
-                oldValue: 'x edited old value',
+            };
+            const expectedDiffEntry2: DiffEntry = {
+                destinationValue: 'x edited NEW value',
                 printablePath: ['x-edited-prop'],
                 scope: 'unclassified',
                 severity: 'unclassified',
+                sourceValue: 'x edited old value',
                 taxonomy: 'unclassified.edit',
                 type: 'edit'
-            });
-            expect(result[2]).toEqual({
-                newValue: 'x added value',
-                oldValue: undefined,
+            };
+            const expectedDiffEntry3: DiffEntry = {
+                destinationValue: 'x added value',
                 printablePath: ['x-added-prop'],
                 scope: 'unclassified',
                 severity: 'unclassified',
+                sourceValue: undefined,
                 taxonomy: 'unclassified.add',
                 type: 'add'
-            });
+            };
+            expect(result).toEqual([expectedDiffEntry1, expectedDiffEntry2, expectedDiffEntry3]);
         });
     });
 });

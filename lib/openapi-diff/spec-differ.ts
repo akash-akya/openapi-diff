@@ -1,50 +1,54 @@
 import * as _ from 'lodash';
-import * as VError from 'verror';
-import {severityFinder} from './severity-finder';
+import {
+    ValidationResult, ValidationResultAction, ValidationResultEntity,
+    ValidationResultSpecEntityDetails
+} from '../api-types';
+import {toDiffEntry} from './common/validation-result-to-diff-entry';
+import {resultTypeFinder} from './result-type-finder';
 import {
     DiffEntry,
-    DiffEntrySeverity,
-    DiffEntryTaxonomy,
-    DiffEntryType,
     ParsedProperty,
     ParsedSpec
 } from './types';
 
-interface CreateDiffEntryOptions<T> {
-    oldObject?: T;
-    newObject?: T;
+interface CreateValidationResultOptions<T> {
+    sourceObject?: T;
+    destinationObject?: T;
     propertyName: string;
-    type: DiffEntryType;
+    action: ValidationResultAction;
 }
 
-const findPrintablePathForDiff = <T>(options: CreateDiffEntryOptions<ParsedProperty<T>>): string[] => {
-    if (_.isUndefined(options.oldObject) && _.isUndefined(options.newObject)) {
-        throw new VError(`ERROR: impossible to find the path for ${options.propertyName} - ${options.type}`);
-    }
-    return options.oldObject ?
-        options.oldObject.originalPath :
-        (options.newObject as ParsedProperty<T>).originalPath;
+const findEntityForDiff = (propertyName: string): ValidationResultEntity => {
+    return propertyName.includes('xProperties') ? 'oad.unclassified' : `oad.${propertyName}` as ValidationResultEntity;
 };
 
-const findScopeForDiff = (propertyName: string): string => {
-    return propertyName.includes('xProperties') ? 'unclassified' : propertyName;
-};
-
-const createDiffEntry = <T>(options: CreateDiffEntryOptions<ParsedProperty<T>>): DiffEntry => {
-    const printablePath: string[] = findPrintablePathForDiff(options);
-    const scope: string = findScopeForDiff(options.propertyName);
-    const taxonomy: DiffEntryTaxonomy = `${scope}.${options.type}` as DiffEntryTaxonomy;
-    const severity: DiffEntrySeverity = severityFinder.lookup(taxonomy);
-
+const createValidationResult = <T>(options: CreateValidationResultOptions<ParsedProperty<T>>): ValidationResult => {
+    const entity = findEntityForDiff(options.propertyName);
     return {
-        newValue: options.newObject ? options.newObject.value : undefined,
-        oldValue: options.oldObject ? options.oldObject.value : undefined,
-        printablePath,
-        scope,
-        severity,
-        taxonomy,
-        type: options.type
+        action: options.action,
+        destinationSpecEntityDetails: createSpecEntityDetails(options.destinationObject),
+        details: {},
+        entity,
+        source: 'open-api-diff',
+        sourceSpecEntityDetails: createSpecEntityDetails(options.sourceObject),
+        type: resultTypeFinder.lookup(entity, options.action)
     };
+};
+
+const createSpecEntityDetails = <T>(parsedProperty?: ParsedProperty<T>): ValidationResultSpecEntityDetails => {
+    return parsedProperty
+        ? {
+            location: parsedProperty.originalPath.join('.'),
+            pathMethod: null,
+            pathName: null,
+            value: parsedProperty.value
+          }
+        : {
+            location: '',
+            pathMethod: null,
+            pathName: null,
+            value: undefined
+        };
 };
 
 const isDefined = (target: any): boolean => {
@@ -59,194 +63,194 @@ const isUndefinedDeep = (objectWithValue: { value?: any }): boolean => {
     return _.isUndefined(objectWithValue) || _.isUndefined(objectWithValue.value);
 };
 
-const findAdditionDiffsInProperty = <T>(oldObject: ParsedProperty<T>,
-                                        newObject: ParsedProperty<T>,
-                                        propertyName: string): DiffEntry[] => {
-    const isAddition = isUndefinedDeep(oldObject) && isDefinedDeep(newObject);
+const findAdditionDiffsInProperty = <T>(sourceObject: ParsedProperty<T>,
+                                        destinationObject: ParsedProperty<T>,
+                                        propertyName: string): ValidationResult[] => {
+    const isAddition = isUndefinedDeep(sourceObject) && isDefinedDeep(destinationObject);
 
     if (isAddition) {
-        return [createDiffEntry({newObject, oldObject, propertyName, type: 'add'})];
+        return [createValidationResult({sourceObject, destinationObject, propertyName, action: 'add'})];
     }
 
     return [];
 };
 
-const findDeletionDiffsInProperty = <T>(oldObject: ParsedProperty<T>,
-                                        newObject: ParsedProperty<T>,
-                                        propertyName: string): DiffEntry[] => {
-    const isDeletion = isDefinedDeep(oldObject) && isUndefinedDeep(newObject);
+const findDeletionDiffsInProperty = <T>(sourceObject: ParsedProperty<T>,
+                                        destinationObject: ParsedProperty<T>,
+                                        propertyName: string): ValidationResult[] => {
+    const isDeletion = isDefinedDeep(sourceObject) && isUndefinedDeep(destinationObject);
 
     if (isDeletion) {
-        return [createDiffEntry({newObject, oldObject, propertyName, type: 'delete'})];
+        return [createValidationResult({sourceObject, destinationObject, propertyName, action: 'delete'})];
     }
 
     return [];
 };
 
-const findEditionDiffsInProperty = (oldObject: ParsedProperty<string>,
-                                    newObject: ParsedProperty<string>,
-                                    propertyName: string): DiffEntry[] => {
-    const isEdition = isDefinedDeep(oldObject) && isDefinedDeep(newObject) && (oldObject.value !== newObject.value);
+const findEditionDiffsInProperty = (sourceObject: ParsedProperty<string>,
+                                    destinationObject: ParsedProperty<string>,
+                                    propertyName: string): ValidationResult[] => {
+    const isEdition = isDefinedDeep(sourceObject)
+        && isDefinedDeep(destinationObject) && (sourceObject.value !== destinationObject.value);
 
     if (isEdition) {
-        return [createDiffEntry({newObject, oldObject, propertyName, type: 'edit'})];
+        return [createValidationResult({sourceObject, destinationObject, propertyName, action: 'edit'})];
     }
 
     return [];
 };
 
-const findDiffsInProperty = (oldObject: ParsedProperty<string>,
-                             newObject: ParsedProperty<string>,
-                             propertyName: string): DiffEntry[] => {
+const findDiffsInProperty = (sourceObject: ParsedProperty<string>,
+                             destinationObject: ParsedProperty<string>,
+                             propertyName: string): ValidationResult[] => {
 
-    const additionDiffs: DiffEntry[] = findAdditionDiffsInProperty(oldObject, newObject, propertyName);
-    const deletionDiffs: DiffEntry[] = findDeletionDiffsInProperty(oldObject, newObject, propertyName);
-    const editionDiffs: DiffEntry[] = findEditionDiffsInProperty(oldObject, newObject, propertyName);
+    const additionDiffs = findAdditionDiffsInProperty(sourceObject, destinationObject, propertyName);
+    const deletionDiffs = findDeletionDiffsInProperty(sourceObject, destinationObject, propertyName);
+    const editionDiffs = findEditionDiffsInProperty(sourceObject, destinationObject, propertyName);
 
-    return _.concat<DiffEntry>([], additionDiffs, deletionDiffs, editionDiffs);
+    return _.concat<ValidationResult>([], additionDiffs, deletionDiffs, editionDiffs);
 };
 
 const isValueInArray = (object: any, array?: any[]): boolean => {
     return _.some(array, {value: object.value});
 };
 
-const findAdditionDiffsInArray = <T>(oldArrayContent: Array<ParsedProperty<T>> | undefined,
-                                     newArrayContent: Array<ParsedProperty<T>> | undefined,
-                                     arrayName: string): DiffEntry[] => {
+const findAdditionDiffsInArray = <T>(sourceArrayContent: Array<ParsedProperty<T>> | undefined,
+                                     destinationArrayContent: Array<ParsedProperty<T>> | undefined,
+                                     arrayName: string): ValidationResult[] => {
 
-    const arrayContentAdditionDiffs = _(newArrayContent)
+    const arrayContentAdditionDiffs = _(destinationArrayContent)
         .filter((entry) => {
-            return !isValueInArray(entry, oldArrayContent);
+            return !isValueInArray(entry, sourceArrayContent);
         })
         .map((addedEntry) => {
-            return createDiffEntry({
-                newObject: addedEntry,
-                oldObject: undefined,
+            return createValidationResult({
+                action: 'item.add',
+                destinationObject: addedEntry,
                 propertyName: arrayName,
-                type: 'arrayContent.add'
+                sourceObject: undefined
             });
         })
-        .flatten<DiffEntry>()
+        .flatten<ValidationResult>()
         .value();
 
     return arrayContentAdditionDiffs;
 };
 
-const findDeletionDiffsInArray = <T>(oldArrayContent: Array<ParsedProperty<T>> | undefined,
-                                     newArrayContent: Array<ParsedProperty<T>> | undefined,
-                                     arrayName: string): DiffEntry[] => {
+const findDeletionDiffsInArray = <T>(sourceArrayContent: Array<ParsedProperty<T>> | undefined,
+                                     destinationArrayContent: Array<ParsedProperty<T>> | undefined,
+                                     arrayName: string): ValidationResult[] => {
 
-    const arrayContentDeletionDiffs = _(oldArrayContent)
+    const arrayContentDeletionDiffs = _(sourceArrayContent)
         .filter((entry) => {
-            return !isValueInArray(entry, newArrayContent);
+            return !isValueInArray(entry, destinationArrayContent);
         })
         .map((deletedEntry) => {
-            return createDiffEntry({
-                newObject: undefined,
-                oldObject: deletedEntry,
+            return createValidationResult({
+                action: 'item.delete',
+                destinationObject: undefined,
                 propertyName: arrayName,
-                type: 'arrayContent.delete'
+                sourceObject: deletedEntry
             });
         })
-        .flatten<DiffEntry>()
+        .flatten<ValidationResult>()
         .value();
 
     return arrayContentDeletionDiffs;
 };
 
-const findDiffsInArray = <T>(oldArray: ParsedProperty<Array<ParsedProperty<T>>>,
-                             newArray: ParsedProperty<Array<ParsedProperty<T>>>,
-                             objectName: string): DiffEntry[] => {
+const findDiffsInArray = <T>(sourceArray: ParsedProperty<Array<ParsedProperty<T>>>,
+                             destinationArray: ParsedProperty<Array<ParsedProperty<T>>>,
+                             objectName: string): ValidationResult[] => {
 
-    const arrayAdditionDiffs: DiffEntry[] = findAdditionDiffsInProperty(oldArray, newArray, objectName);
-    const arrayDeletionDiffs: DiffEntry[] = findDeletionDiffsInProperty(oldArray, newArray, objectName);
+    const arrayAdditionDiffs = findAdditionDiffsInProperty(sourceArray, destinationArray, objectName);
+    const arrayDeletionDiffs = findDeletionDiffsInProperty(sourceArray, destinationArray, objectName);
 
-    let arrayContentAdditionDiffs: DiffEntry[] = [];
+    let arrayContentAdditionDiffs: ValidationResult[] = [];
 
     if (!arrayAdditionDiffs.length) {
-        const oldArrayContent = oldArray.value;
-        const newArrayContent = newArray.value;
+        const sourceArrayContent = sourceArray.value;
+        const destinationArrayContent = destinationArray.value;
 
-        arrayContentAdditionDiffs = findAdditionDiffsInArray(oldArrayContent, newArrayContent, objectName);
+        arrayContentAdditionDiffs = findAdditionDiffsInArray(sourceArrayContent, destinationArrayContent, objectName);
     }
 
-    let arrayContentDeletionDiffs: DiffEntry[] = [];
+    let arrayContentDeletionDiffs: ValidationResult[] = [];
 
     if (!arrayDeletionDiffs.length) {
-        const oldArrayContent = oldArray.value;
-        const newArrayContent = newArray.value;
+        const sourceArrayContent = sourceArray.value;
+        const destinationArrayContent = destinationArray.value;
 
-        arrayContentDeletionDiffs = findDeletionDiffsInArray(oldArrayContent, newArrayContent, objectName);
+        arrayContentDeletionDiffs = findDeletionDiffsInArray(sourceArrayContent, destinationArrayContent, objectName);
     }
 
-    return _.concat<DiffEntry>([],
+    return _.concat<ValidationResult>([],
         arrayAdditionDiffs,
         arrayDeletionDiffs,
         arrayContentAdditionDiffs,
         arrayContentDeletionDiffs);
 };
 
-const findDiffsInXProperties = (oldParsedXProperties: { [name: string]: ParsedProperty<any> },
-                                newParsedXProperties: { [name: string]: ParsedProperty<any> },
-                                xPropertyContainerName: string): DiffEntry[] => {
+const findDiffsInXProperties = (sourceParsedXProperties: { [name: string]: ParsedProperty<any> },
+                                destinationParsedXProperties: { [name: string]: ParsedProperty<any> },
+                                xPropertyContainerName: string): ValidationResult[] => {
 
-    const xPropertyUniqueNames = _(_.keys(oldParsedXProperties))
-        .concat(_.keys(newParsedXProperties))
+    const xPropertyUniqueNames = _(_.keys(sourceParsedXProperties))
+        .concat(_.keys(destinationParsedXProperties))
         .uniq()
         .value();
 
     const xPropertyDiffs = _(xPropertyUniqueNames)
         .map((xPropertyName) => {
             return findDiffsInProperty(
-                oldParsedXProperties[xPropertyName],
-                newParsedXProperties[xPropertyName],
+                sourceParsedXProperties[xPropertyName],
+                destinationParsedXProperties[xPropertyName],
                 `${xPropertyContainerName}.${xPropertyName}`
             );
         })
-        .flatten<DiffEntry>()
+        .flatten<ValidationResult>()
         .value();
 
     return xPropertyDiffs;
 };
 
-const findDiffsInSpecs = (oldParsedSpec: ParsedSpec, newParsedSpec: ParsedSpec): DiffEntry[] => {
+const findDiffsInSpecs = (parsedSourceSpec: ParsedSpec, parsedDestinationSpec: ParsedSpec): ValidationResult[] => {
 
     const infoDiffs = _.concat([],
-        findDiffsInProperty(oldParsedSpec.info.termsOfService,
-            newParsedSpec.info.termsOfService, 'info.termsOfService'),
-        findDiffsInProperty(oldParsedSpec.info.description,
-            newParsedSpec.info.description, 'info.description'),
-        findDiffsInProperty(oldParsedSpec.info.contact.name,
-            newParsedSpec.info.contact.name, 'info.contact.name'),
-        findDiffsInProperty(oldParsedSpec.info.contact.email,
-            newParsedSpec.info.contact.email, 'info.contact.email'),
-        findDiffsInProperty(oldParsedSpec.info.contact.url,
-            newParsedSpec.info.contact.url, 'info.contact.url'),
-        findDiffsInProperty(oldParsedSpec.info.license.name,
-            newParsedSpec.info.license.name, 'info.license.name'),
-        findDiffsInProperty(oldParsedSpec.info.license.url,
-            newParsedSpec.info.license.url, 'info.license.url'),
-        findDiffsInProperty(oldParsedSpec.info.title,
-            newParsedSpec.info.title, 'info.title'),
-        findDiffsInProperty(oldParsedSpec.info.version,
-            newParsedSpec.info.version, 'info.version'),
-        findDiffsInXProperties(oldParsedSpec.info.xProperties,
-            newParsedSpec.info.xProperties, 'info.xProperties')
+        findDiffsInProperty(parsedSourceSpec.info.termsOfService,
+            parsedDestinationSpec.info.termsOfService, 'info.termsOfService'),
+        findDiffsInProperty(parsedSourceSpec.info.description,
+            parsedDestinationSpec.info.description, 'info.description'),
+        findDiffsInProperty(parsedSourceSpec.info.contact.name,
+            parsedDestinationSpec.info.contact.name, 'info.contact.name'),
+        findDiffsInProperty(parsedSourceSpec.info.contact.email,
+            parsedDestinationSpec.info.contact.email, 'info.contact.email'),
+        findDiffsInProperty(parsedSourceSpec.info.contact.url,
+            parsedDestinationSpec.info.contact.url, 'info.contact.url'),
+        findDiffsInProperty(parsedSourceSpec.info.license.name,
+            parsedDestinationSpec.info.license.name, 'info.license.name'),
+        findDiffsInProperty(parsedSourceSpec.info.license.url,
+            parsedDestinationSpec.info.license.url, 'info.license.url'),
+        findDiffsInProperty(parsedSourceSpec.info.title,
+            parsedDestinationSpec.info.title, 'info.title'),
+        findDiffsInProperty(parsedSourceSpec.info.version,
+            parsedDestinationSpec.info.version, 'info.version'),
+        findDiffsInXProperties(parsedSourceSpec.info.xProperties,
+            parsedDestinationSpec.info.xProperties, 'info.xProperties')
     );
 
-    const basePathDiffs = findDiffsInProperty(oldParsedSpec.basePath, newParsedSpec.basePath, 'basePath');
-    const hostDiffs = findDiffsInProperty(oldParsedSpec.host, newParsedSpec.host, 'host');
-    const openApiDiffs = findDiffsInProperty(oldParsedSpec.openapi, newParsedSpec.openapi, 'openapi');
-    const schemesDiffs = findDiffsInArray(oldParsedSpec.schemes, newParsedSpec.schemes, 'schemes');
+    const basePathDiffs = findDiffsInProperty(parsedSourceSpec.basePath, parsedDestinationSpec.basePath, 'basePath');
+    const hostDiffs = findDiffsInProperty(parsedSourceSpec.host, parsedDestinationSpec.host, 'host');
+    const openApiDiffs = findDiffsInProperty(parsedSourceSpec.openapi, parsedDestinationSpec.openapi, 'openapi');
+    const schemesDiffs = findDiffsInArray(parsedSourceSpec.schemes, parsedDestinationSpec.schemes, 'schemes');
 
-    const topLevelXPropertyDiffs = findDiffsInXProperties(oldParsedSpec.xProperties,
-        newParsedSpec.xProperties, 'xProperties');
+    const topLevelXPropertyDiffs = findDiffsInXProperties(parsedSourceSpec.xProperties,
+        parsedDestinationSpec.xProperties, 'xProperties');
 
     return _.concat([], infoDiffs, basePathDiffs, hostDiffs, openApiDiffs, schemesDiffs, topLevelXPropertyDiffs);
 };
 
 export const specDiffer = {
-    diff: (oldParsedSpec: ParsedSpec, newParsedSpec: ParsedSpec): DiffEntry[] => {
-        return findDiffsInSpecs(oldParsedSpec, newParsedSpec);
-    }
+    diff: (parsedSourceSpec: ParsedSpec, parsedDestinationSpec: ParsedSpec): DiffEntry[] =>
+        findDiffsInSpecs(parsedSourceSpec, parsedDestinationSpec).map(toDiffEntry)
 };

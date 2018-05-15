@@ -11,7 +11,7 @@ const openApiDiff = CliFactory.createOpenApiDiff();
 
 commander
     .version(packageJson.version)
-    .arguments('<old> <new>')
+    .arguments('<source> <destination>')
     .description(
         `A CLI tool to identify differences between Swagger/OpenAPI specs.
 
@@ -19,18 +19,18 @@ commander
         - JSON
 
         Basic usage:
-        The <old> spec and <new> spec arguments should be paths to where the specs live in your filesystem.`)
-    .action(async (oldSpecPath, newSpecPath) => {
+        The <source> spec and <destination> spec arguments should be paths to where the specs live in your filesystem.`)
+    .action(async (sourceSpecPath, destinationSpecPath) => {
         try {
-            const results = await openApiDiff.run(oldSpecPath, newSpecPath);
+            const results = await openApiDiff.validate(sourceSpecPath, destinationSpecPath);
 
             console.log(`* OpenAPI Diff v${packageJson.version} *`);
             console.log(newLineChar);
 
             console.log('Inputs');
             console.log('------');
-            console.log(`Old spec: ${oldSpecPath}`);
-            console.log(`New spec: ${newSpecPath}`);
+            console.log(`Source spec: ${sourceSpecPath}`);
+            console.log(`Destination spec: ${destinationSpecPath}`);
             console.log(newLineChar);
 
             console.log('Summary');

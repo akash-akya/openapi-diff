@@ -1,8 +1,8 @@
 // Diff types
 
 export interface DiffEntry {
-    oldValue?: any;
-    newValue?: any;
+    sourceValue?: any;
+    destinationValue?: any;
     printablePath: string[];
     scope: string;
     severity: DiffEntrySeverity;
@@ -59,8 +59,7 @@ export type DiffEntryType =
     'arrayContent.add' |
     'arrayContent.delete' |
     'delete' |
-    'edit' |
-    'unknown';
+    'edit';
 
 export type DiffEntrySeverity =
     'breaking' |
@@ -117,6 +116,6 @@ export interface GenericProperty {
     value: any;
 }
 
-export interface OpenApiDiff {
-    run: (oldSpecPath: string, newSpecPath: string) => Promise<ResultObject>;
+export interface OpenApiDiffInternal {
+    validate: (sourceSpecPath: string, destinationSpecPath: string) => Promise<ResultObject>;
 }

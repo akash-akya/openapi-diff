@@ -8,12 +8,12 @@ import * as VError from 'verror';
 import {expectToFail} from '../support/expect-to-fail';
 
 interface InvokeCommandOptions {
-    newSpecLocation: string;
-    oldSpecLocation: string;
+    destinationSpecLocation: string;
+    sourceSpecLocation: string;
 }
 
 const invokeCommand = (options: InvokeCommandOptions): Promise<string> => {
-    const command = `./bin/openapi-diff-local ${options.oldSpecLocation} ${options.newSpecLocation}`;
+    const command = `./bin/openapi-diff-local ${options.sourceSpecLocation} ${options.destinationSpecLocation}`;
 
     return new Promise((resolve, reject) => {
         exec(command, (error: ErrnoException, stdout, stderr) => {
@@ -47,12 +47,13 @@ describe('openapi-diff', () => {
        const currentDir = path.resolve(process.cwd());
 
        const result = await invokeCommand({
-           newSpecLocation: `${currentDir}/test/e2e/fixtures/basic-new.yaml`,
-           oldSpecLocation: `${currentDir}/test/e2e/fixtures/basic-old.yaml`
+           destinationSpecLocation: `${currentDir}/test/e2e/fixtures/basic-destination.yaml`,
+           sourceSpecLocation: `${currentDir}/test/e2e/fixtures/basic-source.yaml`
        });
 
-       expect(result).toEqual(jasmine.stringMatching(`Old spec: ${currentDir}/test/e2e/fixtures/basic-old.yaml`));
-       expect(result).toEqual(jasmine.stringMatching(`New spec: ${currentDir}/test/e2e/fixtures/basic-new.yaml`));
+       expect(result).toEqual(jasmine.stringMatching(`Source spec: ${currentDir}/test/e2e/fixtures/basic-source.yaml`));
+       expect(result).toEqual(jasmine.stringMatching(
+           `Destination spec: ${currentDir}/test/e2e/fixtures/basic-destination.yaml`));
        expect(result).toEqual(jasmine.stringMatching('0 breaking changes found.'));
        expect(result).toEqual(jasmine.stringMatching('1 non-breaking changes found.'));
        expect(result).toEqual(jasmine.stringMatching('0 unclassified changes found.'));
@@ -62,12 +63,14 @@ describe('openapi-diff', () => {
         const currentDir = path.resolve(process.cwd());
 
         const result = await invokeCommand({
-            newSpecLocation: `${currentDir}/test/e2e/fixtures/basic-new.json`,
-            oldSpecLocation: `${currentDir}/test/e2e/fixtures/basic-old.json`
+            destinationSpecLocation: `${currentDir}/test/e2e/fixtures/basic-destination.json`,
+            sourceSpecLocation: `${currentDir}/test/e2e/fixtures/basic-source.json`
         });
 
-        expect(result).toEqual(jasmine.stringMatching(`Old spec: ${currentDir}/test/e2e/fixtures/basic-old.json`));
-        expect(result).toEqual(jasmine.stringMatching(`New spec: ${currentDir}/test/e2e/fixtures/basic-new.json`));
+        expect(result).toEqual(jasmine.stringMatching(
+            `Source spec: ${currentDir}/test/e2e/fixtures/basic-source.json`));
+        expect(result).toEqual(jasmine.stringMatching(
+            `Destination spec: ${currentDir}/test/e2e/fixtures/basic-destination.json`));
         expect(result).toEqual(jasmine.stringMatching('0 breaking changes found.'));
         expect(result).toEqual(jasmine.stringMatching('1 non-breaking changes found.'));
         expect(result).toEqual(jasmine.stringMatching('0 unclassified changes found.'));
@@ -75,20 +78,20 @@ describe('openapi-diff', () => {
 
     it('should error gently when unable to find files on the local filesystem', async () => {
         const error = await expectToFail(invokeCommand({
-            newSpecLocation: 'test/e2e/fixtures/non-existing-new.json',
-            oldSpecLocation: 'test/e2e/fixtures/non-existing-old.json'
+            destinationSpecLocation: 'test/e2e/fixtures/non-existing-destination.json',
+            sourceSpecLocation: 'test/e2e/fixtures/non-existing-source.json'
         }));
 
         expect(error).toEqual(jasmine.stringMatching('ERROR: unable to read ' +
-            'test/e2e/fixtures/non-existing-old.json'));
+            'test/e2e/fixtures/non-existing-source.json'));
 
         expect(error).toEqual(jasmine.stringMatching('Exit code: 2'));
     });
 
     it('should error gently when unable to parse files as json from the local filesystem', async () => {
         const error = await expectToFail(invokeCommand({
-            newSpecLocation: 'test/e2e/fixtures/not-a-json-or-yaml.txt',
-            oldSpecLocation: 'test/e2e/fixtures/not-a-json-or-yaml.txt'
+            destinationSpecLocation: 'test/e2e/fixtures/not-a-json-or-yaml.txt',
+            sourceSpecLocation: 'test/e2e/fixtures/not-a-json-or-yaml.txt'
         }));
 
         expect(error).toEqual(jasmine.stringMatching('ERROR: unable to parse ' +
@@ -99,12 +102,14 @@ describe('openapi-diff', () => {
 
     it('should work with URL locations', async () => {
         const result = await invokeCommand({
-            newSpecLocation: 'http://localhost:3000/basic-new.json',
-            oldSpecLocation: 'http://localhost:3000/basic-old.json'
+            destinationSpecLocation: 'http://localhost:3000/basic-destination.json',
+            sourceSpecLocation: 'http://localhost:3000/basic-source.json'
         });
 
-        expect(result).toEqual(jasmine.stringMatching('Old spec: http://localhost:3000/basic-old.json'));
-        expect(result).toEqual(jasmine.stringMatching('New spec: http://localhost:3000/basic-new.json'));
+        expect(result).toEqual(jasmine.stringMatching(
+            'Source spec: http://localhost:3000/basic-source.json'));
+        expect(result).toEqual(jasmine.stringMatching(
+            'Destination spec: http://localhost:3000/basic-destination.json'));
         expect(result).toEqual(jasmine.stringMatching('0 breaking changes found.'));
         expect(result).toEqual(jasmine.stringMatching('1 non-breaking changes found.'));
         expect(result).toEqual(jasmine.stringMatching('0 unclassified changes found.'));
@@ -112,32 +117,32 @@ describe('openapi-diff', () => {
 
     it('should error gently when unable to use the URLs provided', async () => {
         const error = await expectToFail(invokeCommand({
-            newSpecLocation: 'http://localhost:3000/basic-new.json',
-            oldSpecLocation: 'htt://localhost:3000/basic-old.json'
+            destinationSpecLocation: 'http://localhost:3000/basic-destination.json',
+            sourceSpecLocation: 'htt://localhost:3000/basic-source.json'
         }));
 
         expect(error).toEqual(jasmine.stringMatching('ERROR: unable to open ' +
-            'htt://localhost:3000/basic-old.json'));
+            'htt://localhost:3000/basic-source.json'));
 
         expect(error).toEqual(jasmine.stringMatching('Exit code: 2'));
     });
 
     it('should error gently when unable to fetch files over http', async () => {
         const error = await expectToFail(invokeCommand({
-            newSpecLocation: 'http://localhost:3000/basic-new.json',
-            oldSpecLocation: 'http://localhost:3000/non-existing-old.json'
+            destinationSpecLocation: 'http://localhost:3000/basic-destination.json',
+            sourceSpecLocation: 'http://localhost:3000/non-existing-source.json'
         }));
 
         expect(error).toEqual(jasmine.stringMatching(
-            'ERROR: unable to fetch http://localhost:3000/non-existing-old.json. Response code: 404'));
+            'ERROR: unable to fetch http://localhost:3000/non-existing-source.json. Response code: 404'));
 
         expect(error).toEqual(jasmine.stringMatching('Exit code: 2'));
     });
 
     it('should error gently when unable to parse files as json over http', async () => {
         const error = await expectToFail(invokeCommand({
-            newSpecLocation: 'http://localhost:3000/basic-new.json',
-            oldSpecLocation: 'http://localhost:3000/not-a-json-or-yaml.txt'
+            destinationSpecLocation: 'http://localhost:3000/basic-destination.json',
+            sourceSpecLocation: 'http://localhost:3000/not-a-json-or-yaml.txt'
         }));
 
         expect(error).toEqual(jasmine.stringMatching('ERROR: unable to parse ' +
@@ -148,8 +153,8 @@ describe('openapi-diff', () => {
 
     it('should succeed when the provided specs are equal', async () => {
         const result = await invokeCommand({
-            newSpecLocation: 'test/e2e/fixtures/basic-old.json',
-            oldSpecLocation: 'test/e2e/fixtures/basic-old.json'
+            destinationSpecLocation: 'test/e2e/fixtures/basic-source.json',
+            sourceSpecLocation: 'test/e2e/fixtures/basic-source.json'
         });
 
         expect(result).toEqual(jasmine.stringMatching('0 breaking changes found.'));
@@ -159,8 +164,8 @@ describe('openapi-diff', () => {
 
     it('should detect a single change', async () => {
         const result = await invokeCommand({
-            newSpecLocation: 'test/e2e/fixtures/basic-new.json',
-            oldSpecLocation: 'test/e2e/fixtures/basic-old.json'
+            destinationSpecLocation: 'test/e2e/fixtures/basic-destination.json',
+            sourceSpecLocation: 'test/e2e/fixtures/basic-source.json'
         });
 
         expect(result).toEqual(jasmine.stringMatching('0 breaking changes found.'));
@@ -172,8 +177,8 @@ describe('openapi-diff', () => {
 
     it('should detect multiple types of changes', async () => {
         const error = await expectToFail(invokeCommand({
-            newSpecLocation: 'test/e2e/fixtures/complex-new.json',
-            oldSpecLocation: 'test/e2e/fixtures/complex-old.json'
+            destinationSpecLocation: 'test/e2e/fixtures/complex-destination.json',
+            sourceSpecLocation: 'test/e2e/fixtures/complex-source.json'
         }));
 
         expect(error.message).toEqual(jasmine.stringMatching('2 breaking changes found.'));
@@ -212,8 +217,8 @@ describe('openapi-diff', () => {
 
     it('should be able to process real Swagger 2.0 files', async () => {
         const error = await expectToFail(invokeCommand({
-            newSpecLocation: 'test/e2e/fixtures/petstore-swagger-2-new.json',
-            oldSpecLocation: 'test/e2e/fixtures/petstore-swagger-2-old.json'
+            destinationSpecLocation: 'test/e2e/fixtures/petstore-swagger-2-destination.json',
+            sourceSpecLocation: 'test/e2e/fixtures/petstore-swagger-2-source.json'
         }));
 
         expect(error.message).toEqual(jasmine.stringMatching('3 breaking changes found.'));
@@ -253,8 +258,8 @@ describe('openapi-diff', () => {
 
     it('should be able to process real OpenApi 3.0.0 files', async () => {
         const result = await invokeCommand({
-            newSpecLocation: 'test/e2e/fixtures/openapi-3-new.json',
-            oldSpecLocation: 'test/e2e/fixtures/openapi-3-old.json'
+            destinationSpecLocation: 'test/e2e/fixtures/openapi-3-destination.json',
+            sourceSpecLocation: 'test/e2e/fixtures/openapi-3-source.json'
         });
 
         expect(result).toEqual(jasmine.stringMatching('0 breaking changes found.'));

@@ -1,4 +1,5 @@
 import {specDiffer} from '../../../lib/openapi-diff/spec-differ';
+import {DiffEntry} from '../../../lib/openapi-diff/types';
 import {parsedSpecBuilder, parsedSpecInfoBuilder} from '../support/builders/parsed-spec-builder';
 
 describe('specDiffer', () => {
@@ -7,27 +8,27 @@ describe('specDiffer', () => {
 
         it('should classify the change as a non-breaking addition in the info property', () => {
 
-            const oldParsedSpec = parsedSpecBuilder
+            const parsedSourceSpec = parsedSpecBuilder
                 .withInfoObject(parsedSpecInfoBuilder
                     .withNoDescription())
                 .build();
-            const newParsedSpec = parsedSpecBuilder
+            const parsedDestinationSpec = parsedSpecBuilder
                 .withInfoObject(parsedSpecInfoBuilder
                     .withDescription('NEW spec description'))
                 .build();
 
-            const result = specDiffer.diff(oldParsedSpec, newParsedSpec);
+            const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            expect(result.length).toEqual(1);
-            expect(result[0]).toEqual({
-                newValue: 'NEW spec description',
-                oldValue: undefined,
+            const expectedDiffEntry: DiffEntry = {
+                destinationValue: 'NEW spec description',
                 printablePath: ['info', 'description'],
                 scope: 'info.description',
                 severity: 'non-breaking',
+                sourceValue: undefined,
                 taxonomy: 'info.description.add',
                 type: 'add'
-            });
+            };
+            expect(result).toEqual([expectedDiffEntry]);
         });
     });
 
@@ -35,7 +36,7 @@ describe('specDiffer', () => {
 
         it('should classify the change as a non-breaking addition in the info property', () => {
 
-            const oldParsedSpec = parsedSpecBuilder
+            const parsedSourceSpec = parsedSpecBuilder
                 .withInfoObject(parsedSpecInfoBuilder
                     .withContact({
                         name: 'email',
@@ -51,7 +52,7 @@ describe('specDiffer', () => {
                         value: 'contact url'
                     }))
                 .build();
-            const newParsedSpec = parsedSpecBuilder
+            const parsedDestinationSpec = parsedSpecBuilder
                 .withInfoObject(parsedSpecInfoBuilder
                     .withContact({
                         name: 'email',
@@ -68,18 +69,18 @@ describe('specDiffer', () => {
                     }))
                 .build();
 
-            const result = specDiffer.diff(oldParsedSpec, newParsedSpec);
+            const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            expect(result.length).toEqual(1);
-            expect(result[0]).toEqual({
-                newValue: undefined,
-                oldValue: 'contact name',
+            const expectedDiffEntry: DiffEntry = {
+                destinationValue: undefined,
                 printablePath: ['info', 'contact', 'name'],
                 scope: 'info.contact.name',
                 severity: 'non-breaking',
+                sourceValue: 'contact name',
                 taxonomy: 'info.contact.name.delete',
                 type: 'delete'
-            });
+            };
+            expect(result).toEqual([expectedDiffEntry]);
         });
     });
 
@@ -87,27 +88,27 @@ describe('specDiffer', () => {
 
         it('should classify the change as a non-breaking edition in the info property', () => {
 
-            const oldParsedSpec = parsedSpecBuilder
+            const parsedSourceSpec = parsedSpecBuilder
                 .withInfoObject(parsedSpecInfoBuilder
                     .withTitle('spec title'))
                 .build();
-            const newParsedSpec = parsedSpecBuilder
+            const parsedDestinationSpec = parsedSpecBuilder
                 .withInfoObject(parsedSpecInfoBuilder
                     .withTitle('NEW spec title'))
                 .build();
 
-            const result = specDiffer.diff(oldParsedSpec, newParsedSpec);
+            const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            expect(result.length).toEqual(1);
-            expect(result[0]).toEqual({
-                newValue: 'NEW spec title',
-                oldValue: 'spec title',
+            const expectedDiffEntry: DiffEntry = {
+                destinationValue: 'NEW spec title',
                 printablePath: ['info', 'title'],
                 scope: 'info.title',
                 severity: 'non-breaking',
+                sourceValue: 'spec title',
                 taxonomy: 'info.title.edit',
                 type: 'edit'
-            });
+            };
+            expect(result).toEqual([expectedDiffEntry]);
         });
     });
 
@@ -115,10 +116,10 @@ describe('specDiffer', () => {
 
         it('should classify the change as an unclassified addition in the info ^x- property', () => {
 
-            const oldParsedSpec = parsedSpecBuilder
+            const parsedSourceSpec = parsedSpecBuilder
                 .withInfoObject(parsedSpecInfoBuilder)
                 .build();
-            const newParsedSpec = parsedSpecBuilder
+            const parsedDestinationSpec = parsedSpecBuilder
                 .withInfoObject(parsedSpecInfoBuilder
                     .withXProperty({
                         name: 'x-external-id',
@@ -127,18 +128,18 @@ describe('specDiffer', () => {
                     }))
                 .build();
 
-            const result = specDiffer.diff(oldParsedSpec, newParsedSpec);
+            const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            expect(result.length).toEqual(1);
-            expect(result[0]).toEqual({
-                newValue: 'NEW x value',
-                oldValue: undefined,
+            const expectedDiffEntry: DiffEntry = {
+                destinationValue: 'NEW x value',
                 printablePath: ['info', 'x-external-id'],
                 scope: 'unclassified',
                 severity: 'unclassified',
+                sourceValue: undefined,
                 taxonomy: 'unclassified.add',
                 type: 'add'
-            });
+            };
+            expect(result).toEqual([expectedDiffEntry]);
         });
     });
 
@@ -146,7 +147,7 @@ describe('specDiffer', () => {
 
         it('should classify the change as an unclassified deletion in the info ^x- property', () => {
 
-            const oldParsedSpec = parsedSpecBuilder
+            const parsedSourceSpec = parsedSpecBuilder
                 .withInfoObject(parsedSpecInfoBuilder
                     .withXProperty({
                         name: 'x-external-id',
@@ -154,22 +155,22 @@ describe('specDiffer', () => {
                         value: 'x value'
                     }))
                 .build();
-            const newParsedSpec = parsedSpecBuilder
+            const parsedDestinationSpec = parsedSpecBuilder
                 .withInfoObject(parsedSpecInfoBuilder)
                 .build();
 
-            const result = specDiffer.diff(oldParsedSpec, newParsedSpec);
+            const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            expect(result.length).toEqual(1);
-            expect(result[0]).toEqual({
-                newValue: undefined,
-                oldValue: 'x value',
+            const expectedDiffEntry: DiffEntry = {
+                destinationValue: undefined,
                 printablePath: ['info', 'x-external-id'],
                 scope: 'unclassified',
                 severity: 'unclassified',
+                sourceValue: 'x value',
                 taxonomy: 'unclassified.delete',
                 type: 'delete'
-            });
+            };
+            expect(result).toEqual([expectedDiffEntry]);
         });
     });
 
@@ -177,7 +178,7 @@ describe('specDiffer', () => {
 
         it('should classify the change as an unclassified edition in the info ^x- property', () => {
 
-            const oldParsedSpec = parsedSpecBuilder
+            const parsedSourceSpec = parsedSpecBuilder
                 .withInfoObject(parsedSpecInfoBuilder
                     .withXProperty({
                         name: 'x-external-id',
@@ -185,7 +186,7 @@ describe('specDiffer', () => {
                         value: 'x value'
                     }))
                 .build();
-            const newParsedSpec = parsedSpecBuilder
+            const parsedDestinationSpec = parsedSpecBuilder
                 .withInfoObject(parsedSpecInfoBuilder
                     .withXProperty({
                         name: 'x-external-id',
@@ -194,18 +195,18 @@ describe('specDiffer', () => {
                     }))
                 .build();
 
-            const result = specDiffer.diff(oldParsedSpec, newParsedSpec);
+            const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            expect(result.length).toEqual(1);
-            expect(result[0]).toEqual({
-                newValue: 'NEW x value',
-                oldValue: 'x value',
+            const expectedDiffEntry: DiffEntry = {
+                destinationValue: 'NEW x value',
                 printablePath: ['info', 'x-external-id'],
                 scope: 'unclassified',
                 severity: 'unclassified',
+                sourceValue: 'x value',
                 taxonomy: 'unclassified.edit',
                 type: 'edit'
-            });
+            };
+            expect(result).toEqual([expectedDiffEntry]);
         });
     });
 });
