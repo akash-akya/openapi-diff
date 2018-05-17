@@ -1,12 +1,13 @@
 import {specDiffer} from '../../../lib/openapi-diff/spec-differ';
-import {DiffEntry} from '../../../lib/openapi-diff/types';
 import {parsedSpecBuilder, parsedSpecInfoBuilder} from '../support/builders/parsed-spec-builder';
+import {validationResultBuilder} from '../support/builders/validation-result-builder';
+import {specEntityDetailsBuilder} from '../support/builders/validation-result-spec-entity-details-builder';
 
-describe('specDiffer', () => {
+describe('specDiffer/info property', () => {
 
     describe('when there is an addition in the info property', () => {
 
-        it('should classify the change as a non-breaking addition in the info property', () => {
+        it('should return an add difference of type info', () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withInfoObject(parsedSpecInfoBuilder
@@ -19,22 +20,25 @@ describe('specDiffer', () => {
 
             const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            const expectedDiffEntry: DiffEntry = {
-                destinationValue: 'NEW spec description',
-                printablePath: ['info', 'description'],
-                scope: 'info.description',
-                severity: 'non-breaking',
-                sourceValue: undefined,
-                taxonomy: 'info.description.add',
-                type: 'add'
-            };
-            expect(result).toEqual([expectedDiffEntry]);
+            const expectedValidationResult = validationResultBuilder
+                .withAction('add')
+                .withType('info')
+                .withEntity('oad.info.description')
+                .withSource('openapi-diff')
+                .withSourceSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation('info.description')
+                    .withValue(undefined))
+                .withDestinationSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation('info.description')
+                    .withValue('NEW spec description'))
+                .build();
+            expect(result).toEqual([expectedValidationResult]);
         });
     });
 
     describe('when there is a deletion in the info property', () => {
 
-        it('should classify the change as a non-breaking addition in the info property', () => {
+        it('should return a delete difference of type info', () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withInfoObject(parsedSpecInfoBuilder
@@ -71,22 +75,25 @@ describe('specDiffer', () => {
 
             const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            const expectedDiffEntry: DiffEntry = {
-                destinationValue: undefined,
-                printablePath: ['info', 'contact', 'name'],
-                scope: 'info.contact.name',
-                severity: 'non-breaking',
-                sourceValue: 'contact name',
-                taxonomy: 'info.contact.name.delete',
-                type: 'delete'
-            };
-            expect(result).toEqual([expectedDiffEntry]);
+            const expectedValidationResult = validationResultBuilder
+                .withAction('delete')
+                .withType('info')
+                .withEntity('oad.info.contact.name')
+                .withSource('openapi-diff')
+                .withSourceSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation('info.contact.name')
+                    .withValue('contact name'))
+                .withDestinationSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation('info.contact.name')
+                    .withValue(undefined))
+                .build();
+            expect(result).toEqual([expectedValidationResult]);
         });
     });
 
     describe('when there is an edition in the info property', () => {
 
-        it('should classify the change as a non-breaking edition in the info property', () => {
+        it('should return an edit difference of type info', () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withInfoObject(parsedSpecInfoBuilder
@@ -99,22 +106,28 @@ describe('specDiffer', () => {
 
             const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            const expectedDiffEntry: DiffEntry = {
-                destinationValue: 'NEW spec title',
-                printablePath: ['info', 'title'],
-                scope: 'info.title',
-                severity: 'non-breaking',
-                sourceValue: 'spec title',
-                taxonomy: 'info.title.edit',
-                type: 'edit'
-            };
-            expect(result).toEqual([expectedDiffEntry]);
+            const expectedValidationResult = validationResultBuilder
+                .withAction('edit')
+                .withType('info')
+                .withEntity('oad.info.title')
+                .withSource('openapi-diff')
+                .withSourceSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation('info.title')
+                    .withValue('spec title'))
+                .withDestinationSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation('info.title')
+                    .withValue('NEW spec title'))
+                .build();
+            expect(result).toEqual([expectedValidationResult]);
         });
     });
 
-    describe('when there is an addition of an ^x- property in the info object', () => {
+    describe('^x- properties in the info object', () => {
+        const xPropertyValidationResultBuilder = validationResultBuilder
+            .withSource('openapi-diff')
+            .withEntity('oad.unclassified');
 
-        it('should classify the change as an unclassified addition in the info ^x- property', () => {
+        it('should return an add difference of type warning when there is an addition of an ^x- property', () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withInfoObject(parsedSpecInfoBuilder)
@@ -130,22 +143,20 @@ describe('specDiffer', () => {
 
             const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            const expectedDiffEntry: DiffEntry = {
-                destinationValue: 'NEW x value',
-                printablePath: ['info', 'x-external-id'],
-                scope: 'unclassified',
-                severity: 'unclassified',
-                sourceValue: undefined,
-                taxonomy: 'unclassified.add',
-                type: 'add'
-            };
-            expect(result).toEqual([expectedDiffEntry]);
+            const expectedValidationResult = xPropertyValidationResultBuilder
+                .withAction('add')
+                .withType('warning')
+                .withSourceSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation(undefined)
+                    .withValue(undefined))
+                .withDestinationSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation('info.x-external-id')
+                    .withValue('NEW x value'))
+                .build();
+            expect(result).toEqual([expectedValidationResult]);
         });
-    });
 
-    describe('when there is a deletion in an ^x- property in the info object', () => {
-
-        it('should classify the change as an unclassified deletion in the info ^x- property', () => {
+        it('should return a delete difference of type warning when there is a deletion of an ^x- property', () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withInfoObject(parsedSpecInfoBuilder
@@ -161,22 +172,20 @@ describe('specDiffer', () => {
 
             const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            const expectedDiffEntry: DiffEntry = {
-                destinationValue: undefined,
-                printablePath: ['info', 'x-external-id'],
-                scope: 'unclassified',
-                severity: 'unclassified',
-                sourceValue: 'x value',
-                taxonomy: 'unclassified.delete',
-                type: 'delete'
-            };
-            expect(result).toEqual([expectedDiffEntry]);
+            const expectedValidationResult = xPropertyValidationResultBuilder
+                .withAction('delete')
+                .withType('warning')
+                .withSourceSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation('info.x-external-id')
+                    .withValue('x value'))
+                .withDestinationSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation(undefined)
+                    .withValue(undefined))
+                .build();
+            expect(result).toEqual([expectedValidationResult]);
         });
-    });
 
-    describe('when there is an edition in an ^x- property in the info object', () => {
-
-        it('should classify the change as an unclassified edition in the info ^x- property', () => {
+        it('should return an edit difference of type warning when there is an edition of an ^x- property', () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withInfoObject(parsedSpecInfoBuilder
@@ -197,16 +206,17 @@ describe('specDiffer', () => {
 
             const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            const expectedDiffEntry: DiffEntry = {
-                destinationValue: 'NEW x value',
-                printablePath: ['info', 'x-external-id'],
-                scope: 'unclassified',
-                severity: 'unclassified',
-                sourceValue: 'x value',
-                taxonomy: 'unclassified.edit',
-                type: 'edit'
-            };
-            expect(result).toEqual([expectedDiffEntry]);
+            const expectedValidationResult = xPropertyValidationResultBuilder
+                .withAction('edit')
+                .withType('warning')
+                .withSourceSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation('info.x-external-id')
+                    .withValue('x value'))
+                .withDestinationSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation('info.x-external-id')
+                    .withValue('NEW x value'))
+                .build();
+            expect(result).toEqual([expectedValidationResult]);
         });
     });
 });

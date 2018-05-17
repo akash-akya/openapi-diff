@@ -1,12 +1,16 @@
 import {specDiffer} from '../../../lib/openapi-diff/spec-differ';
-import {DiffEntry} from '../../../lib/openapi-diff/types';
 import {parsedSpecBuilder} from '../support/builders/parsed-spec-builder';
+import {validationResultBuilder} from '../support/builders/validation-result-builder';
+import {specEntityDetailsBuilder} from '../support/builders/validation-result-spec-entity-details-builder';
 
-describe('specDiffer', () => {
+describe('specDiffer/host property', () => {
+    const hostValidationResultBuilder = validationResultBuilder
+        .withSource('openapi-diff')
+        .withEntity('oad.host');
 
     describe('when there is an edition in the host property', () => {
 
-        it('should classify the change as a breaking edition in the host property', () => {
+        it('should return an edit difference of type error', () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withHost('host info')
@@ -17,22 +21,23 @@ describe('specDiffer', () => {
 
             const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            const expectedDiffEntry: DiffEntry = {
-                destinationValue: 'NEW host info',
-                printablePath: ['host'],
-                scope: 'host',
-                severity: 'breaking',
-                sourceValue: 'host info',
-                taxonomy: 'host.edit',
-                type: 'edit'
-            };
-            expect(result).toEqual([expectedDiffEntry]);
+            const expectedValidationResult = hostValidationResultBuilder
+                .withAction('edit')
+                .withType('error')
+                .withSourceSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation('host')
+                    .withValue('host info'))
+                .withDestinationSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation('host')
+                    .withValue('NEW host info'))
+                .build();
+            expect(result).toEqual([expectedValidationResult]);
         });
     });
 
     describe('when the host property is added in the new spec', () => {
 
-        it('should classify the change as a breaking addition of the host property', () => {
+        it('should return an add difference of type error', () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withNoHost()
@@ -43,22 +48,23 @@ describe('specDiffer', () => {
 
             const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            const expectedDiffEntry: DiffEntry = {
-                destinationValue: 'NEW host info',
-                printablePath: ['host'],
-                scope: 'host',
-                severity: 'breaking',
-                sourceValue: undefined,
-                taxonomy: 'host.add',
-                type: 'add'
-            };
-            expect(result).toEqual([expectedDiffEntry]);
+            const expectedValidationResult = hostValidationResultBuilder
+                .withAction('add')
+                .withType('error')
+                .withSourceSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation('host')
+                    .withValue(undefined))
+                .withDestinationSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation('host')
+                    .withValue('NEW host info'))
+                .build();
+            expect(result).toEqual([expectedValidationResult]);
         });
     });
 
     describe('when the host property is deleted in the new spec', () => {
 
-        it('should classify the change as a breaking deletion of the host property', () => {
+        it('should return a delete difference of type error', () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withHost('OLD host info')
@@ -69,16 +75,17 @@ describe('specDiffer', () => {
 
             const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            const expectedDiffEntry: DiffEntry = {
-                destinationValue: undefined,
-                printablePath: ['host'],
-                scope: 'host',
-                severity: 'breaking',
-                sourceValue: 'OLD host info',
-                taxonomy: 'host.delete',
-                type: 'delete'
-            };
-            expect(result).toEqual([expectedDiffEntry]);
+            const expectedValidationResult = hostValidationResultBuilder
+                .withAction('delete')
+                .withType('error')
+                .withSourceSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation('host')
+                    .withValue('OLD host info'))
+                .withDestinationSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation('host')
+                    .withValue(undefined))
+                .build();
+            expect(result).toEqual([expectedValidationResult]);
         });
     });
 });

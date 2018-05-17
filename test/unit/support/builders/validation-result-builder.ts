@@ -8,9 +8,9 @@ import {
 
 interface ValidationResultBuilderState {
     action: ValidationResultAction;
-    details: any;
+    details?: any;
     entity: ValidationResultEntity;
-    message: string;
+    message?: string;
     source: ValidationResultSource;
     type: ValidationResultType;
     destinationSpecEntityDetails: ValidationResultSpecEntityDetailsBuilder;
@@ -24,8 +24,7 @@ export class ValidationResultBuilder {
             destinationSpecEntityDetails: specEntityDetailsBuilder,
             details: undefined,
             entity: 'oad.host',
-            message: 'default-message',
-            source: 'open-api-diff',
+            source: 'openapi-diff',
             sourceSpecEntityDetails: specEntityDetailsBuilder,
             type: 'error'
         });
@@ -119,9 +118,7 @@ export class ValidationResultBuilder {
         return {
             action: this.state.action,
             destinationSpecEntityDetails: this.state.destinationSpecEntityDetails.build(),
-            details: this.state.details,
             entity: this.state.entity,
-            message: this.state.message,
             source: this.state.source,
             sourceSpecEntityDetails: this.state.sourceSpecEntityDetails.build(),
             type: this.state.type

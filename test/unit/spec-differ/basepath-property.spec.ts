@@ -1,12 +1,16 @@
 import {specDiffer} from '../../../lib/openapi-diff/spec-differ';
-import {DiffEntry} from '../../../lib/openapi-diff/types';
 import {parsedSpecBuilder} from '../support/builders/parsed-spec-builder';
+import {validationResultBuilder} from '../support/builders/validation-result-builder';
+import {specEntityDetailsBuilder} from '../support/builders/validation-result-spec-entity-details-builder';
 
-describe('specDiffer', () => {
+describe('specDiffer/basePath property', () => {
+    const basePathValidationResultBuilder = validationResultBuilder
+        .withSource('openapi-diff')
+        .withEntity('oad.basePath');
 
     describe('when there is an edition in the basePath property', () => {
 
-        it('should classify the change as a breaking edition in the basePath property', () => {
+        it('should return an edit difference of type error', () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withBasePath('basePath info')
@@ -17,22 +21,23 @@ describe('specDiffer', () => {
 
             const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            const expectedDiffEntry: DiffEntry = {
-                destinationValue: 'NEW basePath info',
-                printablePath: ['basePath'],
-                scope: 'basePath',
-                severity: 'breaking',
-                sourceValue: 'basePath info',
-                taxonomy: 'basePath.edit',
-                type: 'edit'
-            };
-            expect(result).toEqual([expectedDiffEntry]);
+            const expectedValidationResult = basePathValidationResultBuilder
+                .withAction('edit')
+                .withType('error')
+                .withSourceSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation('basePath')
+                    .withValue('basePath info'))
+                .withDestinationSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation('basePath')
+                    .withValue('NEW basePath info'))
+                .build();
+            expect(result).toEqual([expectedValidationResult]);
         });
     });
 
     describe('when the basePath property is added in the new spec', () => {
 
-        it('should classify the change as a breaking addition of the basePath property', () => {
+        it('should return an add difference of type error', () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withNoBasePath()
@@ -43,22 +48,23 @@ describe('specDiffer', () => {
 
             const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            const expectedDiffEntry: DiffEntry = {
-                destinationValue: 'NEW basePath info',
-                printablePath: ['basePath'],
-                scope: 'basePath',
-                severity: 'breaking',
-                sourceValue: undefined,
-                taxonomy: 'basePath.add',
-                type: 'add'
-            };
-            expect(result).toEqual([expectedDiffEntry]);
+            const expectedValidationResult = basePathValidationResultBuilder
+                .withAction('add')
+                .withType('error')
+                .withSourceSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation('basePath')
+                    .withValue(undefined))
+                .withDestinationSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation('basePath')
+                    .withValue('NEW basePath info'))
+                .build();
+            expect(result).toEqual([expectedValidationResult]);
         });
     });
 
     describe('when the basePath property is deleted in the new spec', () => {
 
-        it('should classify the change as a breaking deletion of the basePath property', () => {
+        it('should return a delete difference of type error', () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withBasePath('OLD basePath info')
@@ -69,16 +75,18 @@ describe('specDiffer', () => {
 
             const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            const expectedDiffEntry: DiffEntry = {
-                destinationValue: undefined,
-                printablePath: ['basePath'],
-                scope: 'basePath',
-                severity: 'breaking',
-                sourceValue: 'OLD basePath info',
-                taxonomy: 'basePath.delete',
-                type: 'delete'
-            };
-            expect(result).toEqual([expectedDiffEntry]);
+            const expectedValidationResult = basePathValidationResultBuilder
+                .withAction('delete')
+                .withType('error')
+                .withSourceSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation('basePath')
+                    .withValue('OLD basePath info'))
+                .withDestinationSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation('basePath')
+                    .withValue(undefined))
+                .build();
+
+            expect(result).toEqual([expectedValidationResult]);
         });
     });
 });

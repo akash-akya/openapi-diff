@@ -1,7 +1,7 @@
 import {ValidationResultSpecEntityDetails} from '../../../../lib/api-types';
 
 interface SpecEntityDetailsState {
-    location: string;
+    location: string | undefined;
     pathMethod: string | null;
     pathName: string | null;
     value: any;
@@ -20,7 +20,7 @@ export class ValidationResultSpecEntityDetailsBuilder {
 
     private constructor(private readonly state: SpecEntityDetailsState) {}
 
-    public withLocation(location: string): ValidationResultSpecEntityDetailsBuilder {
+    public withLocation(location: string | undefined): ValidationResultSpecEntityDetailsBuilder {
         return new ValidationResultSpecEntityDetailsBuilder({
             location,
             pathMethod: this.state.pathMethod,

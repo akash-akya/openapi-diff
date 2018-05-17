@@ -1,12 +1,16 @@
 import {specDiffer} from '../../../lib/openapi-diff/spec-differ';
-import {DiffEntry} from '../../../lib/openapi-diff/types';
 import {parsedSpecBuilder} from '../support/builders/parsed-spec-builder';
+import {validationResultBuilder} from '../support/builders/validation-result-builder';
+import {specEntityDetailsBuilder} from '../support/builders/validation-result-spec-entity-details-builder';
 
-describe('specDiffer', () => {
+describe('specDiffer/schemes', () => {
+    const schemesValidationResultBuilder = validationResultBuilder
+        .withSource('openapi-diff')
+        .withEntity('oad.schemes');
 
-    describe('when there is a single edition in the schemes property content', () => {
+    describe('when there is a single edition in an item in the schemes property array', () => {
 
-        it('should classify the changes as a breaking deletion and a non-breaking addition in schemes', () => {
+        it('should return an item.add difference of type info and an item.delete difference of type error', () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withSchemes([
@@ -19,31 +23,33 @@ describe('specDiffer', () => {
 
             const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            const expectedDiffEntry1: DiffEntry = {
-                destinationValue: 'https',
-                printablePath: ['schemes', '0'],
-                scope: 'schemes',
-                severity: 'non-breaking',
-                sourceValue: undefined,
-                taxonomy: 'schemes.arrayContent.add',
-                type: 'arrayContent.add'
-            };
-            const expectedDiffEntry2: DiffEntry = {
-                destinationValue: undefined,
-                printablePath: ['schemes', '0'],
-                scope: 'schemes',
-                severity: 'breaking',
-                sourceValue: 'http',
-                taxonomy: 'schemes.arrayContent.delete',
-                type: 'arrayContent.delete'
-            };
-            expect(result).toEqual([expectedDiffEntry1, expectedDiffEntry2]);
+            const expectedValidationResult1 = schemesValidationResultBuilder
+                .withAction('item.add')
+                .withType('info')
+                .withSourceSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation(undefined)
+                    .withValue(undefined))
+                .withDestinationSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation('schemes.0')
+                    .withValue('https'))
+                .build();
+            const expectedValidationResult2 = schemesValidationResultBuilder
+                .withAction('item.delete')
+                .withType('error')
+                .withSourceSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation('schemes.0')
+                    .withValue('http'))
+                .withDestinationSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation(undefined)
+                    .withValue(undefined))
+                .build();
+            expect(result).toEqual([expectedValidationResult1, expectedValidationResult2]);
         });
     });
 
     describe('when there is an addition in the schemes property content', () => {
 
-        it('should classify the change as a non-breaking addition in the schemes property content', () => {
+        it('should return an item.add difference of type info', () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withEmptySchemes()
@@ -54,22 +60,23 @@ describe('specDiffer', () => {
 
             const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            const expectedDiffEntry: DiffEntry = {
-                destinationValue: 'http',
-                printablePath: ['schemes', '0'],
-                scope: 'schemes',
-                severity: 'non-breaking',
-                sourceValue: undefined,
-                taxonomy: 'schemes.arrayContent.add',
-                type: 'arrayContent.add'
-            };
-            expect(result).toEqual([expectedDiffEntry]);
+            const expectedValidationResult = schemesValidationResultBuilder
+                .withAction('item.add')
+                .withType('info')
+                .withSourceSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation(undefined)
+                    .withValue(undefined))
+                .withDestinationSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation('schemes.0')
+                    .withValue('http'))
+                .build();
+            expect(result).toEqual([expectedValidationResult]);
         });
     });
 
     describe('when there is a deletion in the schemes property content', () => {
 
-        it('should classify the change as a breaking deletion of the schemes property content', () => {
+        it('should return an item.delete difference of type error', () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withSchemes([{originalPath: ['schemes', '0'], value: 'http'}])
@@ -80,22 +87,23 @@ describe('specDiffer', () => {
 
             const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            const expectedDiffEntry: DiffEntry = {
-                destinationValue: undefined,
-                printablePath: ['schemes', '0'],
-                scope: 'schemes',
-                severity: 'breaking',
-                sourceValue: 'http',
-                taxonomy: 'schemes.arrayContent.delete',
-                type: 'arrayContent.delete'
-            };
-            expect(result).toEqual([expectedDiffEntry]);
+            const expectedValidationResult = schemesValidationResultBuilder
+                .withAction('item.delete')
+                .withType('error')
+                .withSourceSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation('schemes.0')
+                    .withValue('http'))
+                .withDestinationSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation(undefined)
+                    .withValue(undefined))
+                .build();
+            expect(result).toEqual([expectedValidationResult]);
         });
     });
 
     describe('when the schemes property is added altogether', () => {
 
-        it('should classify the change as a breaking addition of the schemes property', () => {
+        it('should return an add difference of type error', () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withNoSchemes()
@@ -107,22 +115,23 @@ describe('specDiffer', () => {
 
             const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            const expectedDiffEntry: DiffEntry = {
-                destinationValue: [{originalPath: ['schemes', '0'], value: 'https'}],
-                printablePath: ['schemes'],
-                scope: 'schemes',
-                severity: 'breaking',
-                sourceValue: undefined,
-                taxonomy: 'schemes.add',
-                type: 'add'
-            };
-            expect(result).toEqual([expectedDiffEntry]);
+            const expectedValidationResult = schemesValidationResultBuilder
+                .withAction('add')
+                .withType('error')
+                .withSourceSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation('schemes')
+                    .withValue(undefined))
+                .withDestinationSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation('schemes')
+                    .withValue([{originalPath: ['schemes', '0'], value: 'https'}]))
+                .build();
+            expect(result).toEqual([expectedValidationResult]);
         });
     });
 
     describe('when the schemes property is removed altogether', () => {
 
-        it('should classify the change as a breaking deletion of the schemes property', () => {
+        it('should return a delete difference of type error', () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withSchemes([
@@ -134,22 +143,23 @@ describe('specDiffer', () => {
 
             const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            const expectedDiffEntry: DiffEntry = {
-                destinationValue: undefined,
-                printablePath: ['schemes'],
-                scope: 'schemes',
-                severity: 'breaking',
-                sourceValue: [{originalPath: ['schemes', '0'], value: 'http'}],
-                taxonomy: 'schemes.delete',
-                type: 'delete'
-            };
-            expect(result).toEqual([expectedDiffEntry]);
+            const expectedValidationResult = schemesValidationResultBuilder
+                .withAction('delete')
+                .withType('error')
+                .withSourceSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation('schemes')
+                    .withValue([{originalPath: ['schemes', '0'], value: 'http'}]))
+                .withDestinationSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation('schemes')
+                    .withValue(undefined))
+                .build();
+            expect(result).toEqual([expectedValidationResult]);
         });
     });
 
     describe('when there are multiple changes in the schemes property content', () => {
 
-        it('should detect two non-breaking additions and one breaking deletion in schemes', () => {
+        it('should return two add differences of type info and one delete difference of type error', () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withSchemes([
@@ -165,41 +175,43 @@ describe('specDiffer', () => {
 
             const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            const expectedDiffEntry1: DiffEntry = {
-                destinationValue: 'ws',
-                printablePath: ['schemes', '1'],
-                scope: 'schemes',
-                severity: 'non-breaking',
-                sourceValue: undefined,
-                taxonomy: 'schemes.arrayContent.add',
-                type: 'arrayContent.add'
-            };
-            const expectedDiffEntry2: DiffEntry = {
-                destinationValue: 'wss',
-                printablePath: ['schemes', '2'],
-                scope: 'schemes',
-                severity: 'non-breaking',
-                sourceValue: undefined,
-                taxonomy: 'schemes.arrayContent.add',
-                type: 'arrayContent.add'
-            };
-            const expectedDiffEntry3: DiffEntry = {
-                destinationValue: undefined,
-                printablePath: ['schemes', '1'],
-                scope: 'schemes',
-                severity: 'breaking',
-                sourceValue: 'https',
-                taxonomy: 'schemes.arrayContent.delete',
-                type: 'arrayContent.delete'
-            };
-
-            expect(result).toEqual([expectedDiffEntry1, expectedDiffEntry2, expectedDiffEntry3]);
+            const expectedValidationResult1 = schemesValidationResultBuilder
+                .withAction('item.add')
+                .withType('info')
+                .withSourceSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation(undefined)
+                    .withValue(undefined))
+                .withDestinationSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation('schemes.1')
+                    .withValue('ws'))
+                .build();
+            const expectedValidationResult2 = schemesValidationResultBuilder
+                .withAction('item.add')
+                .withType('info')
+                .withSourceSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation(undefined)
+                    .withValue(undefined))
+                .withDestinationSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation('schemes.2')
+                    .withValue('wss'))
+                .build();
+            const expectedValidationResult3 = schemesValidationResultBuilder
+                .withAction('item.delete')
+                .withType('error')
+                .withSourceSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation('schemes.1')
+                    .withValue('https'))
+                .withDestinationSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation(undefined)
+                    .withValue(undefined))
+                .build();
+            expect(result).toEqual([expectedValidationResult1, expectedValidationResult2, expectedValidationResult3]);
         });
     });
 
     describe('when the schemes content is shuffled but the elements are the same', () => {
 
-        it('should detect no changes', () => {
+        it('should detect no differences', () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withSchemes([

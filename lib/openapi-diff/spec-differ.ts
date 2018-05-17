@@ -3,10 +3,8 @@ import {
     ValidationResult, ValidationResultAction, ValidationResultEntity,
     ValidationResultSpecEntityDetails
 } from '../api-types';
-import {toDiffEntry} from './common/validation-result-to-diff-entry';
 import {resultTypeFinder} from './result-type-finder';
 import {
-    DiffEntry,
     ParsedProperty,
     ParsedSpec
 } from './types';
@@ -27,9 +25,8 @@ const createValidationResult = <T>(options: CreateValidationResultOptions<Parsed
     return {
         action: options.action,
         destinationSpecEntityDetails: createSpecEntityDetails(options.destinationObject),
-        details: {},
         entity,
-        source: 'open-api-diff',
+        source: 'openapi-diff',
         sourceSpecEntityDetails: createSpecEntityDetails(options.sourceObject),
         type: resultTypeFinder.lookup(entity, options.action)
     };
@@ -44,7 +41,7 @@ const createSpecEntityDetails = <T>(parsedProperty?: ParsedProperty<T>): Validat
             value: parsedProperty.value
           }
         : {
-            location: '',
+            location: undefined,
             pathMethod: null,
             pathName: null,
             value: undefined
@@ -251,6 +248,6 @@ const findDiffsInSpecs = (parsedSourceSpec: ParsedSpec, parsedDestinationSpec: P
 };
 
 export const specDiffer = {
-    diff: (parsedSourceSpec: ParsedSpec, parsedDestinationSpec: ParsedSpec): DiffEntry[] =>
-        findDiffsInSpecs(parsedSourceSpec, parsedDestinationSpec).map(toDiffEntry)
+    diff: (parsedSourceSpec: ParsedSpec, parsedDestinationSpec: ParsedSpec): ValidationResult[] =>
+        findDiffsInSpecs(parsedSourceSpec, parsedDestinationSpec)
 };

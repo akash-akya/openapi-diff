@@ -5,7 +5,7 @@ import {Spec as Swagger2} from 'swagger-schema-official';
 
 declare namespace OpenApiDiff {
 
-    type ValidationResultSource = 'json-schema-diff' | 'open-api-diff';
+    type ValidationResultSource = 'json-schema-diff' | 'openapi-diff';
 
     export type ValidationResultEntity =
         'oad.basePath' |
@@ -56,7 +56,7 @@ declare namespace OpenApiDiff {
     }
 
     export interface ValidationResultSpecEntityDetails {
-        location: string;
+        location?: string;
         pathMethod: string | null;
         pathName: string | null;
         value?: any;

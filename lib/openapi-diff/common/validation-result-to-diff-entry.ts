@@ -1,4 +1,3 @@
-import _ = require('lodash');
 import {ValidationResult, ValidationResultAction, ValidationResultEntity, ValidationResultType} from '../../api-types';
 import {DiffEntry, DiffEntrySeverity, DiffEntryTaxonomy, DiffEntryType} from '../types';
 
@@ -18,13 +17,9 @@ export const toDiffEntry = (validationResult: ValidationResult): DiffEntry => {
     };
 };
 
-const getPrintablePath = (sourceLocation: string, destinationLocation: string): string [] => {
-    const isNotEmpty = (value: any) => !_.isEmpty(value);
-    const printableSourcePath = sourceLocation.split('.').filter(isNotEmpty);
-    const printableDestinationPath = destinationLocation.split('.').filter(isNotEmpty);
-    return printableSourcePath.length >= printableDestinationPath.length
-        ? printableSourcePath
-        : printableDestinationPath;
+const getPrintablePath = (sourceLocation?: string, destinationLocation?: string): string [] => {
+    const location: string = sourceLocation || destinationLocation || '';
+    return location.split('.');
 };
 
 const actionToTypeMap: {[action in ValidationResultAction]: DiffEntryType} = {
