@@ -1,13 +1,11 @@
 import * as _ from 'lodash';
-// tslint:disable:no-implicit-dependencies
-import {Spec as Swagger2} from 'swagger-schema-official';
-import {GenericProperty} from '../../../../lib/openapi-diff/types';
+import {GenericProperty, Swagger2} from '../../../../lib/openapi-diff/types';
 import {
     swagger2SpecInfoBuilder,
     Swagger2SpecInfoBuilder
 } from './swagger-2-spec-builder/swagger-2-spec-info-builder';
 
-class Swagger2SpecBuilder {
+export class Swagger2SpecBuilder {
     public constructor(private readonly swagger2Spec: Swagger2) {}
 
     public build(): Swagger2 {

@@ -1,9 +1,12 @@
 import {specParser} from '../../../lib/openapi-diff/spec-parser';
+import {OpenApi3, ParsedSpec, Swagger2} from '../../../lib/openapi-diff/types';
 import {openApi3SpecBuilder, openApi3SpecInfoBuilder} from '../support/builders/openapi-3-spec-builder';
 import {parsedSpecBuilder, parsedSpecInfoBuilder} from '../support/builders/parsed-spec-builder';
 import {swagger2SpecBuilder, swagger2SpecInfoBuilder} from '../support/builders/swagger-2-spec-builder';
 
 describe('specParser, with regards to the info object,', () => {
+
+    const whenSpecIsParsed = (spec: Swagger2 | OpenApi3): ParsedSpec => specParser.parse(spec);
 
     describe('when the input spec is in Swagger 2.0 format', () => {
 
@@ -17,7 +20,7 @@ describe('specParser, with regards to the info object,', () => {
                         .withVersion('spec version'))
                     .build();
 
-                const actualResult = specParser.parse(originalSpec);
+                const actualResult = whenSpecIsParsed(originalSpec);
 
                 const expectedResult = parsedSpecBuilder
                     .withInfoObject(parsedSpecInfoBuilder
@@ -38,7 +41,7 @@ describe('specParser, with regards to the info object,', () => {
                         .withTermsOfService('spec terms'))
                     .build();
 
-                const actualResult = specParser.parse(originalSpec);
+                const actualResult = whenSpecIsParsed(originalSpec);
 
                 const expectedResult = parsedSpecBuilder
                     .withInfoObject(parsedSpecInfoBuilder
@@ -59,7 +62,7 @@ describe('specParser, with regards to the info object,', () => {
                         .withLicense('license name', 'license url'))
                     .build();
 
-                const actualResult = specParser.parse(originalSpec);
+                const actualResult = whenSpecIsParsed(originalSpec);
 
                 const expectedResult = parsedSpecBuilder
                     .withInfoObject(parsedSpecInfoBuilder
@@ -99,7 +102,7 @@ describe('specParser, with regards to the info object,', () => {
                         .withXProperty('external-id', 'some id'))
                     .build();
 
-                const actualResult = specParser.parse(originalSpec);
+                const actualResult = whenSpecIsParsed(originalSpec);
 
                 const expectedResult = parsedSpecBuilder
                     .withInfoObject(parsedSpecInfoBuilder
@@ -126,7 +129,7 @@ describe('specParser, with regards to the info object,', () => {
                         .withVersion('spec version'))
                     .build();
 
-                const actualResult = specParser.parse(originalSpec);
+                const actualResult = whenSpecIsParsed(originalSpec);
 
                 const expectedResult = parsedSpecBuilder
                     .withOpenApi3()
@@ -148,7 +151,7 @@ describe('specParser, with regards to the info object,', () => {
                         .withTermsOfService('spec terms'))
                     .build();
 
-                const actualResult = specParser.parse(originalSpec);
+                const actualResult = whenSpecIsParsed(originalSpec);
 
                 const expectedResult = parsedSpecBuilder
                     .withOpenApi3()
@@ -170,7 +173,7 @@ describe('specParser, with regards to the info object,', () => {
                         .withLicense('license name', 'license url'))
                     .build();
 
-                const actualResult = specParser.parse(originalSpec);
+                const actualResult = whenSpecIsParsed(originalSpec);
 
                 const expectedResult = parsedSpecBuilder
                     .withOpenApi3()
@@ -212,7 +215,7 @@ describe('specParser, with regards to the info object,', () => {
                     .withXProperty('external-id', 'some id'))
                 .build();
 
-            const actualResult = specParser.parse(originalSpec);
+            const actualResult = whenSpecIsParsed(originalSpec);
 
             const expectedResult = parsedSpecBuilder
                 .withOpenApi3()

@@ -5,6 +5,7 @@
   "bin": {
     "openapi-diff": "./bin/openapi-diff"
   },
+  "main": "dist/api.js",
   "scripts": {
     "release-major": "./node_modules/.bin/gulp release --type major",
     "release-minor": "./node_modules/.bin/gulp release --type minor",

@@ -10,7 +10,7 @@ describe('specDiffer/host property', () => {
 
     describe('when there is an edition in the host property', () => {
 
-        it('should return an edit difference of type error', () => {
+        it('should return an edit difference of type error', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withHost('host info')
@@ -19,7 +19,7 @@ describe('specDiffer/host property', () => {
                 .withHost('NEW host info')
                 .build();
 
-            const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
+            const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
             const expectedValidationResult = hostValidationResultBuilder
                 .withAction('edit')
@@ -37,7 +37,7 @@ describe('specDiffer/host property', () => {
 
     describe('when the host property is added in the new spec', () => {
 
-        it('should return an add difference of type error', () => {
+        it('should return an add difference of type error', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withNoHost()
@@ -46,7 +46,7 @@ describe('specDiffer/host property', () => {
                 .withHost('NEW host info')
                 .build();
 
-            const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
+            const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
             const expectedValidationResult = hostValidationResultBuilder
                 .withAction('add')
@@ -64,7 +64,7 @@ describe('specDiffer/host property', () => {
 
     describe('when the host property is deleted in the new spec', () => {
 
-        it('should return a delete difference of type error', () => {
+        it('should return a delete difference of type error', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withHost('OLD host info')
@@ -73,7 +73,7 @@ describe('specDiffer/host property', () => {
                 .withNoHost()
                 .build();
 
-            const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
+            const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
             const expectedValidationResult = hostValidationResultBuilder
                 .withAction('delete')

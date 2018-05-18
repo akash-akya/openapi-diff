@@ -10,7 +10,7 @@ describe('specDiffer/schemes', () => {
 
     describe('when there is a single edition in an item in the schemes property array', () => {
 
-        it('should return an item.add difference of type info and an item.delete difference of type error', () => {
+        it('should return item.add difference of type info and an item.delete difference of type error', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withSchemes([
@@ -21,7 +21,7 @@ describe('specDiffer/schemes', () => {
                     {originalPath: ['schemes', '0'], value: 'https'}])
                 .build();
 
-            const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
+            const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
             const expectedValidationResult1 = schemesValidationResultBuilder
                 .withAction('item.add')
@@ -49,7 +49,7 @@ describe('specDiffer/schemes', () => {
 
     describe('when there is an addition in the schemes property content', () => {
 
-        it('should return an item.add difference of type info', () => {
+        it('should return an item.add difference of type info', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withEmptySchemes()
@@ -58,7 +58,7 @@ describe('specDiffer/schemes', () => {
                 .withSchemes([{originalPath: ['schemes', '0'], value: 'http'}])
                 .build();
 
-            const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
+            const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
             const expectedValidationResult = schemesValidationResultBuilder
                 .withAction('item.add')
@@ -76,7 +76,7 @@ describe('specDiffer/schemes', () => {
 
     describe('when there is a deletion in the schemes property content', () => {
 
-        it('should return an item.delete difference of type error', () => {
+        it('should return an item.delete difference of type error', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withSchemes([{originalPath: ['schemes', '0'], value: 'http'}])
@@ -85,7 +85,7 @@ describe('specDiffer/schemes', () => {
                 .withEmptySchemes()
                 .build();
 
-            const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
+            const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
             const expectedValidationResult = schemesValidationResultBuilder
                 .withAction('item.delete')
@@ -103,7 +103,7 @@ describe('specDiffer/schemes', () => {
 
     describe('when the schemes property is added altogether', () => {
 
-        it('should return an add difference of type error', () => {
+        it('should return an add difference of type error', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withNoSchemes()
@@ -113,7 +113,7 @@ describe('specDiffer/schemes', () => {
                     {originalPath: ['schemes', '0'], value: 'https'}])
                 .build();
 
-            const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
+            const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
             const expectedValidationResult = schemesValidationResultBuilder
                 .withAction('add')
@@ -131,7 +131,7 @@ describe('specDiffer/schemes', () => {
 
     describe('when the schemes property is removed altogether', () => {
 
-        it('should return a delete difference of type error', () => {
+        it('should return a delete difference of type error', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withSchemes([
@@ -141,7 +141,7 @@ describe('specDiffer/schemes', () => {
                 .withNoSchemes()
                 .build();
 
-            const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
+            const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
             const expectedValidationResult = schemesValidationResultBuilder
                 .withAction('delete')
@@ -159,7 +159,7 @@ describe('specDiffer/schemes', () => {
 
     describe('when there are multiple changes in the schemes property content', () => {
 
-        it('should return two add differences of type info and one delete difference of type error', () => {
+        it('should return two add differences of type info and one delete difference of type error', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withSchemes([
@@ -173,7 +173,7 @@ describe('specDiffer/schemes', () => {
                     {originalPath: ['schemes', '2'], value: 'wss'}
                 ]).build();
 
-            const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
+            const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
             const expectedValidationResult1 = schemesValidationResultBuilder
                 .withAction('item.add')
@@ -211,7 +211,7 @@ describe('specDiffer/schemes', () => {
 
     describe('when the schemes content is shuffled but the elements are the same', () => {
 
-        it('should detect no differences', () => {
+        it('should detect no differences', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withSchemes([
@@ -226,7 +226,7 @@ describe('specDiffer/schemes', () => {
                     {originalPath: ['schemes', '2'], value: 'http'}
                 ]).build();
 
-            const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
+            const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
             expect(result.length).toEqual(0);
         });

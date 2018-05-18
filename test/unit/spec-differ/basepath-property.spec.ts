@@ -10,7 +10,7 @@ describe('specDiffer/basePath property', () => {
 
     describe('when there is an edition in the basePath property', () => {
 
-        it('should return an edit difference of type error', () => {
+        it('should return an edit difference of type error', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withBasePath('basePath info')
@@ -19,7 +19,7 @@ describe('specDiffer/basePath property', () => {
                 .withBasePath('NEW basePath info')
                 .build();
 
-            const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
+            const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
             const expectedValidationResult = basePathValidationResultBuilder
                 .withAction('edit')
@@ -37,7 +37,7 @@ describe('specDiffer/basePath property', () => {
 
     describe('when the basePath property is added in the new spec', () => {
 
-        it('should return an add difference of type error', () => {
+        it('should return an add difference of type error', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withNoBasePath()
@@ -46,7 +46,7 @@ describe('specDiffer/basePath property', () => {
                 .withBasePath('NEW basePath info')
                 .build();
 
-            const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
+            const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
             const expectedValidationResult = basePathValidationResultBuilder
                 .withAction('add')
@@ -64,7 +64,7 @@ describe('specDiffer/basePath property', () => {
 
     describe('when the basePath property is deleted in the new spec', () => {
 
-        it('should return a delete difference of type error', () => {
+        it('should return a delete difference of type error', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withBasePath('OLD basePath info')
@@ -73,7 +73,7 @@ describe('specDiffer/basePath property', () => {
                 .withNoBasePath()
                 .build();
 
-            const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
+            const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
             const expectedValidationResult = basePathValidationResultBuilder
                 .withAction('delete')

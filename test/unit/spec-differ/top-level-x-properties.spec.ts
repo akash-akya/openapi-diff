@@ -10,7 +10,7 @@ describe('specDiffer/top level ^x- properties', () => {
 
     describe('when there is an edit in an ^x- property at the top level object', () => {
 
-        it('should return an edit difference of type warning', () => {
+        it('should return an edit difference of type warning', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withTopLevelXProperty({
@@ -27,7 +27,7 @@ describe('specDiffer/top level ^x- properties', () => {
                 })
                 .build();
 
-            const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
+            const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
             const expectedValidationResult = xPropertyValidationResultBuilder
                 .withAction('edit')
@@ -48,7 +48,7 @@ describe('specDiffer/top level ^x- properties', () => {
 
     describe('when there is an addition of an ^x- property at the top level object', () => {
 
-        it('should return an add difference of type warning', () => {
+        it('should return an add difference of type warning', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withNoTopLevelXProperties()
@@ -61,7 +61,7 @@ describe('specDiffer/top level ^x- properties', () => {
                 })
                 .build();
 
-            const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
+            const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
             const expectedValidationResult = xPropertyValidationResultBuilder
                 .withAction('add')
@@ -82,7 +82,7 @@ describe('specDiffer/top level ^x- properties', () => {
 
     describe('when there is a deletion of an ^x- property at the top level object', () => {
 
-        it('should return a delete difference of type warning', () => {
+        it('should return a delete difference of type warning', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withTopLevelXProperty({
@@ -95,7 +95,7 @@ describe('specDiffer/top level ^x- properties', () => {
                 .withNoTopLevelXProperties()
                 .build();
 
-            const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
+            const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
             const expectedValidationResult = xPropertyValidationResultBuilder
                 .withAction('delete')
@@ -116,7 +116,7 @@ describe('specDiffer/top level ^x- properties', () => {
 
     describe('when there are multiple changes on ^x- properties at the top level object', () => {
 
-        it('should detect and classify ^x- property additions, deletions and editions', () => {
+        it('should detect and classify ^x- property additions, deletions and editions', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withTopLevelXProperty({
@@ -143,7 +143,7 @@ describe('specDiffer/top level ^x- properties', () => {
                 })
                 .build();
 
-            const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
+            const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
             const expectedDeletionResult = xPropertyValidationResultBuilder
                 .withAction('delete')

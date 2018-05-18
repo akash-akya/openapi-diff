@@ -1,4 +1,9 @@
-// Diff types
+// tslint:disable:no-implicit-dependencies
+import {OpenAPIObject} from 'openapi3-ts';
+import {Spec} from 'swagger-schema-official';
+
+export type Swagger2 = Spec;
+export type OpenApi3 = OpenAPIObject;
 
 export interface DiffEntry {
     sourceValue?: any;
@@ -95,6 +100,7 @@ export interface ParsedProperty<T> {
 }
 
 export interface ParsedSpec {
+    format: 'swagger2' | 'openapi3';
     basePath: ParsedProperty<string>;
     host: ParsedProperty<string>;
     info: ParsedInfoObject;

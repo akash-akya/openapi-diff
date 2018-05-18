@@ -118,6 +118,7 @@ const defaultParsedSpec: ParsedSpec = {
         originalPath: ['basePath'],
         value: undefined
     },
+    format: 'swagger2',
     host: {
         originalPath: ['host'],
         value: undefined

@@ -7,7 +7,7 @@ describe('specDiffer/info property', () => {
 
     describe('when there is an addition in the info property', () => {
 
-        it('should return an add difference of type info', () => {
+        it('should return an add difference of type info', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withInfoObject(parsedSpecInfoBuilder
@@ -18,7 +18,7 @@ describe('specDiffer/info property', () => {
                     .withDescription('NEW spec description'))
                 .build();
 
-            const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
+            const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
             const expectedValidationResult = validationResultBuilder
                 .withAction('add')
@@ -38,7 +38,7 @@ describe('specDiffer/info property', () => {
 
     describe('when there is a deletion in the info property', () => {
 
-        it('should return a delete difference of type info', () => {
+        it('should return a delete difference of type info', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withInfoObject(parsedSpecInfoBuilder
@@ -73,7 +73,7 @@ describe('specDiffer/info property', () => {
                     }))
                 .build();
 
-            const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
+            const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
             const expectedValidationResult = validationResultBuilder
                 .withAction('delete')
@@ -93,7 +93,7 @@ describe('specDiffer/info property', () => {
 
     describe('when there is an edition in the info property', () => {
 
-        it('should return an edit difference of type info', () => {
+        it('should return an edit difference of type info', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withInfoObject(parsedSpecInfoBuilder
@@ -104,7 +104,7 @@ describe('specDiffer/info property', () => {
                     .withTitle('NEW spec title'))
                 .build();
 
-            const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
+            const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
             const expectedValidationResult = validationResultBuilder
                 .withAction('edit')
@@ -127,7 +127,7 @@ describe('specDiffer/info property', () => {
             .withSource('openapi-diff')
             .withEntity('oad.unclassified');
 
-        it('should return an add difference of type warning when there is an addition of an ^x- property', () => {
+        it('should return an add difference of type warning when there is an addition of an ^x- property', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withInfoObject(parsedSpecInfoBuilder)
@@ -141,7 +141,7 @@ describe('specDiffer/info property', () => {
                     }))
                 .build();
 
-            const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
+            const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
             const expectedValidationResult = xPropertyValidationResultBuilder
                 .withAction('add')
@@ -156,7 +156,7 @@ describe('specDiffer/info property', () => {
             expect(result).toEqual([expectedValidationResult]);
         });
 
-        it('should return a delete difference of type warning when there is a deletion of an ^x- property', () => {
+        it('should return delete difference of type warning when there is a deletion of an ^x- property', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withInfoObject(parsedSpecInfoBuilder
@@ -170,7 +170,7 @@ describe('specDiffer/info property', () => {
                 .withInfoObject(parsedSpecInfoBuilder)
                 .build();
 
-            const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
+            const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
             const expectedValidationResult = xPropertyValidationResultBuilder
                 .withAction('delete')
@@ -185,7 +185,7 @@ describe('specDiffer/info property', () => {
             expect(result).toEqual([expectedValidationResult]);
         });
 
-        it('should return an edit difference of type warning when there is an edition of an ^x- property', () => {
+        it('should return an edit difference of type warning when there is an edition of an ^x- property', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withInfoObject(parsedSpecInfoBuilder
@@ -204,7 +204,7 @@ describe('specDiffer/info property', () => {
                     }))
                 .build();
 
-            const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
+            const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
             const expectedValidationResult = xPropertyValidationResultBuilder
                 .withAction('edit')

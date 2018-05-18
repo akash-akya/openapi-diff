@@ -12,7 +12,7 @@ describe('specDiffer/openapi', () => {
 
         describe('from a Swagger 2.0 spec', () => {
 
-            it('should return an edit difference of type info', () => {
+            it('should return an edit difference of type info', async () => {
                 const parsedSourceSpec = parsedSpecBuilder
                     .withSwagger2()
                     .build();
@@ -20,7 +20,7 @@ describe('specDiffer/openapi', () => {
                     .withOpenApi(['swagger'], '2.1')
                     .build();
 
-                const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
+                const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
                 const expectedValidationResult = openapiValidationResultBuilder
                     .withAction('edit')
@@ -38,7 +38,7 @@ describe('specDiffer/openapi', () => {
 
         describe('from a OpenApi 3.0 spec', () => {
 
-            it('should return an edit difference of type info', () => {
+            it('should return an edit difference of type info', async () => {
                 const parsedSourceSpec = parsedSpecBuilder
                     .withOpenApi3()
                     .build();
@@ -46,7 +46,7 @@ describe('specDiffer/openapi', () => {
                     .withOpenApi(['openapi'], '3.0.1')
                     .build();
 
-                const result = specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
+                const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
 
                 const expectedValidationResult = openapiValidationResultBuilder
                     .withAction('edit')

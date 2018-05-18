@@ -1,9 +1,11 @@
 import {specParser} from '../../../lib/openapi-diff/spec-parser';
+import {OpenApi3, ParsedSpec, Swagger2} from '../../../lib/openapi-diff/types';
 import {openApi3SpecBuilder} from '../support/builders/openapi-3-spec-builder';
 import {parsedSpecBuilder} from '../support/builders/parsed-spec-builder';
 import {swagger2SpecBuilder} from '../support/builders/swagger-2-spec-builder';
 
 describe('specParser, with regards to the top level object,', () => {
+    const whenSpecIsParsed = (spec: Swagger2 | OpenApi3): ParsedSpec => specParser.parse(spec);
 
     describe('when the original spec has x-properties at the top level', () => {
 
@@ -22,7 +24,7 @@ describe('specParser, with regards to the top level object,', () => {
                     })
                     .build();
 
-                const actualResult = specParser.parse(originalSpec);
+                const actualResult = whenSpecIsParsed(originalSpec);
 
                 const expectedResult = parsedSpecBuilder
                     .withTopLevelXProperty({
@@ -55,7 +57,7 @@ describe('specParser, with regards to the top level object,', () => {
                     })
                     .build();
 
-                const actualResult = specParser.parse(originalSpec);
+                const actualResult = whenSpecIsParsed(originalSpec);
 
                 const expectedResult = parsedSpecBuilder
                     .withOpenApi3()
@@ -85,7 +87,7 @@ describe('specParser, with regards to the top level object,', () => {
                     .withHost('some host url')
                     .build();
 
-                const actualResult = specParser.parse(originalSpec);
+                const actualResult = whenSpecIsParsed(originalSpec);
 
                 const expectedResult = parsedSpecBuilder
                     .withHost('some host url')
@@ -99,7 +101,7 @@ describe('specParser, with regards to the top level object,', () => {
                     .withNoHost()
                     .build();
 
-                const actualResult = specParser.parse(originalSpec);
+                const actualResult = whenSpecIsParsed(originalSpec);
 
                 const expectedResult = parsedSpecBuilder
                     .withNoHost()
@@ -114,7 +116,7 @@ describe('specParser, with regards to the top level object,', () => {
 
                 const originalSpec = openApi3SpecBuilder.build();
 
-                const actualResult = specParser.parse(originalSpec);
+                const actualResult = whenSpecIsParsed(originalSpec);
 
                 const expectedResult = parsedSpecBuilder
                     .withOpenApi3()
@@ -135,7 +137,7 @@ describe('specParser, with regards to the top level object,', () => {
                     .withBasePath('some basePath info')
                     .build();
 
-                const actualResult = specParser.parse(originalSpec);
+                const actualResult = whenSpecIsParsed(originalSpec);
 
                 const expectedResult = parsedSpecBuilder
                     .withBasePath('some basePath info')
@@ -148,7 +150,7 @@ describe('specParser, with regards to the top level object,', () => {
                     .withNoBasePath()
                     .build();
 
-                const actualResult = specParser.parse(originalSpec);
+                const actualResult = whenSpecIsParsed(originalSpec);
 
                 const expectedResult = parsedSpecBuilder
                     .withNoBasePath()
@@ -164,7 +166,7 @@ describe('specParser, with regards to the top level object,', () => {
                 const originalSpec = openApi3SpecBuilder
                     .build();
 
-                const actualResult = specParser.parse(originalSpec);
+                const actualResult = whenSpecIsParsed(originalSpec);
 
                 const expectedResult = parsedSpecBuilder
                     .withOpenApi3()

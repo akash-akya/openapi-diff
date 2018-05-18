@@ -1,22 +1,21 @@
 import * as _ from 'lodash';
 import {
     ContactObject as OpenApi3InfoContactObject,
-    LicenseObject as OpenApi3InfoLicenseObject,
-    OpenAPIObject as OpenApi3
+    LicenseObject as OpenApi3InfoLicenseObject
 } from 'openapi3-ts';
 // tslint:disable:no-implicit-dependencies
 import {
     Contact as Swagger2InfoContactObject,
-    License as Swagger2InfoLicenseObject,
-    Spec as Swagger2
+    License as Swagger2InfoLicenseObject
 } from 'swagger-schema-official';
 import {
-    GenericProperty,
+    GenericProperty, OpenApi3,
     ParsedContactObject,
     ParsedInfoObject,
     ParsedLicenseObject,
     ParsedProperty,
-    ParsedSpec
+    ParsedSpec,
+    Swagger2
 } from './types';
 
 const parseInfoContactObject = (infoContactObject?: Swagger2InfoContactObject |
@@ -119,6 +118,7 @@ const parseSwagger2Spec = (swagger2Spec: Swagger2): ParsedSpec => {
             originalPath: ['basePath'],
             value: swagger2Spec.basePath
         },
+        format: 'swagger2',
         host: {
             originalPath: ['host'],
             value: swagger2Spec.host
@@ -148,6 +148,7 @@ const parseOpenApi3Spec = (openApi3Spec: OpenApi3): ParsedSpec => {
             originalPath: ['basePath'],
             value: undefined
         },
+        format: 'openapi3',
         host: {
             originalPath: ['host'],
             value: undefined
@@ -177,6 +178,8 @@ const isSwagger2 = (spec: Swagger2 | OpenApi3): boolean => {
 
 export const specParser = {
     parse: (spec: Swagger2 | OpenApi3): ParsedSpec => {
-        return isSwagger2(spec) ? parseSwagger2Spec(spec as Swagger2) : parseOpenApi3Spec(spec as OpenApi3);
+        return isSwagger2(spec)
+            ? parseSwagger2Spec(spec as Swagger2)
+            : parseOpenApi3Spec(spec as OpenApi3);
     }
 };

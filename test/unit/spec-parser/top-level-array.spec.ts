@@ -1,9 +1,11 @@
 import {specParser} from '../../../lib/openapi-diff/spec-parser';
+import {OpenApi3, ParsedSpec, Swagger2} from '../../../lib/openapi-diff/types';
 import {openApi3SpecBuilder} from '../support/builders/openapi-3-spec-builder';
 import {parsedSpecBuilder} from '../support/builders/parsed-spec-builder';
 import {swagger2SpecBuilder} from '../support/builders/swagger-2-spec-builder';
 
 describe('specParser, with regards to arrays in the top level object,', () => {
+    const whenSpecIsParsed = (spec: Swagger2 | OpenApi3): ParsedSpec => specParser.parse(spec);
 
     describe('when the original spec is in Swagger 2 format', () => {
 
@@ -15,7 +17,7 @@ describe('specParser, with regards to arrays in the top level object,', () => {
                     .withNoSchemes()
                     .build();
 
-                const actualResult = specParser.parse(originalSpec);
+                const actualResult = whenSpecIsParsed(originalSpec);
 
                 const expectedResult = parsedSpecBuilder
                     .withNoSchemes()
@@ -33,7 +35,7 @@ describe('specParser, with regards to arrays in the top level object,', () => {
                         .withEmptySchemes()
                         .build();
 
-                    const actualResult = specParser.parse(originalSpec);
+                    const actualResult = whenSpecIsParsed(originalSpec);
 
                     const expectedResult = parsedSpecBuilder
                         .withEmptySchemes()
@@ -53,7 +55,7 @@ describe('specParser, with regards to arrays in the top level object,', () => {
                         .withSchemes(['http'])
                         .build();
 
-                    const actualResult = specParser.parse(originalSpec);
+                    const actualResult = whenSpecIsParsed(originalSpec);
 
                     const expectedResult = parsedSpecBuilder
                         .withSchemes([{
@@ -73,7 +75,7 @@ describe('specParser, with regards to arrays in the top level object,', () => {
                         .withSchemes(['http', 'https', 'ws', 'wss'])
                         .build();
 
-                    const actualResult = specParser.parse(originalSpec);
+                    const actualResult = whenSpecIsParsed(originalSpec);
 
                     const expectedResult = parsedSpecBuilder
                         .withSchemes([{
@@ -103,7 +105,7 @@ describe('specParser, with regards to arrays in the top level object,', () => {
             const originalSpec = openApi3SpecBuilder
                 .build();
 
-            const actualResult = specParser.parse(originalSpec);
+            const actualResult = whenSpecIsParsed(originalSpec);
 
             const expectedResult = parsedSpecBuilder
                 .withOpenApi3()

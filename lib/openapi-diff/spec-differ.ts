@@ -211,7 +211,9 @@ const findDiffsInXProperties = (sourceParsedXProperties: { [name: string]: Parse
     return xPropertyDiffs;
 };
 
-const findDiffsInSpecs = (parsedSourceSpec: ParsedSpec, parsedDestinationSpec: ParsedSpec): ValidationResult[] => {
+const findDiffsInSpecs = (
+    parsedSourceSpec: ParsedSpec, parsedDestinationSpec: ParsedSpec
+): Promise<ValidationResult[]> => {
 
     const infoDiffs = _.concat([],
         findDiffsInProperty(parsedSourceSpec.info.termsOfService,
@@ -244,10 +246,11 @@ const findDiffsInSpecs = (parsedSourceSpec: ParsedSpec, parsedDestinationSpec: P
     const topLevelXPropertyDiffs = findDiffsInXProperties(parsedSourceSpec.xProperties,
         parsedDestinationSpec.xProperties, 'xProperties');
 
-    return _.concat([], infoDiffs, basePathDiffs, hostDiffs, openApiDiffs, schemesDiffs, topLevelXPropertyDiffs);
+    return Promise.resolve(
+        _.concat([], infoDiffs, basePathDiffs, hostDiffs, openApiDiffs, schemesDiffs, topLevelXPropertyDiffs)
+    );
 };
 
 export const specDiffer = {
-    diff: (parsedSourceSpec: ParsedSpec, parsedDestinationSpec: ParsedSpec): ValidationResult[] =>
-        findDiffsInSpecs(parsedSourceSpec, parsedDestinationSpec)
+    diff: findDiffsInSpecs
 };

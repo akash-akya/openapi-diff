@@ -1,9 +1,8 @@
 import * as _ from 'lodash';
-import {OpenAPIObject as OpenApi3} from 'openapi3-ts';
-import {GenericProperty} from '../../../../lib/openapi-diff/types';
+import {GenericProperty, OpenApi3} from '../../../../lib/openapi-diff/types';
 import {openApi3SpecInfoBuilder, OpenApi3SpecInfoBuilder} from './openapi-3-spec-builder/openapi-3-spec-info-builder';
 
-class OpenApi3SpecBuilder {
+export class OpenApi3SpecBuilder {
     public constructor(private readonly openApi3Spec: OpenApi3) {}
 
     public build(): OpenApi3 {
