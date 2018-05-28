@@ -39,7 +39,7 @@
     "@types/js-yaml": "^3.10.1",
     "@types/lodash": "^4.14.74",
     "@types/request": "^2.0.3",
-    "@types/swagger-schema-official": "^2.0.6",
+    "@types/swagger-schema-official": "^2.0.9",
     "@types/verror": "^1.10.1",
     "conventional-changelog-lint": "1.1.9",
     "del": "^3.0.0",

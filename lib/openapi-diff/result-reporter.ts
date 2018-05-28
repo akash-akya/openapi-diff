@@ -1,5 +1,7 @@
 import * as _ from 'lodash';
-import {DiffEntry, DiffEntrySeverity, ResultObject} from './types';
+import {ValidationOutcome} from '../api-types';
+import {toDiffEntry} from './common/validation-result-to-diff-entry';
+import {DiffEntry, ResultObject} from './types';
 
 const buildChangeSentence = (targetChange: DiffEntry): string => {
     const changeDescription: any = {
@@ -28,33 +30,25 @@ const buildChangeSentence = (targetChange: DiffEntry): string => {
     return changeDescription[targetChange.type](targetChange);
 };
 
-const countSeverities = (changes: DiffEntry[], changeSeverity: DiffEntrySeverity): number => {
-    const changeCount = _.filter(changes, ['severity', changeSeverity]).length;
-    return changeCount;
-};
-
 export const resultReporter = {
-    build: (results: DiffEntry[]): ResultObject => {
-        const numberOfBreakingChanges = countSeverities(results, 'breaking');
-
+    build: (validationOutcome: ValidationOutcome): ResultObject => {
         const changeList: string[] = [];
-        const hasBreakingChanges: boolean = !!numberOfBreakingChanges;
         const summary: string[] = [];
 
-        summary.push(`${numberOfBreakingChanges} breaking changes found.`);
-        summary.push(`${countSeverities(results, 'non-breaking')} non-breaking changes found.`);
-        summary.push(`${countSeverities(results, 'unclassified')} unclassified changes found.`);
+        summary.push(`${validationOutcome.errors.length} breaking changes found.`);
+        summary.push(`${validationOutcome.info.length} non-breaking changes found.`);
+        summary.push(`${validationOutcome.warnings.length} unclassified changes found.`);
 
-        for (const entry of results) {
-            changeList.push(buildChangeSentence(entry));
+        const allOutcomes = validationOutcome.errors.concat(validationOutcome.warnings).concat(validationOutcome.info);
+
+        for (const outcome of allOutcomes) {
+            changeList.push(buildChangeSentence(toDiffEntry(outcome)));
         }
 
-        const processedResult: ResultObject = {
+        return {
             changeList: _.sortBy(changeList),
-            hasBreakingChanges,
+            hasBreakingChanges: validationOutcome.errors.length > 0,
             summary
         };
-
-        return processedResult;
     }
 };

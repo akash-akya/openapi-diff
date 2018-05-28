@@ -80,7 +80,7 @@ declare namespace OpenApiDiff {
     }
 
     export interface SpecOption {
-        content: OpenApi3 | Swagger2;
+        content: any;
         location: string;
     }
 

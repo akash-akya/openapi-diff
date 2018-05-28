@@ -26,10 +26,8 @@ describe('validation result to diff entry', () => {
             expect(result).toEqual({
                 destinationValue: 'New basePath info',
                 printablePath: ['basePath'],
-                scope: 'basePath',
                 severity: 'breaking',
                 sourceValue: 'basePath info',
-                taxonomy: 'basePath.edit',
                 type: 'edit'
             });
         });
@@ -56,10 +54,8 @@ describe('validation result to diff entry', () => {
             expect(result).toEqual({
                 destinationValue: 'New basePath info',
                 printablePath: ['basePath'],
-                scope: 'basePath',
                 severity: 'breaking',
                 sourceValue: undefined,
-                taxonomy: 'basePath.add',
                 type: 'add'
             });
         });
@@ -86,10 +82,8 @@ describe('validation result to diff entry', () => {
             expect(result).toEqual({
                 destinationValue: undefined,
                 printablePath: ['basePath'],
-                scope: 'basePath',
                 severity: 'breaking',
                 sourceValue: 'basePath info',
-                taxonomy: 'basePath.delete',
                 type: 'delete'
             });
         });
@@ -118,10 +112,8 @@ describe('validation result to diff entry', () => {
             expect(diffEntry).toEqual({
                 destinationValue: 'new host info',
                 printablePath: ['host'],
-                scope: 'host',
                 severity: 'breaking',
                 sourceValue: 'host info',
-                taxonomy: 'host.edit',
                 type: 'edit'
             });
         });
@@ -148,10 +140,8 @@ describe('validation result to diff entry', () => {
             expect(diffEntry).toEqual({
                 destinationValue: 'new host info',
                 printablePath: ['host'],
-                scope: 'host',
                 severity: 'breaking',
                 sourceValue: undefined,
-                taxonomy: 'host.add',
                 type: 'add'
             });
         });
@@ -178,10 +168,8 @@ describe('validation result to diff entry', () => {
             expect(diffEntry).toEqual({
                 destinationValue: undefined,
                 printablePath: ['host'],
-                scope: 'host',
                 severity: 'breaking',
                 sourceValue: 'host info',
-                taxonomy: 'host.delete',
                 type: 'delete'
             });
         });
@@ -211,10 +199,8 @@ describe('validation result to diff entry', () => {
             expect(diffEntry).toEqual({
                 destinationValue: 'new title',
                 printablePath: ['info', 'title'],
-                scope: 'info.title',
                 severity: 'non-breaking',
                 sourceValue: 'title',
-                taxonomy: 'info.title.edit',
                 type: 'edit'
             });
         });
@@ -241,10 +227,8 @@ describe('validation result to diff entry', () => {
             expect(diffEntry).toEqual({
                 destinationValue: 'new description',
                 printablePath: ['info', 'description'],
-                scope: 'info.description',
                 severity: 'non-breaking',
                 sourceValue: undefined,
-                taxonomy: 'info.description.add',
                 type: 'add'
             });
         });
@@ -271,10 +255,8 @@ describe('validation result to diff entry', () => {
             expect(diffEntry).toEqual({
                 destinationValue: undefined,
                 printablePath: ['info', 'contact', 'name'],
-                scope: 'info.contact.name',
                 severity: 'non-breaking',
                 sourceValue: 'name',
-                taxonomy: 'info.contact.name.delete',
                 type: 'delete'
             });
         });
@@ -302,10 +284,8 @@ describe('validation result to diff entry', () => {
                 expect(diffEntry).toEqual({
                     destinationValue: 'new value',
                     printablePath: ['info', 'x-external-id'],
-                    scope: 'unclassified',
                     severity: 'unclassified',
                     sourceValue: 'some value',
-                    taxonomy: 'unclassified.edit',
                     type: 'edit'
                 });
             });
@@ -332,10 +312,8 @@ describe('validation result to diff entry', () => {
                 expect(diffEntry).toEqual({
                     destinationValue: 'new value',
                     printablePath: ['info', 'x-external-id'],
-                    scope: 'unclassified',
                     severity: 'unclassified',
                     sourceValue: undefined,
-                    taxonomy: 'unclassified.add',
                     type: 'add'
                 });
             });
@@ -362,10 +340,8 @@ describe('validation result to diff entry', () => {
                 expect(diffEntry).toEqual({
                     destinationValue: undefined,
                     printablePath: ['info', 'x-external-id'],
-                    scope: 'unclassified',
                     severity: 'unclassified',
                     sourceValue: 'some value',
-                    taxonomy: 'unclassified.delete',
                     type: 'delete'
                 });
             });
@@ -395,10 +371,8 @@ describe('validation result to diff entry', () => {
             expect(diffEntry).toEqual({
                 destinationValue: '2.1',
                 printablePath: ['swagger'],
-                scope: 'openapi',
                 severity: 'non-breaking',
                 sourceValue: '2.0',
-                taxonomy: 'openapi.edit',
                 type: 'edit'
             });
         });
@@ -427,10 +401,8 @@ describe('validation result to diff entry', () => {
             expect(diffEntry).toEqual({
                 destinationValue: 'http',
                 printablePath: ['schemes', '0'],
-                scope: 'schemes',
                 severity: 'non-breaking',
                 sourceValue: undefined,
-                taxonomy: 'schemes.arrayContent.add',
                 type: 'arrayContent.add'
             });
         });
@@ -457,10 +429,8 @@ describe('validation result to diff entry', () => {
             expect(diffEntry).toEqual({
                 destinationValue: [{originalPath: ['schemes', '0'], value: 'https'}],
                 printablePath: ['schemes'],
-                scope: 'schemes',
                 severity: 'breaking',
                 sourceValue: undefined,
-                taxonomy: 'schemes.add',
                 type: 'add'
             });
         });
@@ -487,10 +457,8 @@ describe('validation result to diff entry', () => {
             expect(diffEntry).toEqual({
                 destinationValue: undefined,
                 printablePath: ['schemes', '0'],
-                scope: 'schemes',
                 severity: 'breaking',
                 sourceValue: 'http',
-                taxonomy: 'schemes.arrayContent.delete',
                 type: 'arrayContent.delete'
             });
         });
@@ -517,10 +485,8 @@ describe('validation result to diff entry', () => {
             expect(diffEntry).toEqual({
                 destinationValue: undefined,
                 printablePath: ['schemes'],
-                scope: 'schemes',
                 severity: 'breaking',
                 sourceValue: [{originalPath: ['schemes', '0'], value: 'https'}],
-                taxonomy: 'schemes.delete',
                 type: 'delete'
             });
         });

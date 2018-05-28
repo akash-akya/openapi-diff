@@ -1,10 +1,9 @@
 import {OpenApiDiffOptions, SpecDetails, ValidationOutcome, ValidationResult} from './api-types';
-import {toDiffEntry} from './openapi-diff/common/validation-result-to-diff-entry';
 import {resultReporter} from './openapi-diff/result-reporter';
 import {specDiffer} from './openapi-diff/spec-differ';
 import {SpecLoader} from './openapi-diff/spec-loader';
 import {specParser} from './openapi-diff/spec-parser';
-import {OpenApi3, OpenApiDiffInternal, ParsedSpec, ResultObject, Swagger2} from './openapi-diff/types';
+import {OpenApi3, ParsedSpec, ResultObject, Swagger2} from './openapi-diff/types';
 
 interface ResultsByType {
     errors: ValidationResult[];
@@ -67,12 +66,17 @@ const validateSourceAndDestinationParsedSpecs = async (
     };
 };
 
-export class OpenApiDiff implements OpenApiDiffInternal {
+interface Specs {
+    destinationSpec: Swagger2 | OpenApi3;
+    sourceSpec: Swagger2 | OpenApi3;
+}
+
+export class OpenApiDiff {
     public constructor(private readonly specLoader: SpecLoader) {}
 
     public async validate(sourceSpecPath: string, destinationSpecPath: string): Promise<ResultObject> {
-        const [sourceSpec, destinationSpec] = await this.loadSpecs(sourceSpecPath, destinationSpecPath);
-        const diffs = await validateSourceAndDestinationSpecContent({
+        const {sourceSpec, destinationSpec} = await this.loadSpecs(sourceSpecPath, destinationSpecPath);
+        const validationOutcome = await validateSourceAndDestinationSpecContent({
             destinationSpec: {
                 content: destinationSpec,
                 location: destinationSpecPath
@@ -83,14 +87,13 @@ export class OpenApiDiff implements OpenApiDiffInternal {
             }
         });
 
-        const allDifferences = diffs.info.concat(diffs.warnings).concat(diffs.errors);
-
-        return resultReporter.build(allDifferences.map(toDiffEntry));
+        return resultReporter.build(validationOutcome);
     }
 
-    private async loadSpecs(sourceSpecPath: string, destinationSpecPath: string): Promise<Array<Swagger2 | OpenApi3>> {
+    private async loadSpecs(sourceSpecPath: string, destinationSpecPath: string): Promise<Specs> {
         const whenSourceSpec = this.specLoader.load(sourceSpecPath);
         const whenDestinationSpec = this.specLoader.load(destinationSpecPath);
-        return Promise.all([whenSourceSpec, whenDestinationSpec]);
+        const [sourceSpec, destinationSpec] = await Promise.all([whenSourceSpec, whenDestinationSpec]);
+        return {sourceSpec, destinationSpec};
     }
 }

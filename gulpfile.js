@@ -154,6 +154,6 @@ gulp.task('watch', ['clean-copy-and-compile-build-output'], () => {
     gulp.watch(['build-output/lib/**/*', 'build-output/test/unit/**/*'], ['unit-test']);
 });
 
-gulp.task('watch-e2e', ['clean-copy-and-compile-build-output'], () => {
+gulp.task('watch-e2e', () => {
     gulp.watch(['build-output/lib/**/*', 'build-output/test/e2e/**/*', 'test/e2e/**/*.json'], ['e2e-test']);
 });

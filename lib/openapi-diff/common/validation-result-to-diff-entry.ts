@@ -1,18 +1,15 @@
-import {ValidationResult, ValidationResultAction, ValidationResultEntity, ValidationResultType} from '../../api-types';
-import {DiffEntry, DiffEntrySeverity, DiffEntryTaxonomy, DiffEntryType} from '../types';
+import {ValidationResult, ValidationResultAction, ValidationResultType} from '../../api-types';
+import {DiffEntry, DiffEntrySeverity, DiffEntryType} from '../types';
 
 export const toDiffEntry = (validationResult: ValidationResult): DiffEntry => {
-    const scope = entityToScope(validationResult.entity);
     const type = actionToTypeMap[validationResult.action];
     return {
         destinationValue: validationResult.destinationSpecEntityDetails.value,
         printablePath: getPrintablePath(
             validationResult.sourceSpecEntityDetails.location,
             validationResult.destinationSpecEntityDetails.location),
-        scope,
         severity: typeToSeverityMap[validationResult.type],
         sourceValue: validationResult.sourceSpecEntityDetails.value,
-        taxonomy: `${scope}.${type}` as DiffEntryTaxonomy,
         type
     };
 };
@@ -35,6 +32,3 @@ const typeToSeverityMap: {[type in ValidationResultType]: DiffEntrySeverity} = {
     info: 'non-breaking',
     warning: 'unclassified'
 };
-
-const entityToScope = (entity: ValidationResultEntity): string =>
-    entity.replace(/^(oad\.)/, '');
