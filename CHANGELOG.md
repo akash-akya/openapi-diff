@@ -1,3 +1,13 @@
+<a name="0.7.2"></a>
+## [0.7.2](https://bitbucket.org/atlassian/openapi-diff/compare/0.7.1...0.7.2) (2018-06-04)
+
+
+### Bug Fixes
+
+* include bin folder in published module ([e512194](https://bitbucket.org/atlassian/openapi-diff/commits/e512194))
+
+
+
 <a name="0.7.1"></a>
 ## [0.7.1](https://bitbucket.org/atlassian/openapi-diff/compare/0.7.0...0.7.1) (2018-06-04)
 
