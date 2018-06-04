@@ -4,11 +4,11 @@ import {specEntityDetailsBuilder} from '../support/builders/validation-result-sp
 
 describe('validation result to diff entry', () => {
     describe('basePath', () => {
-        it('should convert edit and error to breaking diff entry', () => {
-            const errorEditBasePathValidationResult = validationResultBuilder
+        it('should convert edit and breaking to breaking diff entry', () => {
+            const validationResult = validationResultBuilder
                 .withAction('edit')
                 .withEntity('oad.basePath')
-                .withType('error')
+                .withType('breaking')
                 .withSourceSpecEntityDetails(
                     specEntityDetailsBuilder
                         .withLocation('basePath')
@@ -21,7 +21,7 @@ describe('validation result to diff entry', () => {
                 )
                 .build();
 
-            const result = toDiffEntry(errorEditBasePathValidationResult);
+            const result = toDiffEntry(validationResult);
 
             expect(result).toEqual({
                 destinationValue: 'New basePath info',
@@ -32,11 +32,11 @@ describe('validation result to diff entry', () => {
             });
         });
 
-        it('should convert add and error to breaking diff entry', () => {
+        it('should convert add and breaking to breaking diff entry', () => {
             const validationResult = validationResultBuilder
                 .withAction('add')
                 .withEntity('oad.basePath')
-                .withType('error')
+                .withType('breaking')
                 .withSourceSpecEntityDetails(
                     specEntityDetailsBuilder
                         .withLocation('basePath')
@@ -60,11 +60,11 @@ describe('validation result to diff entry', () => {
             });
         });
 
-        it('should convert delete and error to breaking diff entry', () => {
+        it('should convert delete and breaking to breaking diff entry', () => {
             const validationResult = validationResultBuilder
                 .withAction('delete')
                 .withEntity('oad.basePath')
-                .withType('error')
+                .withType('breaking')
                 .withSourceSpecEntityDetails(
                     specEntityDetailsBuilder
                         .withLocation('basePath')
@@ -90,11 +90,11 @@ describe('validation result to diff entry', () => {
     });
 
     describe('host', () => {
-        it('should convert edit and error to breaking diff entry', () => {
-            const errorEditHostValidationResult = validationResultBuilder
+        it('should convert edit and breaking to breaking diff entry', () => {
+            const validationResult = validationResultBuilder
                 .withAction('edit')
                 .withEntity('oad.host')
-                .withType('error')
+                .withType('breaking')
                 .withSourceSpecEntityDetails(
                     specEntityDetailsBuilder
                         .withLocation('host')
@@ -107,7 +107,7 @@ describe('validation result to diff entry', () => {
                 )
                 .build();
 
-            const diffEntry = toDiffEntry(errorEditHostValidationResult);
+            const diffEntry = toDiffEntry(validationResult);
 
             expect(diffEntry).toEqual({
                 destinationValue: 'new host info',
@@ -118,11 +118,11 @@ describe('validation result to diff entry', () => {
             });
         });
 
-        it('should convert add and error to breaking diff entry', () => {
-            const errorEditHostValidationResult = validationResultBuilder
+        it('should convert add and breaking to breaking diff entry', () => {
+            const validationResult = validationResultBuilder
                 .withAction('add')
                 .withEntity('oad.host')
-                .withType('error')
+                .withType('breaking')
                 .withSourceSpecEntityDetails(
                     specEntityDetailsBuilder
                         .withLocation('host')
@@ -135,7 +135,7 @@ describe('validation result to diff entry', () => {
                 )
                 .build();
 
-            const diffEntry = toDiffEntry(errorEditHostValidationResult);
+            const diffEntry = toDiffEntry(validationResult);
 
             expect(diffEntry).toEqual({
                 destinationValue: 'new host info',
@@ -146,11 +146,11 @@ describe('validation result to diff entry', () => {
             });
         });
 
-        it('should convert delete and error to breaking diff entry', () => {
-            const errorEditHostValidationResult = validationResultBuilder
+        it('should convert delete and breaking to breaking diff entry', () => {
+            const validationResult = validationResultBuilder
                 .withAction('delete')
                 .withEntity('oad.host')
-                .withType('error')
+                .withType('breaking')
                 .withSourceSpecEntityDetails(
                     specEntityDetailsBuilder
                         .withLocation('host')
@@ -163,7 +163,7 @@ describe('validation result to diff entry', () => {
                 )
                 .build();
 
-            const diffEntry = toDiffEntry(errorEditHostValidationResult);
+            const diffEntry = toDiffEntry(validationResult);
 
             expect(diffEntry).toEqual({
                 destinationValue: undefined,
@@ -177,11 +177,11 @@ describe('validation result to diff entry', () => {
     });
 
     describe('info object', () => {
-        it('should convert edit and info to non-breaking diff entry', () => {
-            const infoEditTitleValidationResult = validationResultBuilder
+        it('should convert edit and non-breaking to non-breaking diff entry', () => {
+            const validationResult = validationResultBuilder
                 .withAction('edit')
                 .withEntity('oad.info.title')
-                .withType('info')
+                .withType('non-breaking')
                 .withSourceSpecEntityDetails(
                     specEntityDetailsBuilder
                         .withLocation('info.title')
@@ -194,7 +194,7 @@ describe('validation result to diff entry', () => {
                 )
                 .build();
 
-            const diffEntry = toDiffEntry(infoEditTitleValidationResult);
+            const diffEntry = toDiffEntry(validationResult);
 
             expect(diffEntry).toEqual({
                 destinationValue: 'new title',
@@ -205,11 +205,11 @@ describe('validation result to diff entry', () => {
             });
         });
 
-        it('should convert add and info to non-breaking diff entry', () => {
-            const infoAddDescriptionValidationResult = validationResultBuilder
+        it('should convert add and non-breaking to non-breaking diff entry', () => {
+            const validationResult = validationResultBuilder
                 .withAction('add')
                 .withEntity('oad.info.description')
-                .withType('info')
+                .withType('non-breaking')
                 .withSourceSpecEntityDetails(
                     specEntityDetailsBuilder
                         .withLocation('info.description')
@@ -222,7 +222,7 @@ describe('validation result to diff entry', () => {
                 )
                 .build();
 
-            const diffEntry = toDiffEntry(infoAddDescriptionValidationResult);
+            const diffEntry = toDiffEntry(validationResult);
 
             expect(diffEntry).toEqual({
                 destinationValue: 'new description',
@@ -233,11 +233,11 @@ describe('validation result to diff entry', () => {
             });
         });
 
-        it('should convert delete and info to non-breaking diff entry', () => {
-            const infoDeleteContactNameValidationResult = validationResultBuilder
+        it('should convert delete and non-breaking to non-breaking diff entry', () => {
+            const validationResult = validationResultBuilder
                 .withAction('delete')
                 .withEntity('oad.info.contact.name')
-                .withType('info')
+                .withType('non-breaking')
                 .withSourceSpecEntityDetails(
                     specEntityDetailsBuilder
                         .withLocation('info.contact.name')
@@ -250,7 +250,7 @@ describe('validation result to diff entry', () => {
                 )
                 .build();
 
-            const diffEntry = toDiffEntry(infoDeleteContactNameValidationResult);
+            const diffEntry = toDiffEntry(validationResult);
 
             expect(diffEntry).toEqual({
                 destinationValue: undefined,
@@ -262,11 +262,11 @@ describe('validation result to diff entry', () => {
         });
 
         describe('x-property', () => {
-            it('should convert edit and warning to unclassified diff entry', () => {
-                const warningEditXPropertyValidationResult = validationResultBuilder
+            it('should convert edit and unclassified to unclassified diff entry', () => {
+                const validationResult = validationResultBuilder
                     .withAction('edit')
                     .withEntity('oad.unclassified')
-                    .withType('warning')
+                    .withType('unclassified')
                     .withSourceSpecEntityDetails(
                         specEntityDetailsBuilder
                             .withLocation('info.x-external-id')
@@ -279,7 +279,7 @@ describe('validation result to diff entry', () => {
                     )
                     .build();
 
-                const diffEntry = toDiffEntry(warningEditXPropertyValidationResult);
+                const diffEntry = toDiffEntry(validationResult);
 
                 expect(diffEntry).toEqual({
                     destinationValue: 'new value',
@@ -290,11 +290,11 @@ describe('validation result to diff entry', () => {
                 });
             });
 
-            it('should convert add and warning to unclassified diff entry', () => {
-                const warningAddXPropertyValidationResult = validationResultBuilder
+            it('should convert add and unclassified to unclassified diff entry', () => {
+                const validationResult = validationResultBuilder
                     .withAction('add')
                     .withEntity('oad.unclassified')
-                    .withType('warning')
+                    .withType('unclassified')
                     .withSourceSpecEntityDetails(
                         specEntityDetailsBuilder
                             .withLocation('info.x-external-id')
@@ -307,7 +307,7 @@ describe('validation result to diff entry', () => {
                     )
                     .build();
 
-                const diffEntry = toDiffEntry(warningAddXPropertyValidationResult);
+                const diffEntry = toDiffEntry(validationResult);
 
                 expect(diffEntry).toEqual({
                     destinationValue: 'new value',
@@ -318,11 +318,11 @@ describe('validation result to diff entry', () => {
                 });
             });
 
-            it('should convert delete and warning to unclassified diff entry', () => {
-                const warningDeleteXPropertyValidationResult = validationResultBuilder
+            it('should convert delete and unclassified to unclassified diff entry', () => {
+                const validationResult = validationResultBuilder
                     .withAction('delete')
                     .withEntity('oad.unclassified')
-                    .withType('warning')
+                    .withType('unclassified')
                     .withSourceSpecEntityDetails(
                         specEntityDetailsBuilder
                             .withLocation('info.x-external-id')
@@ -335,7 +335,7 @@ describe('validation result to diff entry', () => {
                     )
                     .build();
 
-                const diffEntry = toDiffEntry(warningDeleteXPropertyValidationResult);
+                const diffEntry = toDiffEntry(validationResult);
 
                 expect(diffEntry).toEqual({
                     destinationValue: undefined,
@@ -349,11 +349,11 @@ describe('validation result to diff entry', () => {
     });
 
     describe('openapi', () => {
-        it('should convert edit and info to non-breaking diff entry', () => {
-            const infoEditVersionValidationResult = validationResultBuilder
+        it('should convert edit and non-breaking to non-breaking diff entry', () => {
+            const validationResult = validationResultBuilder
                 .withAction('edit')
                 .withEntity('oad.openapi')
-                .withType('info')
+                .withType('non-breaking')
                 .withSourceSpecEntityDetails(
                     specEntityDetailsBuilder
                         .withLocation('swagger')
@@ -366,7 +366,7 @@ describe('validation result to diff entry', () => {
                 )
                 .build();
 
-            const diffEntry = toDiffEntry(infoEditVersionValidationResult);
+            const diffEntry = toDiffEntry(validationResult);
 
             expect(diffEntry).toEqual({
                 destinationValue: '2.1',
@@ -379,11 +379,11 @@ describe('validation result to diff entry', () => {
     });
 
     describe('schemes', () => {
-        it('should convert item.add and info to non breaking diff entry', () => {
-            const infoItemAddSchemeValidationResult = validationResultBuilder
+        it('should convert item.add and non-breaking to non breaking diff entry', () => {
+            const validationResult = validationResultBuilder
                 .withAction('item.add')
                 .withEntity('oad.schemes')
-                .withType('info')
+                .withType('non-breaking')
                 .withSourceSpecEntityDetails(
                     specEntityDetailsBuilder
                         .withLocation('schemes.0')
@@ -396,7 +396,7 @@ describe('validation result to diff entry', () => {
                 )
                 .build();
 
-            const diffEntry = toDiffEntry(infoItemAddSchemeValidationResult);
+            const diffEntry = toDiffEntry(validationResult);
 
             expect(diffEntry).toEqual({
                 destinationValue: 'http',
@@ -407,11 +407,11 @@ describe('validation result to diff entry', () => {
             });
         });
 
-        it('should convert add and error to breaking diff entry', () => {
-            const errorAddSchemeValidationResult = validationResultBuilder
+        it('should convert add and breaking to breaking diff entry', () => {
+            const validationResult = validationResultBuilder
                 .withAction('add')
                 .withEntity('oad.schemes')
-                .withType('error')
+                .withType('breaking')
                 .withSourceSpecEntityDetails(
                     specEntityDetailsBuilder
                         .withLocation('schemes')
@@ -424,7 +424,7 @@ describe('validation result to diff entry', () => {
                 )
                 .build();
 
-            const diffEntry = toDiffEntry(errorAddSchemeValidationResult);
+            const diffEntry = toDiffEntry(validationResult);
 
             expect(diffEntry).toEqual({
                 destinationValue: [{originalPath: ['schemes', '0'], value: 'https'}],
@@ -435,11 +435,11 @@ describe('validation result to diff entry', () => {
             });
         });
 
-        it('should convert item.delete and error to breaking diff entry', () => {
-            const errorItemDeleteSchemeValidationResult = validationResultBuilder
+        it('should convert item.delete and breaking to breaking diff entry', () => {
+            const validationResult = validationResultBuilder
                 .withAction('item.delete')
                 .withEntity('oad.schemes')
-                .withType('error')
+                .withType('breaking')
                 .withSourceSpecEntityDetails(
                     specEntityDetailsBuilder
                         .withLocation('schemes.0')
@@ -452,7 +452,7 @@ describe('validation result to diff entry', () => {
                 )
                 .build();
 
-            const diffEntry = toDiffEntry(errorItemDeleteSchemeValidationResult);
+            const diffEntry = toDiffEntry(validationResult);
 
             expect(diffEntry).toEqual({
                 destinationValue: undefined,
@@ -463,11 +463,11 @@ describe('validation result to diff entry', () => {
             });
         });
 
-        it('should convert delete and error to breaking diff entry', () => {
-            const errorDeleteSchemeValidationResult = validationResultBuilder
+        it('should convert delete and breaking to breaking diff entry', () => {
+            const validationResult = validationResultBuilder
                 .withAction('delete')
                 .withEntity('oad.schemes')
-                .withType('error')
+                .withType('breaking')
                 .withSourceSpecEntityDetails(
                     specEntityDetailsBuilder
                         .withLocation('schemes')
@@ -480,7 +480,7 @@ describe('validation result to diff entry', () => {
                 )
                 .build();
 
-            const diffEntry = toDiffEntry(errorDeleteSchemeValidationResult);
+            const diffEntry = toDiffEntry(validationResult);
 
             expect(diffEntry).toEqual({
                 destinationValue: undefined,

@@ -10,21 +10,21 @@ export class Swagger2SpecsDifferenceBuilder {
         private readonly source: Swagger2SpecBuilder,
         private readonly destination: Swagger2SpecBuilder) {}
 
-    public withInfoDifference(): Swagger2SpecsDifferenceBuilder {
+    public withNonBreakingDifference(): Swagger2SpecsDifferenceBuilder {
         return new Swagger2SpecsDifferenceBuilder(
             this.source.withInfoObject(swagger2SpecInfoBuilder.withDescription('original description')),
             this.destination.withInfoObject(swagger2SpecInfoBuilder.withDescription('new description'))
         );
     }
 
-    public withWarningDifference(): Swagger2SpecsDifferenceBuilder {
+    public withUnclassifiedDifference(): Swagger2SpecsDifferenceBuilder {
         return new Swagger2SpecsDifferenceBuilder(
             this.source.withTopLevelXProperty({key: 'x-test-property', value: 'original value'}),
             this.destination.withTopLevelXProperty({key: 'x-test-property', value: 'new value'})
         );
     }
 
-    public withErrorDifference(): Swagger2SpecsDifferenceBuilder {
+    public withBreakingDifference(): Swagger2SpecsDifferenceBuilder {
         return new Swagger2SpecsDifferenceBuilder(
             this.source.withSchemes(['http', 'https']),
             this.destination.withSchemes(['http'])

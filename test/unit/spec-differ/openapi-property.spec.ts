@@ -12,7 +12,7 @@ describe('specDiffer/openapi', () => {
 
         describe('from a Swagger 2.0 spec', () => {
 
-            it('should return an edit difference of type info', async () => {
+            it('should return an non-breaking edit difference', async () => {
                 const parsedSourceSpec = parsedSpecBuilder
                     .withSwagger2()
                     .build();
@@ -24,7 +24,7 @@ describe('specDiffer/openapi', () => {
 
                 const expectedValidationResult = openapiValidationResultBuilder
                     .withAction('edit')
-                    .withType('info')
+                    .withType('non-breaking')
                     .withSourceSpecEntityDetails(specEntityDetailsBuilder
                         .withLocation('swagger')
                         .withValue('2.0'))
@@ -38,7 +38,7 @@ describe('specDiffer/openapi', () => {
 
         describe('from a OpenApi 3.0 spec', () => {
 
-            it('should return an edit difference of type info', async () => {
+            it('should return a non-breaking edit difference', async () => {
                 const parsedSourceSpec = parsedSpecBuilder
                     .withOpenApi3()
                     .build();
@@ -50,7 +50,7 @@ describe('specDiffer/openapi', () => {
 
                 const expectedValidationResult = openapiValidationResultBuilder
                     .withAction('edit')
-                    .withType('info')
+                    .withType('non-breaking')
                     .withSourceSpecEntityDetails(specEntityDetailsBuilder
                         .withLocation('openapi')
                         .withValue('3.0.0'))

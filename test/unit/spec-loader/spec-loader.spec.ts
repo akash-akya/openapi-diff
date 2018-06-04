@@ -3,18 +3,17 @@ import {OpenAPIObject} from 'openapi3-ts';
 import {Spec} from 'swagger-schema-official';
 import {SpecLoader} from '../../../lib/openapi-diff/spec-loader';
 import {expectToFail} from '../../support/expect-to-fail';
-import {MockCliFactory} from '../support/mock-cli-factory';
-import {MockFileSystem} from '../support/mocks/mock-file-system';
-import {MockHttpClient} from '../support/mocks/mock-http-client';
+import {createMockFileSystem, MockFileSystem} from '../support/mocks/mock-file-system';
+import {createMockHttpClient, MockHttpClient} from '../support/mocks/mock-http-client';
 
 describe('specLoader', () => {
     let mockHttpClient: MockHttpClient;
     let mockFileSystem: MockFileSystem;
 
     beforeEach(() => {
-        mockFileSystem = MockCliFactory.createMockFileSystem();
+        mockFileSystem = createMockFileSystem();
         mockFileSystem.givenReadFileReturns('{}');
-        mockHttpClient = MockCliFactory.createMockHttpClient();
+        mockHttpClient = createMockHttpClient();
         mockHttpClient.givenGetReturns('{}');
     });
 

@@ -10,7 +10,7 @@ describe('specDiffer/host property', () => {
 
     describe('when there is an edition in the host property', () => {
 
-        it('should return an edit difference of type error', async () => {
+        it('should return a breaking edit difference', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withHost('host info')
@@ -23,7 +23,7 @@ describe('specDiffer/host property', () => {
 
             const expectedValidationResult = hostValidationResultBuilder
                 .withAction('edit')
-                .withType('error')
+                .withType('breaking')
                 .withSourceSpecEntityDetails(specEntityDetailsBuilder
                     .withLocation('host')
                     .withValue('host info'))
@@ -37,7 +37,7 @@ describe('specDiffer/host property', () => {
 
     describe('when the host property is added in the new spec', () => {
 
-        it('should return an add difference of type error', async () => {
+        it('should return a breaking add difference', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withNoHost()
@@ -50,7 +50,7 @@ describe('specDiffer/host property', () => {
 
             const expectedValidationResult = hostValidationResultBuilder
                 .withAction('add')
-                .withType('error')
+                .withType('breaking')
                 .withSourceSpecEntityDetails(specEntityDetailsBuilder
                     .withLocation('host')
                     .withValue(undefined))
@@ -64,7 +64,7 @@ describe('specDiffer/host property', () => {
 
     describe('when the host property is deleted in the new spec', () => {
 
-        it('should return a delete difference of type error', async () => {
+        it('should return a breaking delete difference', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withHost('OLD host info')
@@ -77,7 +77,7 @@ describe('specDiffer/host property', () => {
 
             const expectedValidationResult = hostValidationResultBuilder
                 .withAction('delete')
-                .withType('error')
+                .withType('breaking')
                 .withSourceSpecEntityDetails(specEntityDetailsBuilder
                     .withLocation('host')
                     .withValue('OLD host info'))

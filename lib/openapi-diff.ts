@@ -1,14 +1,14 @@
 import {OpenApiDiffOptions, SpecDetails, ValidationOutcome, ValidationResult} from './api-types';
-import {resultReporter} from './openapi-diff/result-reporter';
+import {resultReporterOld} from './openapi-diff/result-reporter-old';
 import {specDiffer} from './openapi-diff/spec-differ';
 import {SpecLoader} from './openapi-diff/spec-loader';
 import {specParser} from './openapi-diff/spec-parser';
 import {OpenApi3, ParsedSpec, ResultObject, Swagger2} from './openapi-diff/types';
 
 interface ResultsByType {
-    errors: ValidationResult[];
-    info: ValidationResult[];
-    warnings: ValidationResult[];
+    breakingDifferences: ValidationResult[];
+    nonBreakingDifferences: ValidationResult[];
+    unclassifiedDifferences: ValidationResult[];
 }
 
 export const validateSourceAndDestinationSpecContent = async (
@@ -35,19 +35,19 @@ const generateValidationOutcome = (
     resultsByType: ResultsByType, sourceSpecDetails: SpecDetails, destinationSpecDetails: SpecDetails
 ): ValidationOutcome => {
 
-    const success = resultsByType.errors.length === 0;
+    const success = resultsByType.breakingDifferences.length === 0;
     const failureReason = success
         ? undefined
         : createFailureReason(sourceSpecDetails.location, destinationSpecDetails.location);
 
     return {
+        breakingDifferences: resultsByType.breakingDifferences,
         destinationSpecDetails,
-        errors: resultsByType.errors,
         failureReason,
-        info: resultsByType.info,
+        nonBreakingDifferences: resultsByType.nonBreakingDifferences,
         sourceSpecDetails,
         success,
-        warnings: resultsByType.warnings
+        unclassifiedDifferences: resultsByType.unclassifiedDifferences
     };
 };
 
@@ -60,9 +60,9 @@ const validateSourceAndDestinationParsedSpecs = async (
 ): Promise<ResultsByType> => {
     const allResults = await specDiffer.diff(source, destination);
     return {
-        errors: allResults.filter((result) => result.type === 'error'),
-        info: allResults.filter((result) => result.type === 'info'),
-        warnings: allResults.filter((result) => result.type === 'warning')
+        breakingDifferences: allResults.filter((result) => result.type === 'breaking'),
+        nonBreakingDifferences: allResults.filter((result) => result.type === 'non-breaking'),
+        unclassifiedDifferences: allResults.filter((result) => result.type === 'unclassified')
     };
 };
 
@@ -87,7 +87,7 @@ export class OpenApiDiff {
             }
         });
 
-        return resultReporter.build(validationOutcome);
+        return resultReporterOld.build(validationOutcome);
     }
 
     private async loadSpecs(sourceSpecPath: string, destinationSpecPath: string): Promise<Specs> {

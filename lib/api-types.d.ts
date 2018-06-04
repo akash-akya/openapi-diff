@@ -1,10 +1,6 @@
 // tslint:disable:no-namespace
-// tslint:disable:no-implicit-dependencies
-import {OpenAPIObject as OpenApi3} from 'openapi3-ts';
-import {Spec as Swagger2} from 'swagger-schema-official';
 
 declare namespace OpenApiDiff {
-
     type ValidationResultSource = 'json-schema-diff' | 'openapi-diff';
 
     export type ValidationResultEntity =
@@ -40,9 +36,9 @@ declare namespace OpenApiDiff {
         'item.delete';
 
     export type ValidationResultType =
-        'error' |
-        'warning' |
-        'info';
+        'breaking' |
+        'unclassified' |
+        'non-breaking';
 
     export interface ValidationResult {
         entity: ValidationResultEntity;
@@ -70,13 +66,13 @@ declare namespace OpenApiDiff {
     }
 
     export interface ValidationOutcome {
-        info: ValidationResult[];
-        warnings: ValidationResult[];
-        errors: ValidationResult[];
-        failureReason?: string;
-        sourceSpecDetails: SpecDetails;
+        breakingDifferences: ValidationResult[];
         destinationSpecDetails: SpecDetails;
+        failureReason?: string;
+        nonBreakingDifferences: ValidationResult[];
+        sourceSpecDetails: SpecDetails;
         success: boolean;
+        unclassifiedDifferences: ValidationResult[];
     }
 
     export interface SpecOption {

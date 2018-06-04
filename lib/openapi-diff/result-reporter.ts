@@ -1,54 +1,30 @@
-import * as _ from 'lodash';
 import {ValidationOutcome} from '../api-types';
-import {toDiffEntry} from './common/validation-result-to-diff-entry';
-import {DiffEntry, ResultObject} from './types';
+import {ConsoleLogger} from './result-reporter/console-logger';
 
-const buildChangeSentence = (targetChange: DiffEntry): string => {
-    const changeDescription: any = {
-        'add': ((change: DiffEntry): string => {
-            return `${_.capitalize(change.severity)}: the path [${change.printablePath.join('/')}] `
-                   + `was added with value \'${change.destinationValue}\'`;
-        }),
-        'arrayContent.add': ((change: DiffEntry): string => {
-            return `${_.capitalize(change.severity)}: the value \'${change.destinationValue}\' was added to the`
-                    + ` array in the path [${change.printablePath.join('/')}]`;
-        }),
-        'arrayContent.delete': ((change: DiffEntry): string => {
-            return `${_.capitalize(change.severity)}: the value \'${change.sourceValue}\' was removed from the`
-                   + ` array in the path [${change.printablePath.join('/')}]`;
-        }),
-        'delete': ((change: DiffEntry): string => {
-            return `${_.capitalize(change.severity)}: the path [${change.printablePath.join('/')}] `
-                   + `with value \'${change.sourceValue}\' was removed`;
-        }),
-        'edit': ((change: DiffEntry): string => {
-            return `${_.capitalize(change.severity)}: the path [${change.printablePath.join('/')}] `
-            + `was modified from \'${change.sourceValue}\' to \'${change.destinationValue}\'`;
-        })
-    };
-
-    return changeDescription[targetChange.type](targetChange);
-};
-
-export const resultReporter = {
-    build: (validationOutcome: ValidationOutcome): ResultObject => {
-        const changeList: string[] = [];
-        const summary: string[] = [];
-
-        summary.push(`${validationOutcome.errors.length} breaking changes found.`);
-        summary.push(`${validationOutcome.info.length} non-breaking changes found.`);
-        summary.push(`${validationOutcome.warnings.length} unclassified changes found.`);
-
-        const allOutcomes = validationOutcome.errors.concat(validationOutcome.warnings).concat(validationOutcome.info);
-
-        for (const outcome of allOutcomes) {
-            changeList.push(buildChangeSentence(toDiffEntry(outcome)));
-        }
-
-        return {
-            changeList: _.sortBy(changeList),
-            hasBreakingChanges: validationOutcome.errors.length > 0,
-            summary
-        };
+export class ResultReporter {
+    private static outcomeToString(outcome: ValidationOutcome): string {
+        return JSON.stringify(outcome, null, 4);
     }
-};
+
+    public constructor(private readonly consoleLogger: ConsoleLogger) {}
+
+    public reportSuccessWithOutcome(outcome: ValidationOutcome): void {
+        this.consoleLogger.info(
+            `Non breaking changes found between the two specifications:\n${ResultReporter.outcomeToString(outcome)}`
+        );
+    }
+
+    public reportNoChangesFound(): void {
+        this.consoleLogger.info('No changes found between the two specifications');
+    }
+
+    public reportError(error: Error): void {
+        this.consoleLogger.error(error);
+    }
+
+    public reportFailureWithOutcome(outcome: ValidationOutcome): void {
+        this.consoleLogger.info(
+            `Breaking changes found between the two specifications:\n${ResultReporter.outcomeToString(outcome)}`
+        );
+    }
+}

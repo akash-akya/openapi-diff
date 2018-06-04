@@ -42,9 +42,9 @@ describe('api', () => {
         expect(result.destinationSpecDetails.format).toEqual('swagger2');
     });
 
-    it('should include found differences of type info', async () => {
+    it('should include non breaking differences', async () => {
         const specContents = swagger2SpecsDifferenceBuilder
-            .withInfoDifference()
+            .withNonBreakingDifference()
             .build();
 
         const sourceSpec = specOptionBuilder.withContent(specContents.source).build();
@@ -52,15 +52,15 @@ describe('api', () => {
 
         const result = await whenSourceAndDestinationSpecsAreValidated(sourceSpec, destinationSpec);
 
-        expect(result.info.length).toEqual(1, 'result.info.length');
-        expect(result.warnings.length).toEqual(0, 'result.warnings.length');
-        expect(result.errors.length).toEqual(0, 'result.error.length');
-        expect(result.info[0].type).toEqual('info');
+        expect(result.nonBreakingDifferences.length).toEqual(1, 'result.nonBreakingDifferences.length');
+        expect(result.unclassifiedDifferences.length).toEqual(0, 'result.unclassifiedDifferences.length');
+        expect(result.breakingDifferences.length).toEqual(0, 'result.breakingDifferences.length');
+        expect(result.nonBreakingDifferences[0].type).toEqual('non-breaking');
     });
 
-    it('should include found differences of type warning', async () => {
+    it('should include unclassified differences', async () => {
         const specContents = swagger2SpecsDifferenceBuilder
-            .withWarningDifference()
+            .withUnclassifiedDifference()
             .build();
 
         const sourceSpec = specOptionBuilder.withContent(specContents.source).build();
@@ -68,15 +68,15 @@ describe('api', () => {
 
         const result = await whenSourceAndDestinationSpecsAreValidated(sourceSpec, destinationSpec);
 
-        expect(result.info.length).toEqual(0, 'result.info.length');
-        expect(result.warnings.length).toEqual(1, 'result.warnings.length');
-        expect(result.errors.length).toEqual(0, 'result.error.length');
-        expect(result.warnings[0].type).toEqual('warning');
+        expect(result.nonBreakingDifferences.length).toEqual(0, 'result.nonBreakingDifferences.length');
+        expect(result.unclassifiedDifferences.length).toEqual(1, 'result.unclassifiedDifferences.length');
+        expect(result.breakingDifferences.length).toEqual(0, 'result.breakingDifferences.length');
+        expect(result.unclassifiedDifferences[0].type).toEqual('unclassified');
     });
 
-    it('should include found differences of type error', async () => {
+    it('should include breaking differences', async () => {
         const specContents = swagger2SpecsDifferenceBuilder
-            .withErrorDifference()
+            .withBreakingDifference()
             .build();
 
         const sourceSpec = specOptionBuilder.withContent(specContents.source).build();
@@ -84,10 +84,10 @@ describe('api', () => {
 
         const result = await whenSourceAndDestinationSpecsAreValidated(sourceSpec, destinationSpec);
 
-        expect(result.info.length).toEqual(0, 'result.info.length');
-        expect(result.warnings.length).toEqual(0, 'result.warnings.length');
-        expect(result.errors.length).toEqual(1, 'result.error.length');
-        expect(result.errors[0].type).toEqual('error');
+        expect(result.nonBreakingDifferences.length).toEqual(0, 'result.nonBreakingDifferences.length');
+        expect(result.unclassifiedDifferences.length).toEqual(0, 'result.unclassifiedDifferences.length');
+        expect(result.breakingDifferences.length).toEqual(1, 'result.breakingDifferences.length');
+        expect(result.breakingDifferences[0].type).toEqual('breaking');
     });
 
     it('should return successful when no differences are found', async () => {
@@ -99,10 +99,10 @@ describe('api', () => {
         expect(result.success).toEqual(true, 'success');
     });
 
-    it('should return successful when info and warning differences are found but no errors', async () => {
+    it('should return successful when differences are non breaking and unclassified but not breaking', async () => {
         const specContents = swagger2SpecsDifferenceBuilder
-            .withWarningDifference()
-            .withInfoDifference()
+            .withUnclassifiedDifference()
+            .withNonBreakingDifference()
             .build();
 
         const sourceSpec = specOptionBuilder.withContent(specContents.source).build();
@@ -113,9 +113,9 @@ describe('api', () => {
         expect(result.success).toEqual(true, 'success');
     });
 
-    it('should return unsuccessful when at least one error difference is found', async () => {
+    it('should return unsuccessful when at least one breaking difference is found', async () => {
         const specContents = swagger2SpecsDifferenceBuilder
-            .withErrorDifference()
+            .withBreakingDifference()
             .build();
 
         const sourceSpec = specOptionBuilder.withContent(specContents.source).build();
@@ -137,7 +137,7 @@ describe('api', () => {
 
     it('should include a failureReason when result is unsuccessful', async () => {
         const specContents = swagger2SpecsDifferenceBuilder
-            .withErrorDifference()
+            .withBreakingDifference()
             .build();
 
         const sourceSpec = specOptionBuilder

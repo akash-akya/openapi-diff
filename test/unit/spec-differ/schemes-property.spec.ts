@@ -10,7 +10,7 @@ describe('specDiffer/schemes', () => {
 
     describe('when there is a single edition in an item in the schemes property array', () => {
 
-        it('should return item.add difference of type info and an item.delete difference of type error', async () => {
+        it('should return a non-breaking item.add difference and a breaking item.delete difference', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withSchemes([
@@ -25,7 +25,7 @@ describe('specDiffer/schemes', () => {
 
             const expectedValidationResult1 = schemesValidationResultBuilder
                 .withAction('item.add')
-                .withType('info')
+                .withType('non-breaking')
                 .withSourceSpecEntityDetails(specEntityDetailsBuilder
                     .withLocation(undefined)
                     .withValue(undefined))
@@ -35,7 +35,7 @@ describe('specDiffer/schemes', () => {
                 .build();
             const expectedValidationResult2 = schemesValidationResultBuilder
                 .withAction('item.delete')
-                .withType('error')
+                .withType('breaking')
                 .withSourceSpecEntityDetails(specEntityDetailsBuilder
                     .withLocation('schemes.0')
                     .withValue('http'))
@@ -49,7 +49,7 @@ describe('specDiffer/schemes', () => {
 
     describe('when there is an addition in the schemes property content', () => {
 
-        it('should return an item.add difference of type info', async () => {
+        it('should return a non-breaking item.add difference', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withEmptySchemes()
@@ -62,7 +62,7 @@ describe('specDiffer/schemes', () => {
 
             const expectedValidationResult = schemesValidationResultBuilder
                 .withAction('item.add')
-                .withType('info')
+                .withType('non-breaking')
                 .withSourceSpecEntityDetails(specEntityDetailsBuilder
                     .withLocation(undefined)
                     .withValue(undefined))
@@ -76,7 +76,7 @@ describe('specDiffer/schemes', () => {
 
     describe('when there is a deletion in the schemes property content', () => {
 
-        it('should return an item.delete difference of type error', async () => {
+        it('should return a breaking item.delete difference', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withSchemes([{originalPath: ['schemes', '0'], value: 'http'}])
@@ -89,7 +89,7 @@ describe('specDiffer/schemes', () => {
 
             const expectedValidationResult = schemesValidationResultBuilder
                 .withAction('item.delete')
-                .withType('error')
+                .withType('breaking')
                 .withSourceSpecEntityDetails(specEntityDetailsBuilder
                     .withLocation('schemes.0')
                     .withValue('http'))
@@ -103,7 +103,7 @@ describe('specDiffer/schemes', () => {
 
     describe('when the schemes property is added altogether', () => {
 
-        it('should return an add difference of type error', async () => {
+        it('should return a breaking add difference', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withNoSchemes()
@@ -117,7 +117,7 @@ describe('specDiffer/schemes', () => {
 
             const expectedValidationResult = schemesValidationResultBuilder
                 .withAction('add')
-                .withType('error')
+                .withType('breaking')
                 .withSourceSpecEntityDetails(specEntityDetailsBuilder
                     .withLocation('schemes')
                     .withValue(undefined))
@@ -131,7 +131,7 @@ describe('specDiffer/schemes', () => {
 
     describe('when the schemes property is removed altogether', () => {
 
-        it('should return a delete difference of type error', async () => {
+        it('should return a breaking delete difference', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withSchemes([
@@ -145,7 +145,7 @@ describe('specDiffer/schemes', () => {
 
             const expectedValidationResult = schemesValidationResultBuilder
                 .withAction('delete')
-                .withType('error')
+                .withType('breaking')
                 .withSourceSpecEntityDetails(specEntityDetailsBuilder
                     .withLocation('schemes')
                     .withValue([{originalPath: ['schemes', '0'], value: 'http'}]))
@@ -159,7 +159,7 @@ describe('specDiffer/schemes', () => {
 
     describe('when there are multiple changes in the schemes property content', () => {
 
-        it('should return two add differences of type info and one delete difference of type error', async () => {
+        it('should return two non-breaking add differences and one breaking delete difference', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withSchemes([
@@ -177,7 +177,7 @@ describe('specDiffer/schemes', () => {
 
             const expectedValidationResult1 = schemesValidationResultBuilder
                 .withAction('item.add')
-                .withType('info')
+                .withType('non-breaking')
                 .withSourceSpecEntityDetails(specEntityDetailsBuilder
                     .withLocation(undefined)
                     .withValue(undefined))
@@ -187,7 +187,7 @@ describe('specDiffer/schemes', () => {
                 .build();
             const expectedValidationResult2 = schemesValidationResultBuilder
                 .withAction('item.add')
-                .withType('info')
+                .withType('non-breaking')
                 .withSourceSpecEntityDetails(specEntityDetailsBuilder
                     .withLocation(undefined)
                     .withValue(undefined))
@@ -197,7 +197,7 @@ describe('specDiffer/schemes', () => {
                 .build();
             const expectedValidationResult3 = schemesValidationResultBuilder
                 .withAction('item.delete')
-                .withType('error')
+                .withType('breaking')
                 .withSourceSpecEntityDetails(specEntityDetailsBuilder
                     .withLocation('schemes.1')
                     .withValue('https'))

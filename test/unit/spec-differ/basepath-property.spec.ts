@@ -10,7 +10,7 @@ describe('specDiffer/basePath property', () => {
 
     describe('when there is an edition in the basePath property', () => {
 
-        it('should return an edit difference of type error', async () => {
+        it('should return a breaking edit difference', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withBasePath('basePath info')
@@ -23,7 +23,7 @@ describe('specDiffer/basePath property', () => {
 
             const expectedValidationResult = basePathValidationResultBuilder
                 .withAction('edit')
-                .withType('error')
+                .withType('breaking')
                 .withSourceSpecEntityDetails(specEntityDetailsBuilder
                     .withLocation('basePath')
                     .withValue('basePath info'))
@@ -37,7 +37,7 @@ describe('specDiffer/basePath property', () => {
 
     describe('when the basePath property is added in the new spec', () => {
 
-        it('should return an add difference of type error', async () => {
+        it('should return breaking add difference', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withNoBasePath()
@@ -50,7 +50,7 @@ describe('specDiffer/basePath property', () => {
 
             const expectedValidationResult = basePathValidationResultBuilder
                 .withAction('add')
-                .withType('error')
+                .withType('breaking')
                 .withSourceSpecEntityDetails(specEntityDetailsBuilder
                     .withLocation('basePath')
                     .withValue(undefined))
@@ -64,7 +64,7 @@ describe('specDiffer/basePath property', () => {
 
     describe('when the basePath property is deleted in the new spec', () => {
 
-        it('should return a delete difference of type error', async () => {
+        it('should return a breaking delete difference', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withBasePath('OLD basePath info')
@@ -77,7 +77,7 @@ describe('specDiffer/basePath property', () => {
 
             const expectedValidationResult = basePathValidationResultBuilder
                 .withAction('delete')
-                .withType('error')
+                .withType('breaking')
                 .withSourceSpecEntityDetails(specEntityDetailsBuilder
                     .withLocation('basePath')
                     .withValue('OLD basePath info'))

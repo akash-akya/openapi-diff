@@ -28,7 +28,7 @@ const actionToTypeMap: {[action in ValidationResultAction]: DiffEntryType} = {
 };
 
 const typeToSeverityMap: {[type in ValidationResultType]: DiffEntrySeverity} = {
-    error: 'breaking',
-    info: 'non-breaking',
-    warning: 'unclassified'
+    'breaking': 'breaking',
+    'non-breaking': 'non-breaking',
+    'unclassified': 'unclassified'
 };

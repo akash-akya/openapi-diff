@@ -26,7 +26,7 @@ export class ValidationResultBuilder {
             entity: 'oad.host',
             source: 'openapi-diff',
             sourceSpecEntityDetails: specEntityDetailsBuilder,
-            type: 'error'
+            type: 'breaking'
         });
     }
 

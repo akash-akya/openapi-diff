@@ -10,7 +10,7 @@ describe('specDiffer/top level ^x- properties', () => {
 
     describe('when there is an edit in an ^x- property at the top level object', () => {
 
-        it('should return an edit difference of type warning', async () => {
+        it('should return an unclassified edit difference', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withTopLevelXProperty({
@@ -31,7 +31,7 @@ describe('specDiffer/top level ^x- properties', () => {
 
             const expectedValidationResult = xPropertyValidationResultBuilder
                 .withAction('edit')
-                .withType('warning')
+                .withType('unclassified')
                 .withSourceSpecEntityDetails(
                     specEntityDetailsBuilder
                         .withLocation('x-external-id')
@@ -48,7 +48,7 @@ describe('specDiffer/top level ^x- properties', () => {
 
     describe('when there is an addition of an ^x- property at the top level object', () => {
 
-        it('should return an add difference of type warning', async () => {
+        it('should return an unclassified add difference', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withNoTopLevelXProperties()
@@ -65,7 +65,7 @@ describe('specDiffer/top level ^x- properties', () => {
 
             const expectedValidationResult = xPropertyValidationResultBuilder
                 .withAction('add')
-                .withType('warning')
+                .withType('unclassified')
                 .withSourceSpecEntityDetails(
                     specEntityDetailsBuilder
                         .withLocation(undefined)
@@ -82,7 +82,7 @@ describe('specDiffer/top level ^x- properties', () => {
 
     describe('when there is a deletion of an ^x- property at the top level object', () => {
 
-        it('should return a delete difference of type warning', async () => {
+        it('should return an unclassified delete difference', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withTopLevelXProperty({
@@ -99,7 +99,7 @@ describe('specDiffer/top level ^x- properties', () => {
 
             const expectedValidationResult = xPropertyValidationResultBuilder
                 .withAction('delete')
-                .withType('warning')
+                .withType('unclassified')
                 .withSourceSpecEntityDetails(
                     specEntityDetailsBuilder
                         .withLocation('x-external-id')
@@ -147,7 +147,7 @@ describe('specDiffer/top level ^x- properties', () => {
 
             const expectedDeletionResult = xPropertyValidationResultBuilder
                 .withAction('delete')
-                .withType('warning')
+                .withType('unclassified')
                 .withSourceSpecEntityDetails(
                     specEntityDetailsBuilder
                         .withLocation('x-deleted-prop')
@@ -160,7 +160,7 @@ describe('specDiffer/top level ^x- properties', () => {
 
             const expectedEditionResult = xPropertyValidationResultBuilder
                 .withAction('edit')
-                .withType('warning')
+                .withType('unclassified')
                 .withSourceSpecEntityDetails(
                     specEntityDetailsBuilder
                         .withLocation('x-edited-prop')
@@ -173,7 +173,7 @@ describe('specDiffer/top level ^x- properties', () => {
 
             const expectedAdditionResult = xPropertyValidationResultBuilder
                 .withAction('add')
-                .withType('warning')
+                .withType('unclassified')
                 .withSourceSpecEntityDetails(
                     specEntityDetailsBuilder
                         .withLocation(undefined)
