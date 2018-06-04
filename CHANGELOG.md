@@ -1,3 +1,14 @@
+<a name="0.7.0"></a>
+# [0.7.0](https://bitbucket.org/atlassian/openapi-diff/compare/0.6.1...0.7.0) (2018-06-04)
+
+
+### Features
+
+* added public programatic API ([c327308](https://bitbucket.org/atlassian/openapi-diff/commits/c327308))
+* change api to expose breaking, non-breaking and unclassified differences ([2f6fbfe](https://bitbucket.org/atlassian/openapi-diff/commits/2f6fbfe))
+
+
+
 <a name="0.6.1"></a>
 ## [0.6.1](https://bitbucket.org/atlassian/openapi-diff/compare/0.6.0...0.6.1) (2018-01-23)
 
