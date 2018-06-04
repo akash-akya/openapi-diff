@@ -1,3 +1,13 @@
+<a name="0.7.1"></a>
+## [0.7.1](https://bitbucket.org/atlassian/openapi-diff/compare/0.7.0...0.7.1) (2018-06-04)
+
+
+### Bug Fixes
+
+* fixed the content of the published module ([1caa103](https://bitbucket.org/atlassian/openapi-diff/commits/1caa103))
+
+
+
 <a name="0.7.0"></a>
 # [0.7.0](https://bitbucket.org/atlassian/openapi-diff/compare/0.6.1...0.7.0) (2018-06-04)
 
