@@ -60,6 +60,7 @@ gulp.task('clean-copy-and-compile-dist', (callback) => {
     runSequence(
         'clean-dist',
         'compile-dist',
+        'copy-dist-api-types',
         callback
     );
 });
@@ -87,6 +88,10 @@ gulp.task('compile-dist', () => {
 
 gulp.task('copy-build-output-package-json', () => {
     return gulp.src('package.json').pipe(gulp.dest('build-output'))
+});
+
+gulp.task('copy-dist-api-types', () => {
+    return gulp.src('lib/api-types.d.ts').pipe(gulp.dest('dist'))
 });
 
 gulp.task('create-new-tag', (callback) => {
