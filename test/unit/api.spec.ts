@@ -1,22 +1,73 @@
+import * as assert from 'assert';
 import * as OpenApiDiff from '../../lib/api';
-import {SpecOption, ValidationOutcome} from '../../lib/api-types';
+import {DiffOutcome, DiffOutcomeFailure, SpecOption} from '../../lib/api-types';
+import {expectToFail} from '../support/expect-to-fail';
 import {openApi3SpecBuilder} from './support/builders/openapi-3-spec-builder';
 import {specOptionBuilder} from './support/builders/spec-option-builder';
 import {swagger2SpecBuilder} from './support/builders/swagger-2-spec-builder';
 import {swagger2SpecsDifferenceBuilder} from './support/builders/swagger2-specs-difference-builder';
 
 describe('api', () => {
+    const toDiffOutcomeFailure = (diffOutcome: DiffOutcome): DiffOutcomeFailure => {
+        assert.ok(diffOutcome.breakingDifferencesFound, `Expected ${diffOutcome} to be failure`);
+        return diffOutcome as DiffOutcomeFailure;
+    };
 
-    const whenSourceAndDestinationSpecsAreValidated = (
+    const whenSourceAndDestinationSpecsAreDiffed = (
         sourceSpec: SpecOption, destinationSpec: SpecOption
-    ): Promise<ValidationOutcome> =>
-        OpenApiDiff.validate({sourceSpec, destinationSpec});
+    ): Promise<DiffOutcome> =>
+        OpenApiDiff.diffSpecs({sourceSpec, destinationSpec});
+
+    describe('spec content parsing', () => {
+        it('should report an error when unable to parse the source spec contents as json or yaml', async () => {
+            const sourceSpec = specOptionBuilder
+                .withRawContent('{this is not json or yaml')
+                .withLocation('source-spec-invalid.json').build();
+            const destinationSpec = specOptionBuilder.build();
+
+            const error = await expectToFail(whenSourceAndDestinationSpecsAreDiffed(sourceSpec, destinationSpec));
+
+            expect(error).toEqual(
+                new Error('ERROR: unable to parse source-spec-invalid.json as a JSON or YAML file')
+            );
+        });
+
+        it('should report an error when unable to parse the destination spec contents as json or yaml', async () => {
+            const sourceSpec = specOptionBuilder.build();
+            const destinationSpec = specOptionBuilder
+                .withRawContent('{this is not json or yaml')
+                .withLocation('destination-spec-invalid.json').build();
+
+            const error = await expectToFail(whenSourceAndDestinationSpecsAreDiffed(sourceSpec, destinationSpec));
+
+            expect(error).toEqual(
+                new Error('ERROR: unable to parse destination-spec-invalid.json as a JSON or YAML file')
+            );
+        });
+
+        it('should load the specs as yaml if content is yaml but not json', async () => {
+            const swagger2YamlSpec = '' +
+                'info: \n' +
+                '  title: spec title\n' +
+                '  version: spec version\n' +
+                'paths: {}\n' +
+                'swagger: "2.0"\n';
+
+            const sourceSpec = specOptionBuilder.withRawContent(swagger2YamlSpec).build();
+            const destinationSpec = specOptionBuilder.withRawContent(swagger2YamlSpec).build();
+
+            const result = await whenSourceAndDestinationSpecsAreDiffed(sourceSpec, destinationSpec);
+
+            expect(result.breakingDifferencesFound).toBeFalsy();
+        });
+
+    });
 
     it('should include the source and destination spec locations', async () => {
         const sourceSpec = specOptionBuilder.withLocation('source-spec.json').build();
         const destinationSpec = specOptionBuilder.withLocation('destination-spec.json').build();
 
-        const result = await whenSourceAndDestinationSpecsAreValidated(sourceSpec, destinationSpec);
+        const result = await whenSourceAndDestinationSpecsAreDiffed(sourceSpec, destinationSpec);
 
         expect(result.sourceSpecDetails.location).toEqual('source-spec.json');
         expect(result.destinationSpecDetails.location).toEqual('destination-spec.json');
@@ -26,7 +77,7 @@ describe('api', () => {
         const sourceSpec = specOptionBuilder.withContent(swagger2SpecBuilder).build();
         const destinationSpec = specOptionBuilder.withContent(openApi3SpecBuilder).build();
 
-        const result = await whenSourceAndDestinationSpecsAreValidated(sourceSpec, destinationSpec);
+        const result = await whenSourceAndDestinationSpecsAreDiffed(sourceSpec, destinationSpec);
 
         expect(result.sourceSpecDetails.format).toEqual('swagger2');
         expect(result.destinationSpecDetails.format).toEqual('openapi3');
@@ -36,7 +87,7 @@ describe('api', () => {
         const sourceSpec = specOptionBuilder.withContent(openApi3SpecBuilder).build();
         const destinationSpec = specOptionBuilder.withContent(swagger2SpecBuilder).build();
 
-        const result = await whenSourceAndDestinationSpecsAreValidated(sourceSpec, destinationSpec);
+        const result = await whenSourceAndDestinationSpecsAreDiffed(sourceSpec, destinationSpec);
 
         expect(result.sourceSpecDetails.format).toEqual('openapi3');
         expect(result.destinationSpecDetails.format).toEqual('swagger2');
@@ -50,11 +101,11 @@ describe('api', () => {
         const sourceSpec = specOptionBuilder.withContent(specContents.source).build();
         const destinationSpec = specOptionBuilder.withContent(specContents.destination).build();
 
-        const result = await whenSourceAndDestinationSpecsAreValidated(sourceSpec, destinationSpec);
+        const result = await whenSourceAndDestinationSpecsAreDiffed(sourceSpec, destinationSpec);
 
+        expect(result.breakingDifferencesFound).toBe(false);
         expect(result.nonBreakingDifferences.length).toEqual(1, 'result.nonBreakingDifferences.length');
         expect(result.unclassifiedDifferences.length).toEqual(0, 'result.unclassifiedDifferences.length');
-        expect(result.breakingDifferences.length).toEqual(0, 'result.breakingDifferences.length');
         expect(result.nonBreakingDifferences[0].type).toEqual('non-breaking');
     });
 
@@ -66,11 +117,11 @@ describe('api', () => {
         const sourceSpec = specOptionBuilder.withContent(specContents.source).build();
         const destinationSpec = specOptionBuilder.withContent(specContents.destination).build();
 
-        const result = await whenSourceAndDestinationSpecsAreValidated(sourceSpec, destinationSpec);
+        const result = await whenSourceAndDestinationSpecsAreDiffed(sourceSpec, destinationSpec);
 
+        expect(result.breakingDifferencesFound).toBe(false);
         expect(result.nonBreakingDifferences.length).toEqual(0, 'result.nonBreakingDifferences.length');
         expect(result.unclassifiedDifferences.length).toEqual(1, 'result.unclassifiedDifferences.length');
-        expect(result.breakingDifferences.length).toEqual(0, 'result.breakingDifferences.length');
         expect(result.unclassifiedDifferences[0].type).toEqual('unclassified');
     });
 
@@ -82,77 +133,14 @@ describe('api', () => {
         const sourceSpec = specOptionBuilder.withContent(specContents.source).build();
         const destinationSpec = specOptionBuilder.withContent(specContents.destination).build();
 
-        const result = await whenSourceAndDestinationSpecsAreValidated(sourceSpec, destinationSpec);
+        const result = toDiffOutcomeFailure(
+            await whenSourceAndDestinationSpecsAreDiffed(sourceSpec, destinationSpec)
+        );
 
+        expect(result.breakingDifferencesFound).toBe(true);
         expect(result.nonBreakingDifferences.length).toEqual(0, 'result.nonBreakingDifferences.length');
         expect(result.unclassifiedDifferences.length).toEqual(0, 'result.unclassifiedDifferences.length');
         expect(result.breakingDifferences.length).toEqual(1, 'result.breakingDifferences.length');
         expect(result.breakingDifferences[0].type).toEqual('breaking');
-    });
-
-    it('should return successful when no differences are found', async () => {
-        const sourceSpec = specOptionBuilder.build();
-        const destinationSpec = specOptionBuilder.build();
-
-        const result = await whenSourceAndDestinationSpecsAreValidated(sourceSpec, destinationSpec);
-
-        expect(result.success).toEqual(true, 'success');
-    });
-
-    it('should return successful when differences are non breaking and unclassified but not breaking', async () => {
-        const specContents = swagger2SpecsDifferenceBuilder
-            .withUnclassifiedDifference()
-            .withNonBreakingDifference()
-            .build();
-
-        const sourceSpec = specOptionBuilder.withContent(specContents.source).build();
-        const destinationSpec = specOptionBuilder.withContent(specContents.destination).build();
-
-        const result = await whenSourceAndDestinationSpecsAreValidated(sourceSpec, destinationSpec);
-
-        expect(result.success).toEqual(true, 'success');
-    });
-
-    it('should return unsuccessful when at least one breaking difference is found', async () => {
-        const specContents = swagger2SpecsDifferenceBuilder
-            .withBreakingDifference()
-            .build();
-
-        const sourceSpec = specOptionBuilder.withContent(specContents.source).build();
-        const destinationSpec = specOptionBuilder.withContent(specContents.destination).build();
-
-        const result = await whenSourceAndDestinationSpecsAreValidated(sourceSpec, destinationSpec);
-
-        expect(result.success).toEqual(false, 'success');
-    });
-
-    it('should not include a failureReason when result is successful', async () => {
-        const sourceSpec = specOptionBuilder.build();
-        const destinationSpec = specOptionBuilder.build();
-
-        const result = await whenSourceAndDestinationSpecsAreValidated(sourceSpec, destinationSpec);
-
-        expect(result.failureReason).toEqual(undefined);
-    });
-
-    it('should include a failureReason when result is unsuccessful', async () => {
-        const specContents = swagger2SpecsDifferenceBuilder
-            .withBreakingDifference()
-            .build();
-
-        const sourceSpec = specOptionBuilder
-            .withContent(specContents.source)
-            .withLocation('source.json')
-            .build();
-        const destinationSpec = specOptionBuilder
-            .withContent(specContents.destination)
-            .withLocation('destination.json')
-            .build();
-
-        const result = await whenSourceAndDestinationSpecsAreValidated(sourceSpec, destinationSpec);
-
-        expect(result.failureReason).toEqual(
-            'destination spec "destination.json" introduced breaking changes with respect to source spec "source.json"'
-        );
     });
 });

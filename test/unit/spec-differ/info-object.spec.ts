@@ -1,9 +1,9 @@
-import {specDiffer} from '../../../lib/openapi-diff/spec-differ';
+import {specFinder} from '../../../lib/openapi-diff/spec-finder';
+import {diffResultBuilder} from '../support/builders/diff-result-builder';
+import {specEntityDetailsBuilder} from '../support/builders/diff-result-spec-entity-details-builder';
 import {parsedSpecBuilder, parsedSpecInfoBuilder} from '../support/builders/parsed-spec-builder';
-import {validationResultBuilder} from '../support/builders/validation-result-builder';
-import {specEntityDetailsBuilder} from '../support/builders/validation-result-spec-entity-details-builder';
 
-describe('specDiffer/info property', () => {
+describe('specFinder/info property', () => {
 
     describe('when there is an addition in the info property', () => {
 
@@ -18,12 +18,13 @@ describe('specDiffer/info property', () => {
                     .withDescription('NEW spec description'))
                 .build();
 
-            const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
+            const result = await specFinder.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            const expectedValidationResult = validationResultBuilder
+            const expectedDiffResult = diffResultBuilder
                 .withAction('add')
+                .withCode('info.description.add')
                 .withType('non-breaking')
-                .withEntity('oad.info.description')
+                .withEntity('info.description')
                 .withSource('openapi-diff')
                 .withSourceSpecEntityDetails(specEntityDetailsBuilder
                     .withLocation('info.description')
@@ -32,13 +33,13 @@ describe('specDiffer/info property', () => {
                     .withLocation('info.description')
                     .withValue('NEW spec description'))
                 .build();
-            expect(result).toEqual([expectedValidationResult]);
+            expect(result).toEqual([expectedDiffResult]);
         });
     });
 
     describe('when there is a deletion in the info property', () => {
 
-        it('should return a non-breaking delete difference', async () => {
+        it('should return a non-breaking remove difference', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withInfoObject(parsedSpecInfoBuilder
@@ -73,12 +74,13 @@ describe('specDiffer/info property', () => {
                     }))
                 .build();
 
-            const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
+            const result = await specFinder.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            const expectedValidationResult = validationResultBuilder
-                .withAction('delete')
+            const expectedDiffResult = diffResultBuilder
+                .withAction('remove')
+                .withCode('info.contact.name.remove')
                 .withType('non-breaking')
-                .withEntity('oad.info.contact.name')
+                .withEntity('info.contact.name')
                 .withSource('openapi-diff')
                 .withSourceSpecEntityDetails(specEntityDetailsBuilder
                     .withLocation('info.contact.name')
@@ -87,13 +89,13 @@ describe('specDiffer/info property', () => {
                     .withLocation('info.contact.name')
                     .withValue(undefined))
                 .build();
-            expect(result).toEqual([expectedValidationResult]);
+            expect(result).toEqual([expectedDiffResult]);
         });
     });
 
     describe('when there is an edition in the info property', () => {
 
-        it('should return an non-breaking edit difference', async () => {
+        it('should return non-breaking add and remove differences', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withInfoObject(parsedSpecInfoBuilder
@@ -104,30 +106,32 @@ describe('specDiffer/info property', () => {
                     .withTitle('NEW spec title'))
                 .build();
 
-            const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
+            const result = await specFinder.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            const expectedValidationResult = validationResultBuilder
-                .withAction('edit')
+            const baseDiffResult = diffResultBuilder
                 .withType('non-breaking')
-                .withEntity('oad.info.title')
+                .withEntity('info.title')
                 .withSource('openapi-diff')
                 .withSourceSpecEntityDetails(specEntityDetailsBuilder
                     .withLocation('info.title')
                     .withValue('spec title'))
                 .withDestinationSpecEntityDetails(specEntityDetailsBuilder
                     .withLocation('info.title')
-                    .withValue('NEW spec title'))
-                .build();
-            expect(result).toEqual([expectedValidationResult]);
+                    .withValue('NEW spec title'));
+
+            expect(result).toEqual([
+                baseDiffResult.withAction('add').withCode('info.title.add').build(),
+                baseDiffResult.withAction('remove').withCode('info.title.remove').build()
+            ]);
         });
     });
 
     describe('^x- properties in the info object', () => {
-        const xPropertyValidationResultBuilder = validationResultBuilder
+        const xPropertyDiffResultBuilder = diffResultBuilder
             .withSource('openapi-diff')
-            .withEntity('oad.unclassified');
+            .withEntity('unclassified');
 
-        it('should return an unclassified difference when there is an addition of an ^x- property', async () => {
+        it('should return an unclassified difference when there is an addition', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withInfoObject(parsedSpecInfoBuilder)
@@ -141,10 +145,11 @@ describe('specDiffer/info property', () => {
                     }))
                 .build();
 
-            const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
+            const result = await specFinder.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            const expectedValidationResult = xPropertyValidationResultBuilder
+            const expectedDiffResult = xPropertyDiffResultBuilder
                 .withAction('add')
+                .withCode('unclassified.add')
                 .withType('unclassified')
                 .withSourceSpecEntityDetails(specEntityDetailsBuilder
                     .withLocation(undefined)
@@ -153,10 +158,10 @@ describe('specDiffer/info property', () => {
                     .withLocation('info.x-external-id')
                     .withValue('NEW x value'))
                 .build();
-            expect(result).toEqual([expectedValidationResult]);
+            expect(result).toEqual([expectedDiffResult]);
         });
 
-        it('should return an unclassified delete difference when there is a deletion of an ^x- property', async () => {
+        it('should return an unclassified remove difference when there is a deletion', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withInfoObject(parsedSpecInfoBuilder
@@ -170,10 +175,11 @@ describe('specDiffer/info property', () => {
                 .withInfoObject(parsedSpecInfoBuilder)
                 .build();
 
-            const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
+            const result = await specFinder.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            const expectedValidationResult = xPropertyValidationResultBuilder
-                .withAction('delete')
+            const expectedDiffResult = xPropertyDiffResultBuilder
+                .withAction('remove')
+                .withCode('unclassified.remove')
                 .withType('unclassified')
                 .withSourceSpecEntityDetails(specEntityDetailsBuilder
                     .withLocation('info.x-external-id')
@@ -182,10 +188,10 @@ describe('specDiffer/info property', () => {
                     .withLocation(undefined)
                     .withValue(undefined))
                 .build();
-            expect(result).toEqual([expectedValidationResult]);
+            expect(result).toEqual([expectedDiffResult]);
         });
 
-        it('should return an unclassified edit difference when there is an edition of an ^x- property', async () => {
+        it('should return unclassified add and remove differences when there is an edition', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withInfoObject(parsedSpecInfoBuilder
@@ -204,19 +210,21 @@ describe('specDiffer/info property', () => {
                     }))
                 .build();
 
-            const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
+            const result = await specFinder.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            const expectedValidationResult = xPropertyValidationResultBuilder
-                .withAction('edit')
+            const baseDiffResult = xPropertyDiffResultBuilder
                 .withType('unclassified')
                 .withSourceSpecEntityDetails(specEntityDetailsBuilder
                     .withLocation('info.x-external-id')
                     .withValue('x value'))
                 .withDestinationSpecEntityDetails(specEntityDetailsBuilder
                     .withLocation('info.x-external-id')
-                    .withValue('NEW x value'))
-                .build();
-            expect(result).toEqual([expectedValidationResult]);
+                    .withValue('NEW x value'));
+
+            expect(result).toEqual([
+                baseDiffResult.withAction('add').withCode('unclassified.add').build(),
+                baseDiffResult.withAction('remove').withCode('unclassified.remove').build()
+            ]);
         });
     });
 });

@@ -12,14 +12,14 @@ export class Swagger2SpecsDifferenceBuilder {
 
     public withNonBreakingDifference(): Swagger2SpecsDifferenceBuilder {
         return new Swagger2SpecsDifferenceBuilder(
-            this.source.withInfoObject(swagger2SpecInfoBuilder.withDescription('original description')),
+            this.source.withInfoObject(swagger2SpecInfoBuilder.withDescription(undefined)),
             this.destination.withInfoObject(swagger2SpecInfoBuilder.withDescription('new description'))
         );
     }
 
     public withUnclassifiedDifference(): Swagger2SpecsDifferenceBuilder {
         return new Swagger2SpecsDifferenceBuilder(
-            this.source.withTopLevelXProperty({key: 'x-test-property', value: 'original value'}),
+            this.source.withTopLevelXProperty({key: 'x-test-property', value: undefined}),
             this.destination.withTopLevelXProperty({key: 'x-test-property', value: 'new value'})
         );
     }

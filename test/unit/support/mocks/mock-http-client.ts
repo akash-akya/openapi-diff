@@ -1,4 +1,5 @@
 import {HttpClient} from '../../../../lib/openapi-diff/resource-loader/http-client';
+import {swagger2SpecBuilder} from '../builders/swagger-2-spec-builder';
 
 export type MockHttpClient = jasmine.SpyObj<HttpClient> & {
     givenGetReturns(result: string): void;
@@ -15,6 +16,8 @@ export const createMockHttpClient = (): MockHttpClient => {
     mockHttpClient.givenGetFailsWith = (error: Error): void => {
         mockHttpClient.get.and.callFake(() => Promise.reject(error));
     };
+
+    mockHttpClient.givenGetReturns(JSON.stringify(swagger2SpecBuilder.build()));
 
     return mockHttpClient;
 };

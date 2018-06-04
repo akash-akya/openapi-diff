@@ -1,31 +1,10 @@
 // tslint:disable:no-implicit-dependencies
 import {OpenAPIObject} from 'openapi3-ts';
 import {Spec} from 'swagger-schema-official';
+import {Difference, DiffResult} from '../api-types';
 
 export type Swagger2 = Spec;
 export type OpenApi3 = OpenAPIObject;
-
-export interface DiffEntry {
-    sourceValue?: any;
-    destinationValue?: any;
-    printablePath: string[];
-    severity: DiffEntrySeverity;
-    type: DiffEntryType;
-}
-
-export type DiffEntryType =
-    'add' |
-    'arrayContent.add' |
-    'arrayContent.delete' |
-    'delete' |
-    'edit';
-
-export type DiffEntrySeverity =
-    'breaking' |
-    'non-breaking' |
-    'unclassified';
-
-// Parsed Spec types
 
 export interface ParsedInfoObject {
     title: ParsedProperty<string>;
@@ -63,14 +42,12 @@ export interface ParsedSpec {
     xProperties: { [name: string]: ParsedProperty<any> };
 }
 
-// Result types
-export interface ResultObject {
-    changeList: string[];
-    hasBreakingChanges: boolean;
-    summary: string[];
+interface ClassifiedDiffResults {
+    breakingDifferences: DiffResult[];
+    nonBreakingDifferences: DiffResult[];
+    unclassifiedDifferences: DiffResult[];
 }
 
-// Various other types
 export interface GenericProperty {
     key: string;
     value: any;

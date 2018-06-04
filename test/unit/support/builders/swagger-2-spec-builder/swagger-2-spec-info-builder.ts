@@ -21,7 +21,7 @@ export class Swagger2SpecInfoBuilder {
         };
         return new Swagger2SpecInfoBuilder(copyOfSpecInfo);
     }
-    public withDescription(value: string): Swagger2SpecInfoBuilder {
+    public withDescription(value: string | undefined): Swagger2SpecInfoBuilder {
         const copyOfSpecInfo = _.cloneDeep(this.specInfo);
         const copyOfValue = _.cloneDeep(value);
         copyOfSpecInfo.description = copyOfValue;

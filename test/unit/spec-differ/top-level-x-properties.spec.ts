@@ -1,50 +1,12 @@
-import {specDiffer} from '../../../lib/openapi-diff/spec-differ';
+import {specFinder} from '../../../lib/openapi-diff/spec-finder';
+import {diffResultBuilder} from '../support/builders/diff-result-builder';
+import {specEntityDetailsBuilder} from '../support/builders/diff-result-spec-entity-details-builder';
 import {parsedSpecBuilder} from '../support/builders/parsed-spec-builder';
-import {validationResultBuilder} from '../support/builders/validation-result-builder';
-import {specEntityDetailsBuilder} from '../support/builders/validation-result-spec-entity-details-builder';
 
-describe('specDiffer/top level ^x- properties', () => {
-    const xPropertyValidationResultBuilder = validationResultBuilder
+describe('specFinder/top level ^x- properties', () => {
+    const xPropertyDiffResultBuilder = diffResultBuilder
         .withSource('openapi-diff')
-        .withEntity('oad.unclassified');
-
-    describe('when there is an edit in an ^x- property at the top level object', () => {
-
-        it('should return an unclassified edit difference', async () => {
-
-            const parsedSourceSpec = parsedSpecBuilder
-                .withTopLevelXProperty({
-                    name: 'x-external-id',
-                    originalPath: ['x-external-id'],
-                    value: 'x value'
-                })
-                .build();
-            const parsedDestinationSpec = parsedSpecBuilder
-                .withTopLevelXProperty({
-                    name: 'x-external-id',
-                    originalPath: ['x-external-id'],
-                    value: 'NEW x value'
-                })
-                .build();
-
-            const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
-
-            const expectedValidationResult = xPropertyValidationResultBuilder
-                .withAction('edit')
-                .withType('unclassified')
-                .withSourceSpecEntityDetails(
-                    specEntityDetailsBuilder
-                        .withLocation('x-external-id')
-                        .withValue('x value'))
-                .withDestinationSpecEntityDetails(
-                    specEntityDetailsBuilder
-                        .withLocation('x-external-id')
-                        .withValue('NEW x value'))
-                .build();
-
-            expect(result).toEqual([expectedValidationResult]);
-        });
-    });
+        .withEntity('unclassified');
 
     describe('when there is an addition of an ^x- property at the top level object', () => {
 
@@ -61,10 +23,11 @@ describe('specDiffer/top level ^x- properties', () => {
                 })
                 .build();
 
-            const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
+            const result = await specFinder.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            const expectedValidationResult = xPropertyValidationResultBuilder
+            const expectedDiffResult = xPropertyDiffResultBuilder
                 .withAction('add')
+                .withCode('unclassified.add')
                 .withType('unclassified')
                 .withSourceSpecEntityDetails(
                     specEntityDetailsBuilder
@@ -76,13 +39,13 @@ describe('specDiffer/top level ^x- properties', () => {
                         .withValue('NEW x value'))
                 .build();
 
-            expect(result).toEqual([expectedValidationResult]);
+            expect(result).toEqual([expectedDiffResult]);
         });
     });
 
     describe('when there is a deletion of an ^x- property at the top level object', () => {
 
-        it('should return an unclassified delete difference', async () => {
+        it('should return an unclassified remove difference', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withTopLevelXProperty({
@@ -95,10 +58,11 @@ describe('specDiffer/top level ^x- properties', () => {
                 .withNoTopLevelXProperties()
                 .build();
 
-            const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
+            const result = await specFinder.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            const expectedValidationResult = xPropertyValidationResultBuilder
-                .withAction('delete')
+            const expectedDiffResult = xPropertyDiffResultBuilder
+                .withAction('remove')
+                .withCode('unclassified.remove')
                 .withType('unclassified')
                 .withSourceSpecEntityDetails(
                     specEntityDetailsBuilder
@@ -110,24 +74,58 @@ describe('specDiffer/top level ^x- properties', () => {
                         .withValue(undefined))
                 .build();
 
-            expect(result).toEqual([expectedValidationResult]);
+            expect(result).toEqual([expectedDiffResult]);
+        });
+    });
+
+    describe('when there is an edition in an ^x- property at the top level object', () => {
+
+        it('should return unclassified add and remove differences', async () => {
+
+            const parsedSourceSpec = parsedSpecBuilder
+                .withTopLevelXProperty({
+                    name: 'x-external-id',
+                    originalPath: ['x-external-id'],
+                    value: 'x value'
+                })
+                .build();
+            const parsedDestinationSpec = parsedSpecBuilder
+                .withTopLevelXProperty({
+                    name: 'x-external-id',
+                    originalPath: ['x-external-id'],
+                    value: 'NEW x value'
+                })
+                .build();
+
+            const result = await specFinder.diff(parsedSourceSpec, parsedDestinationSpec);
+
+            const baseDiffResult = xPropertyDiffResultBuilder
+                .withType('unclassified')
+                .withSourceSpecEntityDetails(
+                    specEntityDetailsBuilder
+                        .withLocation('x-external-id')
+                        .withValue('x value'))
+                .withDestinationSpecEntityDetails(
+                    specEntityDetailsBuilder
+                        .withLocation('x-external-id')
+                        .withValue('NEW x value'));
+
+            expect(result).toEqual([
+                baseDiffResult.withAction('add').withCode('unclassified.add').build(),
+                baseDiffResult.withAction('remove').withCode('unclassified.remove').build()
+            ]);
         });
     });
 
     describe('when there are multiple changes on ^x- properties at the top level object', () => {
 
-        it('should detect and classify ^x- property additions, deletions and editions', async () => {
+        it('should detect and classify ^x- property differences for each', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withTopLevelXProperty({
-                    name: 'x-deleted-prop',
-                    originalPath: ['x-deleted-prop'],
-                    value: 'x deleted value'
-                })
-                .withTopLevelXProperty({
-                    name: 'x-edited-prop',
-                    originalPath: ['x-edited-prop'],
-                    value: 'x edited old value'
+                    name: 'x-removed-prop',
+                    originalPath: ['x-removed-prop'],
+                    value: 'x removed value'
                 })
                 .build();
             const parsedDestinationSpec = parsedSpecBuilder
@@ -136,43 +134,27 @@ describe('specDiffer/top level ^x- properties', () => {
                     originalPath: ['x-added-prop'],
                     value: 'x added value'
                 })
-                .withTopLevelXProperty({
-                    name: 'x-edited-prop',
-                    originalPath: ['x-edited-prop'],
-                    value: 'x edited NEW value'
-                })
                 .build();
 
-            const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
+            const result = await specFinder.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            const expectedDeletionResult = xPropertyValidationResultBuilder
-                .withAction('delete')
+            const expectedDeletionResult = xPropertyDiffResultBuilder
+                .withAction('remove')
+                .withCode('unclassified.remove')
                 .withType('unclassified')
                 .withSourceSpecEntityDetails(
                     specEntityDetailsBuilder
-                        .withLocation('x-deleted-prop')
-                        .withValue('x deleted value'))
+                        .withLocation('x-removed-prop')
+                        .withValue('x removed value'))
                 .withDestinationSpecEntityDetails(
                     specEntityDetailsBuilder
                         .withLocation(undefined)
                         .withValue(undefined))
                 .build();
 
-            const expectedEditionResult = xPropertyValidationResultBuilder
-                .withAction('edit')
-                .withType('unclassified')
-                .withSourceSpecEntityDetails(
-                    specEntityDetailsBuilder
-                        .withLocation('x-edited-prop')
-                        .withValue('x edited old value'))
-                .withDestinationSpecEntityDetails(
-                    specEntityDetailsBuilder
-                        .withLocation('x-edited-prop')
-                        .withValue('x edited NEW value'))
-                .build();
-
-            const expectedAdditionResult = xPropertyValidationResultBuilder
+            const expectedAdditionResult = xPropertyDiffResultBuilder
                 .withAction('add')
+                .withCode('unclassified.add')
                 .withType('unclassified')
                 .withSourceSpecEntityDetails(
                     specEntityDetailsBuilder
@@ -184,7 +166,7 @@ describe('specDiffer/top level ^x- properties', () => {
                         .withValue('x added value'))
                 .build();
 
-            expect(result).toEqual([expectedDeletionResult, expectedEditionResult, expectedAdditionResult]);
+            expect(result).toEqual([expectedDeletionResult, expectedAdditionResult]);
         });
     });
 });

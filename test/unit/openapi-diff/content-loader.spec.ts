@@ -1,24 +1,21 @@
-import {OpenAPIObject} from 'openapi3-ts';
-// tslint:disable:no-implicit-dependencies
-import {Spec} from 'swagger-schema-official';
-import {SpecLoader} from '../../../lib/openapi-diff/spec-loader';
+import {ContentLoader} from '../../../lib/openapi-diff/content-loader';
 import {expectToFail} from '../../support/expect-to-fail';
 import {createMockFileSystem, MockFileSystem} from '../support/mocks/mock-file-system';
 import {createMockHttpClient, MockHttpClient} from '../support/mocks/mock-http-client';
 
-describe('specLoader', () => {
+describe('contentLoader', () => {
     let mockHttpClient: MockHttpClient;
     let mockFileSystem: MockFileSystem;
 
     beforeEach(() => {
         mockFileSystem = createMockFileSystem();
-        mockFileSystem.givenReadFileReturns('{}');
+        mockFileSystem.givenReadFileReturnsContent('{}');
         mockHttpClient = createMockHttpClient();
         mockHttpClient.givenGetReturns('{}');
     });
 
-    const invokeLoad = (location: string): Promise<Spec | OpenAPIObject> => {
-        const specLoader = new SpecLoader(mockHttpClient, mockFileSystem);
+    const invokeLoad = (location: string): Promise<string> => {
+        const specLoader = new ContentLoader(mockHttpClient, mockFileSystem);
         return specLoader.load(location);
     };
 
@@ -37,23 +34,13 @@ describe('specLoader', () => {
             expect(error.message).toEqual(jasmine.stringMatching('test file system error'));
         });
 
-        it('should return the file contents parsed when able to read the file', async () => {
-            const fileContents: string = '{ "file": "contents" }';
-            mockFileSystem.givenReadFileReturns(fileContents);
+        it('should return the file contents when able to read the file', async () => {
+            const fileContents: string = 'file contents';
+            mockFileSystem.givenReadFileReturnsContent(fileContents);
 
             const results = await invokeLoad('ok-file.json');
 
-            expect(results).toEqual(JSON.parse(fileContents));
-        });
-
-        it('should error out when unable to parse the file contents as json or yaml', async () => {
-            const fileContents: string = '{this is not json or yaml';
-            mockFileSystem.givenReadFileReturns(fileContents);
-
-            const error = await expectToFail(invokeLoad('existing-file-with-invalid.json'));
-
-            expect(error.message)
-                .toContain('ERROR: unable to parse existing-file-with-invalid.json as a JSON or YAML file');
+            expect(results).toEqual(fileContents);
         });
     });
 
@@ -72,22 +59,13 @@ describe('specLoader', () => {
             expect(error.message).toEqual(jasmine.stringMatching('test http client error'));
         });
 
-        it('should return the url contents parsed when able to open the url', async () => {
-            const urlContents: string = '{ "url": "contents" }';
+        it('should return the url contents when able to open the url', async () => {
+            const urlContents: string = 'url contents';
             mockHttpClient.givenGetReturns(urlContents);
 
             const results = await invokeLoad('http://url.that.works');
 
-            expect(results).toEqual(JSON.parse(urlContents));
-        });
-
-        it('should error out when the url returns non-json and non-yaml content', async () => {
-            const urlContents: string = '{this is not json or yaml';
-            mockHttpClient.givenGetReturns(urlContents);
-
-            const error = await expectToFail(invokeLoad('http://url.that.loads.but.has.no.json.or.yaml'));
-
-            expect(error.message).toContain('ERROR: unable to parse http://url.that.loads.but.has.no.json.or.yaml');
+            expect(results).toEqual(urlContents);
         });
     });
 });

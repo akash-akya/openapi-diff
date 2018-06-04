@@ -10,5 +10,5 @@
     "x-info-property": "Some content"
   },
   "x-generic-property": "Some content",
-  "x-deleted-property": "Some deleted content"
+  "x-removed-property": "Some removed content"
 }

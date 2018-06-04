@@ -1,20 +1,28 @@
 import {FileSystem} from '../../../../lib/openapi-diff/resource-loader/file-system';
+import {swagger2SpecBuilder} from '../builders/swagger-2-spec-builder';
 
 export type MockFileSystem = jasmine.SpyObj<FileSystem> & {
-    givenReadFileReturns(result: string): void;
+    givenReadFileReturnsContent(content: string): void;
+    givenReadFileReturns(...results: Array<Promise<string>>): void;
     givenReadFileFailsWith(error: Error): void;
 };
 
 export const createMockFileSystem = (): MockFileSystem => {
     const mockFileSystem: MockFileSystem = jasmine.createSpyObj('mockFileSystem', ['readFile']);
 
-    mockFileSystem.givenReadFileReturns = (result: string): void => {
-        mockFileSystem.readFile.and.callFake(() => Promise.resolve(result));
+    mockFileSystem.givenReadFileReturnsContent = (content) => {
+        mockFileSystem.readFile.and.callFake(() => Promise.resolve(content));
     };
 
-    mockFileSystem.givenReadFileFailsWith = (error: Error): void => {
+    mockFileSystem.givenReadFileReturns = (...results) => {
+        mockFileSystem.readFile.and.returnValues(...results);
+    };
+
+    mockFileSystem.givenReadFileFailsWith = (error) => {
         mockFileSystem.readFile.and.callFake(() => Promise.reject(error));
     };
+
+    mockFileSystem.givenReadFileReturnsContent(JSON.stringify(swagger2SpecBuilder.build()));
 
     return mockFileSystem;
 };

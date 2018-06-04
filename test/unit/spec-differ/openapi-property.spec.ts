@@ -1,18 +1,18 @@
-import {specDiffer} from '../../../lib/openapi-diff/spec-differ';
+import {specFinder} from '../../../lib/openapi-diff/spec-finder';
+import {diffResultBuilder} from '../support/builders/diff-result-builder';
+import {specEntityDetailsBuilder} from '../support/builders/diff-result-spec-entity-details-builder';
 import {parsedSpecBuilder} from '../support/builders/parsed-spec-builder';
-import {validationResultBuilder} from '../support/builders/validation-result-builder';
-import {specEntityDetailsBuilder} from '../support/builders/validation-result-spec-entity-details-builder';
 
-describe('specDiffer/openapi', () => {
-    const openapiValidationResultBuilder = validationResultBuilder
+describe('specFinder/openapi', () => {
+    const openapiDiffResultBuilder = diffResultBuilder
         .withSource('openapi-diff')
-        .withEntity('oad.openapi');
+        .withEntity('openapi');
 
     describe('when there is a change in the openapi property', () => {
 
         describe('from a Swagger 2.0 spec', () => {
 
-            it('should return an non-breaking edit difference', async () => {
+            it('should return non-breaking add and remove differences', async () => {
                 const parsedSourceSpec = parsedSpecBuilder
                     .withSwagger2()
                     .build();
@@ -20,25 +20,27 @@ describe('specDiffer/openapi', () => {
                     .withOpenApi(['swagger'], '2.1')
                     .build();
 
-                const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
+                const result = await specFinder.diff(parsedSourceSpec, parsedDestinationSpec);
 
-                const expectedValidationResult = openapiValidationResultBuilder
-                    .withAction('edit')
+                const baseDiffResult = openapiDiffResultBuilder
                     .withType('non-breaking')
                     .withSourceSpecEntityDetails(specEntityDetailsBuilder
                         .withLocation('swagger')
                         .withValue('2.0'))
                     .withDestinationSpecEntityDetails(specEntityDetailsBuilder
                         .withLocation('swagger')
-                        .withValue('2.1'))
-                    .build();
-                expect(result).toEqual([expectedValidationResult]);
+                        .withValue('2.1'));
+
+                expect(result).toEqual([
+                    baseDiffResult.withAction('add').withCode('openapi.add').build(),
+                    baseDiffResult.withAction('remove').withCode('openapi.remove').build()
+                ]);
             });
         });
 
         describe('from a OpenApi 3.0 spec', () => {
 
-            it('should return a non-breaking edit difference', async () => {
+            it('should return non-breaking add and remove differences', async () => {
                 const parsedSourceSpec = parsedSpecBuilder
                     .withOpenApi3()
                     .build();
@@ -46,19 +48,21 @@ describe('specDiffer/openapi', () => {
                     .withOpenApi(['openapi'], '3.0.1')
                     .build();
 
-                const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
+                const result = await specFinder.diff(parsedSourceSpec, parsedDestinationSpec);
 
-                const expectedValidationResult = openapiValidationResultBuilder
-                    .withAction('edit')
+                const baseDiffResult = openapiDiffResultBuilder
                     .withType('non-breaking')
                     .withSourceSpecEntityDetails(specEntityDetailsBuilder
                         .withLocation('openapi')
                         .withValue('3.0.0'))
                     .withDestinationSpecEntityDetails(specEntityDetailsBuilder
                         .withLocation('openapi')
-                        .withValue('3.0.1'))
-                    .build();
-                expect(result).toEqual([expectedValidationResult]);
+                        .withValue('3.0.1'));
+
+                expect(result).toEqual([
+                    baseDiffResult.withAction('add').withCode('openapi.add').build(),
+                    baseDiffResult.withAction('remove').withCode('openapi.remove').build()
+                ]);
             });
         });
     });

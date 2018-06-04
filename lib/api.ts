@@ -1,9 +1,8 @@
 import * as OpenApiDiff from './api-types';
-import {validateSourceAndDestinationSpecContent} from './openapi-diff';
+import {CliFactory} from './cli-factory';
 
 const openApiDiff: typeof OpenApiDiff = {
-    validate: async (options) =>
-        validateSourceAndDestinationSpecContent(options)
+    diffSpecs: async (options) => CliFactory.createOpenApiDiff().diffSpecs(options)
 };
 
 export = openApiDiff;

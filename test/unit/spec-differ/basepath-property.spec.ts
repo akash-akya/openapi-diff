@@ -1,39 +1,12 @@
-import {specDiffer} from '../../../lib/openapi-diff/spec-differ';
+import {specFinder} from '../../../lib/openapi-diff/spec-finder';
+import {diffResultBuilder} from '../support/builders/diff-result-builder';
+import {specEntityDetailsBuilder} from '../support/builders/diff-result-spec-entity-details-builder';
 import {parsedSpecBuilder} from '../support/builders/parsed-spec-builder';
-import {validationResultBuilder} from '../support/builders/validation-result-builder';
-import {specEntityDetailsBuilder} from '../support/builders/validation-result-spec-entity-details-builder';
 
-describe('specDiffer/basePath property', () => {
-    const basePathValidationResultBuilder = validationResultBuilder
+describe('specFinder/basePath property', () => {
+    const basePathDiffResultBuilder = diffResultBuilder
         .withSource('openapi-diff')
-        .withEntity('oad.basePath');
-
-    describe('when there is an edition in the basePath property', () => {
-
-        it('should return a breaking edit difference', async () => {
-
-            const parsedSourceSpec = parsedSpecBuilder
-                .withBasePath('basePath info')
-                .build();
-            const parsedDestinationSpec = parsedSpecBuilder
-                .withBasePath('NEW basePath info')
-                .build();
-
-            const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
-
-            const expectedValidationResult = basePathValidationResultBuilder
-                .withAction('edit')
-                .withType('breaking')
-                .withSourceSpecEntityDetails(specEntityDetailsBuilder
-                    .withLocation('basePath')
-                    .withValue('basePath info'))
-                .withDestinationSpecEntityDetails(specEntityDetailsBuilder
-                    .withLocation('basePath')
-                    .withValue('NEW basePath info'))
-                .build();
-            expect(result).toEqual([expectedValidationResult]);
-        });
-    });
+        .withEntity('basePath');
 
     describe('when the basePath property is added in the new spec', () => {
 
@@ -46,10 +19,11 @@ describe('specDiffer/basePath property', () => {
                 .withBasePath('NEW basePath info')
                 .build();
 
-            const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
+            const result = await specFinder.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            const expectedValidationResult = basePathValidationResultBuilder
+            const expectedDiffResult = basePathDiffResultBuilder
                 .withAction('add')
+                .withCode('basePath.add')
                 .withType('breaking')
                 .withSourceSpecEntityDetails(specEntityDetailsBuilder
                     .withLocation('basePath')
@@ -58,13 +32,13 @@ describe('specDiffer/basePath property', () => {
                     .withLocation('basePath')
                     .withValue('NEW basePath info'))
                 .build();
-            expect(result).toEqual([expectedValidationResult]);
+            expect(result).toEqual([expectedDiffResult]);
         });
     });
 
-    describe('when the basePath property is deleted in the new spec', () => {
+    describe('when the basePath property is removed in the new spec', () => {
 
-        it('should return a breaking delete difference', async () => {
+        it('should return a breaking remove difference', async () => {
 
             const parsedSourceSpec = parsedSpecBuilder
                 .withBasePath('OLD basePath info')
@@ -73,10 +47,11 @@ describe('specDiffer/basePath property', () => {
                 .withNoBasePath()
                 .build();
 
-            const result = await specDiffer.diff(parsedSourceSpec, parsedDestinationSpec);
+            const result = await specFinder.diff(parsedSourceSpec, parsedDestinationSpec);
 
-            const expectedValidationResult = basePathValidationResultBuilder
-                .withAction('delete')
+            const expectedDiffResult = basePathDiffResultBuilder
+                .withAction('remove')
+                .withCode('basePath.remove')
                 .withType('breaking')
                 .withSourceSpecEntityDetails(specEntityDetailsBuilder
                     .withLocation('basePath')
@@ -86,7 +61,35 @@ describe('specDiffer/basePath property', () => {
                     .withValue(undefined))
                 .build();
 
-            expect(result).toEqual([expectedValidationResult]);
+            expect(result).toEqual([expectedDiffResult]);
+        });
+    });
+
+    describe('when there is an edition in the basePath property', () => {
+
+        it('should return breaking add and remove differences', async () => {
+
+            const parsedSourceSpec = parsedSpecBuilder
+                .withBasePath('basePath info')
+                .build();
+            const parsedDestinationSpec = parsedSpecBuilder
+                .withBasePath('NEW basePath info')
+                .build();
+
+            const result = await specFinder.diff(parsedSourceSpec, parsedDestinationSpec);
+
+            const baseDiffResult = basePathDiffResultBuilder
+                .withSourceSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation('basePath')
+                    .withValue('basePath info'))
+                .withDestinationSpecEntityDetails(specEntityDetailsBuilder
+                    .withLocation('basePath')
+                    .withValue('NEW basePath info'));
+
+            expect(result).toEqual([
+                baseDiffResult.withAction('add').withCode('basePath.add').build(),
+                baseDiffResult.withAction('remove').withCode('basePath.remove').build()
+            ]);
         });
     });
 });

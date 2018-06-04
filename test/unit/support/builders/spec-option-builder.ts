@@ -6,21 +6,25 @@ type ContentBuilder = Swagger2SpecBuilder | OpenApi3SpecBuilder;
 
 export class SpecOptionBuilder {
     public static defaultSpecOptionBuilder(): SpecOptionBuilder {
-        return new SpecOptionBuilder('default-location.json', swagger2SpecBuilder);
+        return new SpecOptionBuilder('default-location.json', JSON.stringify(swagger2SpecBuilder.build()));
     }
-    private constructor(private readonly location: string, private readonly contentBuilder: ContentBuilder) {}
+    private constructor(private readonly location: string, private readonly content: string) {}
 
     public withLocation(location: string): SpecOptionBuilder {
-        return new SpecOptionBuilder(location, this.contentBuilder);
+        return new SpecOptionBuilder(location, this.content);
     }
 
     public withContent(contentBuilder: ContentBuilder): SpecOptionBuilder {
-        return new SpecOptionBuilder(this.location, contentBuilder);
+        return this.withRawContent(JSON.stringify(contentBuilder.build()));
+    }
+
+    public withRawContent(content: string): SpecOptionBuilder {
+        return new SpecOptionBuilder(this.location, content);
     }
 
     public build(): SpecOption {
         return {
-            content: this.contentBuilder.build(),
+            content: this.content,
             location: this.location
         };
     }

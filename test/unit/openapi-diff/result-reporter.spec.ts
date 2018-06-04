@@ -1,6 +1,7 @@
 import {ResultReporter} from '../../../lib/openapi-diff/result-reporter';
-import {validationOutcomeBuilder} from '../support/builders/validation-outcome-builder';
-import {validationResultBuilder} from '../support/builders/validation-result-builder';
+import {diffOutcomeFailureBuilder} from '../support/builders/diff-outcome-failure-builder';
+import {diffOutcomeSuccessBuilder} from '../support/builders/diff-outcome-success-builder';
+import {diffResultBuilder} from '../support/builders/diff-result-builder';
 import {createMockConsoleLogger, MockConsoleLogger} from '../support/mocks/mock-console-logger';
 
 describe('openapi-diff/result-reporter', () => {
@@ -12,24 +13,40 @@ describe('openapi-diff/result-reporter', () => {
         reporter = new ResultReporter(mockWrappedConsole);
     });
 
-    it('should report a success message when no breaking or unclassified changes are found', async () => {
-        const outcome = validationOutcomeBuilder
-            .withBreakingDifferences([])
+    it('should report a success message when only non-breaking changes are found', async () => {
+        const outcome = diffOutcomeSuccessBuilder
             .withUnclassifiedDifferences([])
-            .withNonBreakingDifferences([validationResultBuilder.withEntity('oad.host')])
-            .withSuccess(true)
+            .withNonBreakingDifferences([diffResultBuilder.withEntity('host')])
             .build();
 
-        reporter.reportSuccessWithOutcome(outcome);
+        reporter.reportOutcome(outcome);
 
         expect(mockWrappedConsole.info).toHaveBeenCalledWith(
             jasmine.stringMatching('Non breaking changes found between the two specifications')
         );
-        expect(mockWrappedConsole.info).toHaveBeenCalledWith(jasmine.stringMatching('oad.host'));
+        expect(mockWrappedConsole.info).toHaveBeenCalledWith(jasmine.stringMatching('host'));
     });
 
-    it('should report a success message when diff is successful with differences', async () => {
-        reporter.reportNoChangesFound();
+    it('should report a success message when only unclassified changes are found', async () => {
+        const outcome = diffOutcomeSuccessBuilder
+            .withUnclassifiedDifferences([diffResultBuilder.withEntity('host')])
+            .withNonBreakingDifferences([])
+            .build();
+
+        reporter.reportOutcome(outcome);
+
+        expect(mockWrappedConsole.info).toHaveBeenCalledWith(
+            jasmine.stringMatching('Non breaking changes found between the two specifications')
+        );
+        expect(mockWrappedConsole.info).toHaveBeenCalledWith(jasmine.stringMatching('host'));
+    });
+
+    it('should report a success message when diff is successful with no differences', async () => {
+        const outcome = diffOutcomeSuccessBuilder
+            .withUnclassifiedDifferences([])
+            .withNonBreakingDifferences([])
+            .build();
+        reporter.reportOutcome(outcome);
 
         expect(mockWrappedConsole.info).toHaveBeenCalledWith('No changes found between the two specifications');
     });
@@ -40,17 +57,16 @@ describe('openapi-diff/result-reporter', () => {
         expect(mockWrappedConsole.error).toHaveBeenCalledWith(new Error('some error'));
     });
 
-    it('should report a failure when differences were found', async () => {
-        const outcome = validationOutcomeBuilder
-            .withBreakingDifferences([validationResultBuilder.withEntity('oad.host')])
-            .withSuccess(false)
+    it('should report a failure when breaking differences were found', async () => {
+        const outcome = diffOutcomeFailureBuilder
+            .withBreakingDifferences([diffResultBuilder.withEntity('host')])
             .build();
 
-        reporter.reportFailureWithOutcome(outcome);
+        reporter.reportOutcome(outcome);
 
         expect(mockWrappedConsole.info).toHaveBeenCalledWith(
             jasmine.stringMatching('Breaking changes found between the two specifications')
         );
-        expect(mockWrappedConsole.info).toHaveBeenCalledWith(jasmine.stringMatching('oad.host'));
+        expect(mockWrappedConsole.info).toHaveBeenCalledWith(jasmine.stringMatching('host'));
     });
 });
