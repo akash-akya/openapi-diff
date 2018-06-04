@@ -122,6 +122,8 @@ gulp.task('lint-typescript', () => {
         .pipe(tslint.report());
 });
 
+gulp.task('npm-publish', () => exec('npm publish'));
+
 gulp.task('push-changes', (callback) => {
     git.push('origin', 'master', {args: '--tags'}, callback);
 });
@@ -135,6 +137,7 @@ gulp.task('release', (callback) => {
         'commit-changes',
         'create-new-tag',
         'push-changes',
+        'npm-publish',
         callback
     );
 });
