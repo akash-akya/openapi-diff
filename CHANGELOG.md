@@ -1,3 +1,13 @@
+<a name="0.8.0"></a>
+# [0.8.0](https://bitbucket.org/atlassian/openapi-diff/compare/0.7.2...0.8.0) (2018-06-07)
+
+
+### Features
+
+* changed the public api to accept specs as strings instead of objects ([387abaf](https://bitbucket.org/atlassian/openapi-diff/commits/387abaf))
+
+
+
 <a name="0.7.2"></a>
 ## [0.7.2](https://bitbucket.org/atlassian/openapi-diff/compare/0.7.1...0.7.2) (2018-06-04)
 
