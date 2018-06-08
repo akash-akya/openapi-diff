@@ -216,39 +216,14 @@ const findDiffsInSpecs = (
     parsedSourceSpec: ParsedSpec, parsedDestinationSpec: ParsedSpec
 ): Promise<DiffResult[]> => {
 
-    const infoDiffs = _.concat([],
-        findDiffsInProperty(parsedSourceSpec.info.termsOfService,
-            parsedDestinationSpec.info.termsOfService, 'info.termsOfService'),
-        findDiffsInProperty(parsedSourceSpec.info.description,
-            parsedDestinationSpec.info.description, 'info.description'),
-        findDiffsInProperty(parsedSourceSpec.info.contact.name,
-            parsedDestinationSpec.info.contact.name, 'info.contact.name'),
-        findDiffsInProperty(parsedSourceSpec.info.contact.email,
-            parsedDestinationSpec.info.contact.email, 'info.contact.email'),
-        findDiffsInProperty(parsedSourceSpec.info.contact.url,
-            parsedDestinationSpec.info.contact.url, 'info.contact.url'),
-        findDiffsInProperty(parsedSourceSpec.info.license.name,
-            parsedDestinationSpec.info.license.name, 'info.license.name'),
-        findDiffsInProperty(parsedSourceSpec.info.license.url,
-            parsedDestinationSpec.info.license.url, 'info.license.url'),
-        findDiffsInProperty(parsedSourceSpec.info.title,
-            parsedDestinationSpec.info.title, 'info.title'),
-        findDiffsInProperty(parsedSourceSpec.info.version,
-            parsedDestinationSpec.info.version, 'info.version'),
-        findDiffsInXProperties(parsedSourceSpec.info.xProperties,
-            parsedDestinationSpec.info.xProperties, 'info.xProperties')
-    );
-
     const basePathDiffs = findDiffsInProperty(parsedSourceSpec.basePath, parsedDestinationSpec.basePath, 'basePath');
-    const hostDiffs = findDiffsInProperty(parsedSourceSpec.host, parsedDestinationSpec.host, 'host');
-    const openApiDiffs = findDiffsInProperty(parsedSourceSpec.openapi, parsedDestinationSpec.openapi, 'openapi');
     const schemesDiffs = findDiffsInArray(parsedSourceSpec.schemes, parsedDestinationSpec.schemes, 'schemes');
 
     const topLevelXPropertyDiffs = findDiffsInXProperties(parsedSourceSpec.xProperties,
         parsedDestinationSpec.xProperties, 'xProperties');
 
     return Promise.resolve(
-        _.concat([], infoDiffs, basePathDiffs, hostDiffs, openApiDiffs, schemesDiffs, topLevelXPropertyDiffs)
+        _.concat([], basePathDiffs, schemesDiffs, topLevelXPropertyDiffs)
     );
 };
 

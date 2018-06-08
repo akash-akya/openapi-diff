@@ -1,7 +1,6 @@
 import {exec} from 'child_process';
 import * as express from 'express';
 import * as http from 'http';
-import * as path from 'path';
 import ErrnoException = NodeJS.ErrnoException;
 import * as VError from 'verror';
 
@@ -43,32 +42,25 @@ describe('openapi-diff', () => {
         server.close(done);
     });
 
-    it('should work with absolute path files', async () => {
-        const currentDir = path.resolve(process.cwd());
-
+    it('should succeed when no breaking changes are found in swagger 2', async () => {
         const result = await invokeCommand({
-            destinationSpecLocation: `${currentDir}/test/e2e/fixtures/basic-destination.json`,
-            sourceSpecLocation: `${currentDir}/test/e2e/fixtures/basic-source.json`
+            destinationSpecLocation: `test/e2e/fixtures/swagger/destination-with-no-breaking-changes.json`,
+            sourceSpecLocation: `test/e2e/fixtures/swagger/source-with-no-breaking-changes.json`
         });
 
-        expect(result).toEqual(jasmine.stringMatching(
-            `"location": "${currentDir}/test/e2e/fixtures/basic-source.json"`));
-        expect(result).toEqual(jasmine.stringMatching(
-            `"location": "${currentDir}/test/e2e/fixtures/basic-destination.json"`));
         expect(result).toEqual(jasmine.stringMatching('Non breaking changes found between the two specifications'));
     });
 
-    it('should exit with error when unable to find files on the local filesystem', async () => {
+    it('should exit with error when breaking differences are found in swagger 2', async () => {
         const error = await expectToFail(invokeCommand({
-            destinationSpecLocation: 'test/e2e/fixtures/non-existing-destination.json',
-            sourceSpecLocation: 'test/e2e/fixtures/non-existing-source.json'
+            destinationSpecLocation: 'http://localhost:3000/swagger/destination-with-breaking-changes.json',
+            sourceSpecLocation: 'http://localhost:3000/swagger/source-with-breaking-changes.json'
         }));
 
-        expect(error).toEqual(jasmine.stringMatching(
-            'ERROR: unable to read test/e2e/fixtures/non-existing-source.json'));
+        expect(error.message).toEqual(jasmine.stringMatching('"type": "breaking"'));
     });
 
-    it('should exit with error when unable to parse files as json from the local filesystem', async () => {
+    it('should exit with error when unable to parse content as json', async () => {
         const error = await expectToFail(invokeCommand({
             destinationSpecLocation: 'test/e2e/fixtures/not-a-json-or-yaml.txt',
             sourceSpecLocation: 'test/e2e/fixtures/not-a-json-or-yaml.txt'
@@ -78,73 +70,6 @@ describe('openapi-diff', () => {
             'ERROR: unable to parse test/e2e/fixtures/not-a-json-or-yaml.txt as a JSON or YAML file'));
     });
 
-    it('should allow loading specs from URL locations', async () => {
-        const result = await invokeCommand({
-            destinationSpecLocation: 'http://localhost:3000/basic-destination.json',
-            sourceSpecLocation: 'http://localhost:3000/basic-source.json'
-        });
-
-        expect(result).toEqual(jasmine.stringMatching(
-            '"location": "http://localhost:3000/basic-source.json"'));
-        expect(result).toEqual(jasmine.stringMatching(
-            '"location": "http://localhost:3000/basic-destination.json"'));
-        expect(result).toEqual(jasmine.stringMatching('Non breaking changes found between the two specifications'));
-    });
-
-    it('should exit with error when unable to load the URLs provided', async () => {
-        const error = await expectToFail(invokeCommand({
-            destinationSpecLocation: 'http://localhost:3000/basic-destination.json',
-            sourceSpecLocation: 'htt://localhost:3000/basic-source.json'
-        }));
-
-        expect(error).toEqual(jasmine.stringMatching('ERROR: unable to open htt://localhost:3000/basic-source.json'));
-    });
-
-    it('should exit with error when unable to fetch files over http', async () => {
-        const error = await expectToFail(invokeCommand({
-            destinationSpecLocation: 'http://localhost:3000/basic-destination.json',
-            sourceSpecLocation: 'http://localhost:3000/non-existing-source.json'
-        }));
-
-        expect(error).toEqual(jasmine.stringMatching(
-            'ERROR: unable to fetch http://localhost:3000/non-existing-source.json. Response code: 404'));
-    });
-
-    it('should exit with error when unable to parse files as json or yaml over http', async () => {
-        const error = await expectToFail(invokeCommand({
-            destinationSpecLocation: 'http://localhost:3000/basic-destination.json',
-            sourceSpecLocation: 'http://localhost:3000/not-a-json-or-yaml.txt'
-        }));
-
-        expect(error).toEqual(jasmine.stringMatching(
-            'ERROR: unable to parse http://localhost:3000/not-a-json-or-yaml.txt as a JSON or YAML file'));
-    });
-
-    it('should succeed when no differences are found', async () => {
-        const result = await invokeCommand({
-            destinationSpecLocation: 'test/e2e/fixtures/basic-source.json',
-            sourceSpecLocation: 'test/e2e/fixtures/basic-source.json'
-        });
-
-        expect(result).toEqual(jasmine.stringMatching('No changes found between the two specifications'));
-    });
-
-    it('should succeed when no breaking differences are found', async () => {
-        const result = await invokeCommand({
-            destinationSpecLocation: 'test/e2e/fixtures/basic-destination.json',
-            sourceSpecLocation: 'test/e2e/fixtures/basic-source.json'
-        });
-
-        expect(result).toEqual(jasmine.stringMatching('Non breaking changes found between the two specifications'));
-        expect(result).toEqual(jasmine.stringMatching('"type": "non-breaking"'));
-    });
-
-    it('should exit with error when breaking differences are found', async () => {
-        const error = await expectToFail(invokeCommand({
-            destinationSpecLocation: 'test/e2e/fixtures/petstore-swagger-2-destination.json',
-            sourceSpecLocation: 'test/e2e/fixtures/petstore-swagger-2-source.json'
-        }));
-
-        expect(error.message).toEqual(jasmine.stringMatching('"type": "breaking"'));
-    });
+    it('should succeed when no differences are found in open api 3');
+    it('should fail when breaking differences are found in open api 3');
 });

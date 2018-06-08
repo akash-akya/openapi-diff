@@ -6,8 +6,6 @@ import {
 } from '../../../../lib/openapi-diff/types';
 import {NamedGenericProperty} from './parsed-spec-builder/named-generic-property';
 
-import {parsedSpecInfoBuilder, ParsedSpecInfoBuilder} from './parsed-spec-builder/parsed-spec-info-builder';
-
 class ParsedSpecBuilder {
     public constructor(private readonly parsedSpec: ParsedSpec) {}
 
@@ -19,12 +17,6 @@ class ParsedSpecBuilder {
         const copyOfParsedSpec = _.cloneDeep(this.parsedSpec);
         const copyOfValue = _.cloneDeep(value);
         copyOfParsedSpec.basePath.value = copyOfValue;
-        return new ParsedSpecBuilder(copyOfParsedSpec);
-    }
-
-    public withInfoObject(builder: ParsedSpecInfoBuilder) {
-        const copyOfParsedSpec = _.cloneDeep(this.parsedSpec);
-        copyOfParsedSpec.info = builder.build();
         return new ParsedSpecBuilder(copyOfParsedSpec);
     }
 
@@ -40,19 +32,6 @@ class ParsedSpecBuilder {
         return new ParsedSpecBuilder(copyOfParsedSpec);
     }
 
-    public withHost(value: string): ParsedSpecBuilder {
-        const copyOfParsedSpec = _.cloneDeep(this.parsedSpec);
-        const copyOfValue = _.cloneDeep(value);
-        copyOfParsedSpec.host.value = copyOfValue;
-        return new ParsedSpecBuilder(copyOfParsedSpec);
-    }
-
-    public withNoHost(): ParsedSpecBuilder {
-        const copyOfParsedSpec = _.cloneDeep(this.parsedSpec);
-        copyOfParsedSpec.host.value = undefined;
-        return new ParsedSpecBuilder(copyOfParsedSpec);
-    }
-
     public withNoSchemes(): ParsedSpecBuilder {
         const copyOfParsedSpec = _.cloneDeep(this.parsedSpec);
         copyOfParsedSpec.schemes.value = undefined;
@@ -65,39 +44,10 @@ class ParsedSpecBuilder {
         return new ParsedSpecBuilder(copyOfParsedSpec);
     }
 
-    public withOpenApi3(): ParsedSpecBuilder {
-        const copyOfParsedSpec = _.cloneDeep(this.parsedSpec);
-        copyOfParsedSpec.openapi = {
-            originalPath: ['openapi'],
-            value: '3.0.0'
-        };
-        return new ParsedSpecBuilder(copyOfParsedSpec);
-    }
-
-    public withOpenApi(originalPath: string[], value: string): ParsedSpecBuilder {
-        const copyOfParsedSpec = _.cloneDeep(this.parsedSpec);
-        const copyOfOriginalPath = _.cloneDeep(originalPath);
-        const copyOfValue = _.cloneDeep(value);
-        copyOfParsedSpec.openapi = {
-            originalPath: copyOfOriginalPath,
-            value: copyOfValue
-        };
-        return new ParsedSpecBuilder(copyOfParsedSpec);
-    }
-
     public withSchemes(value: Array<ParsedProperty<string>>): ParsedSpecBuilder {
         const copyOfParsedSpec = _.cloneDeep(this.parsedSpec);
         const copyOfValue = _.cloneDeep(value);
         copyOfParsedSpec.schemes.value = copyOfValue;
-        return new ParsedSpecBuilder(copyOfParsedSpec);
-    }
-
-    public withSwagger2(): ParsedSpecBuilder {
-        const copyOfParsedSpec = _.cloneDeep(this.parsedSpec);
-        copyOfParsedSpec.openapi = {
-            originalPath: ['swagger'],
-            value: '2.0'
-        };
         return new ParsedSpecBuilder(copyOfParsedSpec);
     }
 
@@ -119,22 +69,11 @@ const defaultParsedSpec: ParsedSpec = {
         value: undefined
     },
     format: 'swagger2',
-    host: {
-        originalPath: ['host'],
-        value: undefined
-    },
-    info: parsedSpecInfoBuilder.build(),
-    openapi: {
-        originalPath: ['swagger'],
-        value: '2.0'
-    },
     schemes: {
         originalPath: ['schemes'],
         value: undefined
     },
     xProperties: {}
 };
-
-export {parsedSpecInfoBuilder};
 
 export const parsedSpecBuilder = new ParsedSpecBuilder(defaultParsedSpec);

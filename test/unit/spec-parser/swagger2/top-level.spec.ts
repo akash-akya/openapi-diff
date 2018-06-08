@@ -37,34 +37,6 @@ describe('specParser, with regards to the top level object,', () => {
         });
     });
 
-    describe('host', () => {
-        it('should generate a parsed spec copying across the host property and its value when present', () => {
-            const originalSpec = swagger2SpecBuilder
-                .withHost('some host url')
-                .build();
-
-            const actualResult = whenSpecIsParsed(originalSpec);
-
-            const expectedResult = parsedSpecBuilder
-                .withHost('some host url')
-                .build();
-            expect(actualResult.host).toEqual(expectedResult.host);
-        });
-
-        it('should generate a parsed spec with undefined value for host property when not present', () => {
-            const originalSpec = swagger2SpecBuilder
-                .withNoHost()
-                .build();
-
-            const actualResult = whenSpecIsParsed(originalSpec);
-
-            const expectedResult = parsedSpecBuilder
-                .withNoHost()
-                .build();
-            expect(actualResult.host).toEqual(expectedResult.host);
-        });
-    });
-
     describe('basePath', () => {
         it('should generate a parsed spec copying across the basePath property and value when present', () => {
             const originalSpec = swagger2SpecBuilder

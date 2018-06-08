@@ -22,7 +22,6 @@ describe('specParser, with regards to the top level object,', () => {
             const actualResult = whenSpecIsParsed(originalSpec);
 
             const expectedResult = parsedSpecBuilder
-                .withOpenApi3()
                 .withTopLevelXProperty({
                     name: 'x-external-id',
                     originalPath: ['x-external-id'],
@@ -38,20 +37,6 @@ describe('specParser, with regards to the top level object,', () => {
         });
     });
 
-    describe('host', () => {
-        it('should generate a parsed spec with undefined value for the host property ', () => {
-            const originalSpec = openApi3SpecBuilder.build();
-
-            const actualResult = whenSpecIsParsed(originalSpec);
-
-            const expectedResult = parsedSpecBuilder
-                .withOpenApi3()
-                .withNoHost()
-                .build();
-            expect(actualResult.host).toEqual(expectedResult.host);
-        });
-    });
-
     describe('basePath', () => {
         it('should generate a parsed spec with undefined value for the basePath property ', () => {
             const originalSpec = openApi3SpecBuilder.build();
@@ -59,14 +44,13 @@ describe('specParser, with regards to the top level object,', () => {
             const actualResult = whenSpecIsParsed(originalSpec);
 
             const expectedResult = parsedSpecBuilder
-                .withOpenApi3()
                 .withNoBasePath()
                 .build();
             expect(actualResult.basePath).toEqual(expectedResult.basePath);
         });
     });
 
-    describe('schems', () => {
+    describe('schemes', () => {
         it('should generate a parsed spec with a parsed schemes array property and undefined value', () => {
             const originalSpec = openApi3SpecBuilder
                 .build();
@@ -74,7 +58,6 @@ describe('specParser, with regards to the top level object,', () => {
             const actualResult = whenSpecIsParsed(originalSpec);
 
             const expectedResult = parsedSpecBuilder
-                .withOpenApi3()
                 .withNoSchemes()
                 .build();
             expect(actualResult.schemes).toEqual(expectedResult.schemes);
