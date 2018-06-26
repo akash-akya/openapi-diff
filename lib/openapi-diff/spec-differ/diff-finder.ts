@@ -22,12 +22,36 @@ interface ParsedSpecs {
 export class DiffFinder {
     public static findDifferences(specs: ParsedSpecs): Promise<Difference[]> {
 
-        const basePathDiffs = this.findDiffsInProperty(
-            specs.sourceSpec.basePath, specs.destinationSpec.basePath, 'basePath'
+        const topLevelXPropertiesDiffs = this.findDiffsInXProperties(
+            specs.sourceSpec.xProperties,
+            specs.destinationSpec.xProperties,
+            'xProperties'
         );
+        return Promise.resolve(topLevelXPropertiesDiffs);
 
-        return Promise.resolve(basePathDiffs);
+    }
 
+    private static findDiffsInXProperties(sourceParsedXProperties: { [name: string]: ParsedProperty<any> },
+                                          destinationParsedXProperties: { [name: string]: ParsedProperty<any> },
+                                          xPropertyContainerName: string): Difference[] {
+
+        const xPropertyUniqueNames = _(_.keys(sourceParsedXProperties))
+            .concat(_.keys(destinationParsedXProperties))
+            .uniq()
+            .value();
+
+        const xPropertyDiffs = _(xPropertyUniqueNames)
+            .map((xPropertyName) => {
+                return this.findDiffsInProperty(
+                    sourceParsedXProperties[xPropertyName],
+                    destinationParsedXProperties[xPropertyName],
+                    `${xPropertyContainerName}.${xPropertyName}`
+                );
+            })
+            .flatten<Difference>()
+            .value();
+
+        return xPropertyDiffs;
     }
 
     private static findDiffsInProperty(
@@ -69,7 +93,7 @@ export class DiffFinder {
         sourceObject: ParsedProperty<string>, destinationObject: ParsedProperty<string>, propertyName: string
     ): Difference[] {
         const isEdition = this.isDefinedDeep(sourceObject)
-            && this.isDefinedDeep(destinationObject) && (sourceObject.value !== destinationObject.value);
+            && this.isDefinedDeep(destinationObject) && !_.isEqual(sourceObject.value, destinationObject.value);
 
         if (isEdition) {
             return [
