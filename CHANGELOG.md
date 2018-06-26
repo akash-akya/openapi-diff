@@ -1,3 +1,18 @@
+<a name="0.8.1"></a>
+## [0.8.1](https://bitbucket.org/atlassian/openapi-diff/compare/0.8.0...0.8.1) (2018-06-26)
+
+
+### Bug Fixes
+
+* fix equal comparison for complex x-properties values ([4a5a823](https://bitbucket.org/atlassian/openapi-diff/commits/4a5a823))
+
+
+### Features
+
+* removed support for info, host and version properties ([9f3a8a3](https://bitbucket.org/atlassian/openapi-diff/commits/9f3a8a3))
+
+
+
 <a name="0.8.0"></a>
 # [0.8.0](https://bitbucket.org/atlassian/openapi-diff/compare/0.7.2...0.8.0) (2018-06-07)
 
