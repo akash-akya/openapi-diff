@@ -8,6 +8,23 @@ describe('specFinder/top level ^x- properties', () => {
         .withSource('openapi-diff')
         .withEntity('unclassified');
 
+    it('should not detect differences in ^x-properties with the same value', async () => {
+        const specWithXPropertyBuilder = parsedSpecBuilder
+            .withTopLevelXProperty({
+                name: 'x-external-id',
+                originalPath: ['x-external-id'],
+                value: {
+                    some: 'value'
+                }
+            });
+        const parsedSourceSpec = specWithXPropertyBuilder.build();
+        const parsedDestinationSpec = specWithXPropertyBuilder.build();
+
+        const result = await specFinder.diff(parsedSourceSpec, parsedDestinationSpec);
+
+        expect(result).toEqual([]);
+    });
+
     describe('when there is an addition of an ^x- property at the top level object', () => {
 
         it('should return an unclassified add difference', async () => {

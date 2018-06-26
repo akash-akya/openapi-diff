@@ -82,11 +82,11 @@ const findDeletionDiffsInProperty = <T>(sourceObject: ParsedProperty<T>,
     return [];
 };
 
-const findEditionDiffsInProperty = (sourceObject: ParsedProperty<string>,
-                                    destinationObject: ParsedProperty<string>,
-                                    propertyName: string): DiffResult[] => {
+const findEditionDiffsInProperty = <T>(sourceObject: ParsedProperty<T>,
+                                       destinationObject: ParsedProperty<T>,
+                                       propertyName: string): DiffResult[] => {
     const isEdition = isDefinedDeep(sourceObject)
-        && isDefinedDeep(destinationObject) && (sourceObject.value !== destinationObject.value);
+        && isDefinedDeep(destinationObject) && !_.isEqual(sourceObject.value, destinationObject.value);
 
     if (isEdition) {
         return [
@@ -98,9 +98,9 @@ const findEditionDiffsInProperty = (sourceObject: ParsedProperty<string>,
     return [];
 };
 
-const findDiffsInProperty = (sourceObject: ParsedProperty<string>,
-                             destinationObject: ParsedProperty<string>,
-                             propertyName: string): DiffResult[] => {
+const findDiffsInProperty = <T>(sourceObject: ParsedProperty<T>,
+                                destinationObject: ParsedProperty<T>,
+                                propertyName: string): DiffResult[] => {
 
     const additionDiffs = findAdditionDiffsInProperty(sourceObject, destinationObject, propertyName);
     const deletionDiffs = findDeletionDiffsInProperty(sourceObject, destinationObject, propertyName);
