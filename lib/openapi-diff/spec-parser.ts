@@ -1,6 +1,6 @@
+import {ParsedSpec} from './spec-parser-types';
 import {parseOpenApi3Spec} from './spec-parser/openapi3-parser';
 import {validateAndParseSwagger2Spec} from './spec-parser/swagger2-parser';
-import {ParsedSpec} from './types';
 
 const isSwagger2 = (spec: object): boolean => {
     return spec.hasOwnProperty('swagger');

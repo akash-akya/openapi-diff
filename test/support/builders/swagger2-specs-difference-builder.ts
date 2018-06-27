@@ -1,4 +1,5 @@
 import {swagger2SpecBuilder, Swagger2SpecBuilder} from './swagger-2-spec-builder';
+import {swagger2PathItemBuilder} from './swagger2-path-item-builder';
 
 export class Swagger2SpecsDifferenceBuilder {
     public static defaultSwagger2SpecsDifferenceBuilder(): Swagger2SpecsDifferenceBuilder {
@@ -11,22 +12,29 @@ export class Swagger2SpecsDifferenceBuilder {
 
     public withNonBreakingDifference(): Swagger2SpecsDifferenceBuilder {
         return new Swagger2SpecsDifferenceBuilder(
-            this.source.withSchemes(['http']),
-            this.destination.withSchemes(['http', 'https'])
+            this.source.withPaths({
+                '/path': swagger2PathItemBuilder.build()
+            }),
+            this.destination.withPaths({
+                '/new/path': swagger2PathItemBuilder.build(),
+                '/path': swagger2PathItemBuilder.build()
+            })
         );
     }
 
     public withUnclassifiedDifference(): Swagger2SpecsDifferenceBuilder {
         return new Swagger2SpecsDifferenceBuilder(
-            this.source.withTopLevelXProperty({key: 'x-test-property', value: undefined}),
-            this.destination.withTopLevelXProperty({key: 'x-test-property', value: 'new value'})
+            this.source.withTopLevelXProperty('x-test-property', undefined),
+            this.destination.withTopLevelXProperty('x-test-property', 'new value')
         );
     }
 
     public withBreakingDifference(): Swagger2SpecsDifferenceBuilder {
         return new Swagger2SpecsDifferenceBuilder(
-            this.source.withSchemes(['http', 'https']),
-            this.destination.withSchemes(['http'])
+            this.source.withPaths({
+                '/path': swagger2PathItemBuilder.build()
+            }),
+            this.destination.withPaths({})
         );
     }
 

@@ -17,7 +17,7 @@ describe('openapi-diff/result-reporter', () => {
     it('should report a success message when only non-breaking changes are found', async () => {
         const outcome = diffOutcomeSuccessBuilder
             .withUnclassifiedDifferences([])
-            .withNonBreakingDifferences([diffResultBuilder.withEntity('host')])
+            .withNonBreakingDifferences([diffResultBuilder.withEntity('path')])
             .build();
 
         reporter.reportOutcome(outcome);
@@ -25,12 +25,12 @@ describe('openapi-diff/result-reporter', () => {
         expect(mockWrappedConsole.info).toHaveBeenCalledWith(
             jasmine.stringMatching('Non breaking changes found between the two specifications')
         );
-        expect(mockWrappedConsole.info).toHaveBeenCalledWith(jasmine.stringMatching('host'));
+        expect(mockWrappedConsole.info).toHaveBeenCalledWith(jasmine.stringMatching('path'));
     });
 
     it('should report a success message when only unclassified changes are found', async () => {
         const outcome = diffOutcomeSuccessBuilder
-            .withUnclassifiedDifferences([diffResultBuilder.withEntity('host')])
+            .withUnclassifiedDifferences([diffResultBuilder.withEntity('path')])
             .withNonBreakingDifferences([])
             .build();
 
@@ -39,7 +39,7 @@ describe('openapi-diff/result-reporter', () => {
         expect(mockWrappedConsole.info).toHaveBeenCalledWith(
             jasmine.stringMatching('Non breaking changes found between the two specifications')
         );
-        expect(mockWrappedConsole.info).toHaveBeenCalledWith(jasmine.stringMatching('host'));
+        expect(mockWrappedConsole.info).toHaveBeenCalledWith(jasmine.stringMatching('path'));
     });
 
     it('should report a success message when diff is successful with no differences', async () => {
@@ -62,7 +62,7 @@ describe('openapi-diff/result-reporter', () => {
 
     it('should report a failure when breaking differences were found', async () => {
         const outcome = diffOutcomeFailureBuilder
-            .withBreakingDifferences([diffResultBuilder.withEntity('host')])
+            .withBreakingDifferences([diffResultBuilder.withEntity('path')])
             .build();
 
         reporter.reportOutcome(outcome);
@@ -70,6 +70,6 @@ describe('openapi-diff/result-reporter', () => {
         expect(mockWrappedConsole.info).toHaveBeenCalledWith(
             jasmine.stringMatching('Breaking changes found between the two specifications')
         );
-        expect(mockWrappedConsole.info).toHaveBeenCalledWith(jasmine.stringMatching('host'));
+        expect(mockWrappedConsole.info).toHaveBeenCalledWith(jasmine.stringMatching('path'));
     });
 });

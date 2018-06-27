@@ -5,5 +5,15 @@
     "version": ""
   },
   "swagger": "2.0",
-  "paths": {}
+  "paths": {
+    "/path": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "foo"
+          }
+        }
+      }
+    }
+  }
 }

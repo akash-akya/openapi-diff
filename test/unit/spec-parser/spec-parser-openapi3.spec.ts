@@ -1,23 +1,18 @@
 import {specParser} from '../../../lib/openapi-diff/spec-parser';
-import {OpenApi3, ParsedSpec} from '../../../lib/openapi-diff/types';
+import {ParsedSpec} from '../../../lib/openapi-diff/spec-parser-types';
+import {openApi3PathItemBuilder} from '../../support/builders/openapi-3-path-item-builder';
 import {openApi3SpecBuilder} from '../../support/builders/openapi-3-spec-builder';
 import {parsedSpecBuilder} from '../../support/builders/parsed-spec-builder';
 
 describe('openapi3 specParser', () => {
-    const whenSpecIsParsed = (spec: OpenApi3): Promise<ParsedSpec> =>
+    const whenSpecIsParsed = (spec: object): Promise<ParsedSpec> =>
         specParser.parse(spec, 'default-location');
 
     describe('x-properties', () => {
         it('should generate a parsed spec copying across the x-property and its value', async () => {
             const originalSpec = openApi3SpecBuilder
-                .withTopLevelXProperty({
-                    key: 'x-external-id',
-                    value: 'some external id'
-                })
-                .withTopLevelXProperty({
-                    key: 'x-internal-id',
-                    value: 'some internal id'
-                })
+                .withTopLevelXProperty('x-external-id', 'some external id')
+                .withTopLevelXProperty('x-internal-id', 'some internal id')
                 .build();
 
             const actualResult = await whenSpecIsParsed(originalSpec);
@@ -62,6 +57,46 @@ describe('openapi3 specParser', () => {
                 .withNoSchemes()
                 .build();
             expect(actualResult.schemes).toEqual(expectedResult.schemes);
+        });
+    });
+
+    describe('paths', () => {
+        it('should return empty parsed paths array, if spec does not contain any paths', async () => {
+            const originalSpec = openApi3SpecBuilder.withPaths({}).build();
+
+            const parsedSpec = await whenSpecIsParsed(originalSpec);
+
+            expect(parsedSpec.paths).toEqual([]);
+        });
+
+        it('should return a parsed path item with path name and original value for a path in the spec', async () => {
+            const originalSpec = openApi3SpecBuilder
+                .withPaths({'/some/id': openApi3PathItemBuilder.build()})
+                .build();
+
+            const parsedSpec = await whenSpecIsParsed(originalSpec);
+
+            expect(parsedSpec.paths.length).toBe(1, 'parsedSpec.paths.length');
+            expect(parsedSpec.paths).toContain(jasmine.objectContaining({
+                originalValue: {
+                    originalPath: ['paths', '/some/id'],
+                    value: openApi3PathItemBuilder.build()
+                },
+                pathName: '/some/id'
+            }));
+        });
+
+        it('should return a parsed path item for each path in the spec', async () => {
+            const originalSpec = openApi3SpecBuilder
+                .withPaths({
+                    '/path1': openApi3PathItemBuilder.build(),
+                    '/path2': openApi3PathItemBuilder.build()
+                })
+                .build();
+
+            const parsedSpec = await whenSpecIsParsed(originalSpec);
+
+            expect(parsedSpec.paths.length).toBe(2, 'parsedSpec.paths.length');
         });
     });
 });

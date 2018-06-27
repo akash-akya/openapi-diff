@@ -3,7 +3,8 @@ import * as _ from 'lodash';
 import {
     ParsedProperty,
     ParsedSpec
-} from '../../../lib/openapi-diff/types';
+} from '../../../lib/openapi-diff/spec-parser-types';
+import {ParsedPathItemBuilder} from './parsed-path-item-builder';
 import {NamedGenericProperty} from './parsed-spec-builder/named-generic-property';
 
 class ParsedSpecBuilder {
@@ -61,6 +62,12 @@ class ParsedSpecBuilder {
         );
         return new ParsedSpecBuilder(copyOfParsedSpec);
     }
+
+    public withPaths(paths: ParsedPathItemBuilder[]): ParsedSpecBuilder {
+        const copyOfParsedSpec = _.cloneDeep(this.parsedSpec);
+        copyOfParsedSpec.paths = paths.map((pathBuilder) => pathBuilder.build());
+        return new ParsedSpecBuilder(copyOfParsedSpec);
+    }
 }
 
 const defaultParsedSpec: ParsedSpec = {
@@ -69,6 +76,7 @@ const defaultParsedSpec: ParsedSpec = {
         value: undefined
     },
     format: 'swagger2',
+    paths: [],
     schemes: {
         originalPath: ['schemes'],
         value: undefined

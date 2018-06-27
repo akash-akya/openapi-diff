@@ -1,8 +1,9 @@
 import {OpenApiDiffErrorImpl} from '../../../lib/common/open-api-diff-error-impl';
 import {specParser} from '../../../lib/openapi-diff/spec-parser';
-import {ParsedSpec} from '../../../lib/openapi-diff/types';
+import {ParsedSpec} from '../../../lib/openapi-diff/spec-parser-types';
 import {parsedSpecBuilder} from '../../support/builders/parsed-spec-builder';
 import {swagger2SpecBuilder} from '../../support/builders/swagger-2-spec-builder';
+import {swagger2PathItemBuilder} from '../../support/builders/swagger2-path-item-builder';
 import {expectToFail} from '../../support/expect-to-fail';
 
 describe('swagger2 specParser', () => {
@@ -26,14 +27,8 @@ describe('swagger2 specParser', () => {
     describe('x-properties', () => {
         it('should generate a parsed spec copying across the x-property and its value', async () => {
             const originalSpec = swagger2SpecBuilder
-                .withTopLevelXProperty({
-                    key: 'x-external-id',
-                    value: 'some external id'
-                })
-                .withTopLevelXProperty({
-                    key: 'x-internal-id',
-                    value: 'some internal id'
-                })
+                .withTopLevelXProperty('x-external-id', 'some external id')
+                .withTopLevelXProperty('x-internal-id', 'some internal id')
                 .build();
 
             const actualResult = await whenSpecIsParsed(originalSpec);
@@ -160,6 +155,46 @@ describe('swagger2 specParser', () => {
                     expect(actualResult.schemes).toEqual(expectedResult.schemes);
                 });
             });
+        });
+    });
+
+    describe('paths', () => {
+        it('should return empty parsed paths array, if spec does not contain any paths', async () => {
+            const originalSpec = swagger2SpecBuilder.withPaths({}).build();
+
+            const parsedSpec = await whenSpecIsParsed(originalSpec);
+
+            expect(parsedSpec.paths).toEqual([]);
+        });
+
+        it('should return a parsed path item with path name and original value for a path in the spec', async () => {
+            const originalSpec = swagger2SpecBuilder
+                .withPaths({'/some/id': swagger2PathItemBuilder.build()})
+                .build();
+
+            const parsedSpec = await whenSpecIsParsed(originalSpec);
+
+            expect(parsedSpec.paths.length).toBe(1, 'parsedSpec.paths.length');
+            expect(parsedSpec.paths).toContain(jasmine.objectContaining({
+                originalValue: {
+                    originalPath: ['paths', '/some/id'],
+                    value: swagger2PathItemBuilder.build()
+                },
+                pathName: '/some/id'
+            }));
+        });
+
+        it('should return a parsed path item for each path in the spec', async () => {
+            const originalSpec = swagger2SpecBuilder
+                .withPaths({
+                    '/path1': swagger2PathItemBuilder.build(),
+                    '/path2': swagger2PathItemBuilder.build()
+                })
+                .build();
+
+            const parsedSpec = await whenSpecIsParsed(originalSpec);
+
+            expect(parsedSpec.paths.length).toBe(2, 'parsedSpec.paths.length');
         });
     });
 });

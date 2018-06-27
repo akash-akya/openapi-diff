@@ -4,53 +4,14 @@ declare namespace OpenApiDiff {
     type DiffResultSource = 'json-schema-diff' | 'openapi-diff';
 
     export type DiffResultCode =
-        'basePath.add' |
-        'basePath.remove' |
-        'host.add' |
-        'host.remove' |
-        'info.title.add' |
-        'info.title.remove' |
-        'info.description.add' |
-        'info.description.remove' |
-        'info.termsOfService.add' |
-        'info.termsOfService.remove' |
-        'info.version.add' |
-        'info.version.remove' |
-        'info.contact.name.add' |
-        'info.contact.name.remove' |
-        'info.contact.email.add' |
-        'info.contact.email.remove' |
-        'info.contact.url.add' |
-        'info.contact.url.remove' |
-        'info.license.name.add' |
-        'info.license.name.remove' |
-        'info.license.url.add' |
-        'info.license.url.remove' |
-        'schemes.add' |
-        'schemes.remove' |
-        'schemes.item.add' |
-        'schemes.item.remove' |
+        'path.add' |
+        'path.remove' |
         'unclassified.add' |
-        'unclassified.remove' |
-        'openapi.add' |
-        'openapi.remove';
+        'unclassified.remove';
 
     export type DiffResultEntity =
-        'basePath' |
-        'host' |
-        'info.title' |
-        'info.description' |
-        'info.termsOfService' |
-        'info.version' |
-        'info.contact.name' |
-        'info.contact.email' |
-        'info.contact.url' |
-        'info.license.name' |
-        'info.license.url' |
-        'schemes' |
-        'schemes.item' |
-        'unclassified' |
-        'openapi';
+        'path' |
+        'unclassified';
 
     export type DiffResultAction = 'add' | 'remove';
 

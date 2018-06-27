@@ -19,10 +19,10 @@ export class DifferenceBuilder {
     public static defaultDifferenceBuilder() {
         return new DifferenceBuilder({
             action: 'add',
-            code: 'host.add',
+            code: 'path.add',
             destinationSpecEntityDetails: specEntityDetailsBuilder,
             details: undefined,
-            entity: 'host',
+            entity: 'path',
             source: 'openapi-diff',
             sourceSpecEntityDetails: specEntityDetailsBuilder
         });

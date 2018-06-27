@@ -1,42 +1,11 @@
-import {DiffOutcome, DiffResult, OpenApiDiffOptions, SpecDetails} from '../api-types';
-import {DiffClassifier} from './spec-differ/diff-classifier';
+import {DiffOutcome, OpenApiDiffOptions, SpecDetails} from '../api-types';
+import {ClassifiedDiffResults, DiffClassifier} from './spec-differ/diff-classifier';
 import {DiffFinder} from './spec-differ/diff-finder';
 import {SpecDeserialiser} from './spec-differ/spec-deserialiser';
-import {specFinder} from './spec-finder';
 import {specParser} from './spec-parser';
-import {ClassifiedDiffResults, ParsedSpec} from './types';
-
-interface ResultsByType {
-    breakingDifferences: DiffResult[];
-    nonBreakingDifferences: DiffResult[];
-    unclassifiedDifferences: DiffResult[];
-}
 
 export class SpecDiffer {
     public static async diffSpecs({sourceSpec, destinationSpec}: OpenApiDiffOptions): Promise<DiffOutcome> {
-        const loadedSourceSpec = SpecDeserialiser.load(sourceSpec);
-        const loadedDestinationSpec = SpecDeserialiser.load(destinationSpec);
-
-        const parsedSourceSpec = await specParser.parse(loadedSourceSpec, sourceSpec.location);
-        const parsedDestinationSpec = await specParser.parse(loadedDestinationSpec, destinationSpec.location);
-
-        const resultsByType = await this.diffSourceAndDestinationParsedSpecs(
-            parsedSourceSpec, parsedDestinationSpec
-        );
-
-        const sourceSpecDetails: SpecDetails = {
-            format: parsedSourceSpec.format,
-            location: sourceSpec.location
-        };
-        const destinationSpecDetails: SpecDetails = {
-            format: parsedDestinationSpec.format,
-            location: destinationSpec.location
-        };
-
-        return this.generateDiffOutcome(resultsByType, sourceSpecDetails, destinationSpecDetails);
-    }
-
-    public static async newDiffSpecs({sourceSpec, destinationSpec}: OpenApiDiffOptions): Promise<DiffOutcome> {
         const loadedSourceSpec = SpecDeserialiser.load(sourceSpec);
         const loadedDestinationSpec = SpecDeserialiser.load(destinationSpec);
 
@@ -60,10 +29,10 @@ export class SpecDiffer {
             location: destinationSpec.location
         };
 
-        return this.newGenerateDiffOutcome(classifiedDifferences, sourceSpecDetails, destinationSpecDetails);
+        return this.generateDiffOutcome(classifiedDifferences, sourceSpecDetails, destinationSpecDetails);
     }
 
-    private static newGenerateDiffOutcome(
+    private static generateDiffOutcome(
         classifiedDifferences: ClassifiedDiffResults,
         sourceSpecDetails: SpecDetails,
         destinationSpecDetails: SpecDetails
@@ -89,42 +58,5 @@ export class SpecDiffer {
                 unclassifiedDifferences: classifiedDifferences.unclassifiedDifferences
             };
         }
-    }
-
-    private static generateDiffOutcome(
-        resultsByType: ResultsByType, sourceSpecDetails: SpecDetails, destinationSpecDetails: SpecDetails
-    ): DiffOutcome {
-
-        const breakingDifferencesFound = resultsByType.breakingDifferences.length > 0;
-
-        if (breakingDifferencesFound) {
-            return {
-                breakingDifferences: resultsByType.breakingDifferences,
-                breakingDifferencesFound,
-                destinationSpecDetails,
-                nonBreakingDifferences: resultsByType.nonBreakingDifferences,
-                sourceSpecDetails,
-                unclassifiedDifferences: resultsByType.unclassifiedDifferences
-            };
-        } else {
-            return {
-                breakingDifferencesFound,
-                destinationSpecDetails,
-                nonBreakingDifferences: resultsByType.nonBreakingDifferences,
-                sourceSpecDetails,
-                unclassifiedDifferences: resultsByType.unclassifiedDifferences
-            };
-        }
-    }
-
-    private static async diffSourceAndDestinationParsedSpecs(
-        source: ParsedSpec, destination: ParsedSpec
-    ): Promise<ResultsByType> {
-        const allResults = await specFinder.diff(source, destination);
-        return {
-            breakingDifferences: allResults.filter((result) => result.type === 'breaking'),
-            nonBreakingDifferences: allResults.filter((result) => result.type === 'non-breaking'),
-            unclassifiedDifferences: allResults.filter((result) => result.type === 'unclassified')
-        };
     }
 }

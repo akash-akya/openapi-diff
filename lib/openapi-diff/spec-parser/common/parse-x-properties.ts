@@ -1,4 +1,4 @@
-import {ParsedXProperties} from '../../types';
+import {ParsedXProperties} from '../../spec-parser-types';
 
 const isXProperty = (propertyPath: string): boolean => {
     return propertyPath.startsWith('x-');

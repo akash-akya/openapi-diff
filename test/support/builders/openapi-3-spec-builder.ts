@@ -1,5 +1,6 @@
+import * as assert from 'assert';
 import * as _ from 'lodash';
-import {GenericProperty, OpenApi3} from '../../../lib/openapi-diff/types';
+import {OpenApi3, OpenApi3Paths} from '../../../lib/openapi-diff/openapi3';
 
 export class OpenApi3SpecBuilder {
     public constructor(private readonly openApi3Spec: OpenApi3) {}
@@ -8,13 +9,20 @@ export class OpenApi3SpecBuilder {
         return _.cloneDeep(this.openApi3Spec);
     }
 
-    public withTopLevelXProperty(property: GenericProperty): OpenApi3SpecBuilder {
+    public withTopLevelXProperty(name: string, value: any): OpenApi3SpecBuilder {
+        assert.ok(name.indexOf('x-') === 0, `Expected name '${name}' to start with x-`);
         const copyOfOpenApi3Spec = _.cloneDeep(this.openApi3Spec);
-        const copyOfProperty = _.cloneDeep(property);
-        _.set(copyOfOpenApi3Spec, copyOfProperty.key, copyOfProperty.value);
+        const copyOfValue = _.cloneDeep(value);
+        _.set(copyOfOpenApi3Spec, name, copyOfValue);
         return new OpenApi3SpecBuilder(copyOfOpenApi3Spec);
     }
 
+    public withPaths(paths: OpenApi3Paths): OpenApi3SpecBuilder {
+        const copyOfOpenApi3Spec = _.cloneDeep(this.openApi3Spec);
+        const copyOfPaths = _.cloneDeep(paths);
+        copyOfOpenApi3Spec.paths = copyOfPaths;
+        return new OpenApi3SpecBuilder(copyOfOpenApi3Spec);
+    }
 }
 
 const defaultOpenApi3Spec: OpenApi3 = {

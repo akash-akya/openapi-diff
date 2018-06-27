@@ -1,9 +1,18 @@
 {
-  "schemes": ["http"],
   "swagger": "2.0",
   "info":{
     "title": "no breaking changes",
     "version": ""
   },
-  "paths": {}
+  "paths": {
+    "/path": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "foo"
+          }
+        }
+      }
+    }
+  }
 }

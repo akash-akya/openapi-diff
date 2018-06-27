@@ -1,5 +1,6 @@
+import * as assert from 'assert';
 import * as _ from 'lodash';
-import {GenericProperty, Swagger2} from '../../../lib/openapi-diff/types';
+import {Swagger2, Swagger2Paths} from '../../../lib/openapi-diff/swagger2';
 
 export class Swagger2SpecBuilder {
     public constructor(private readonly swagger2Spec: Swagger2) {}
@@ -40,18 +41,26 @@ export class Swagger2SpecBuilder {
         return new Swagger2SpecBuilder(copyOfSwagger2Spec);
     }
 
-    public withTopLevelXProperty(property: GenericProperty): Swagger2SpecBuilder {
+    public withTopLevelXProperty(name: string, value: any): Swagger2SpecBuilder {
+        assert.ok(name.indexOf('x-') === 0, `Expected name '${name}' to start with x-`);
         const copyOfSwagger2Spec = _.cloneDeep(this.swagger2Spec);
-        const copyOfProperty = _.cloneDeep(property);
-        _.set(copyOfSwagger2Spec, copyOfProperty.key, copyOfProperty.value);
+        const copyOfValue = _.cloneDeep(value);
+        _.set(copyOfSwagger2Spec, name, copyOfValue);
+        return new Swagger2SpecBuilder(copyOfSwagger2Spec);
+    }
+
+    public withPaths(paths: Swagger2Paths): Swagger2SpecBuilder {
+        const copyOfSwagger2Spec = _.cloneDeep(this.swagger2Spec);
+        const copyOfPaths = _.cloneDeep(paths);
+        copyOfSwagger2Spec.paths = copyOfPaths;
         return new Swagger2SpecBuilder(copyOfSwagger2Spec);
     }
 }
 
 const defaultSwagger2Spec: Swagger2 = {
     info: {
-        title: 'spec title',
-        version: 'spec version'
+        title: 'default info.title',
+        version: 'default info.version'
     },
     paths: {},
     swagger: '2.0'

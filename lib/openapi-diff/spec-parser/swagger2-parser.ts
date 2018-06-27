@@ -1,6 +1,7 @@
 import * as SwaggerParser from 'swagger-parser';
 import {OpenApiDiffErrorImpl} from '../../common/open-api-diff-error-impl';
-import {ParsedProperty, ParsedSpec, Swagger2} from '../types';
+import {ParsedPathItem, ParsedProperty, ParsedSpec} from '../spec-parser-types';
+import {Swagger2, Swagger2Paths} from '../swagger2';
 import {parseXPropertiesInObject} from './common/parse-x-properties';
 
 const parseTopLevelArrayProperties = (arrayName: string,
@@ -19,6 +20,15 @@ const parseTopLevelArrayProperties = (arrayName: string,
     return parsedSchemesArray;
 };
 
+const parsePaths = (paths: Swagger2Paths): ParsedPathItem[] =>
+    Object.keys(paths).map((pathName) => ({
+        originalValue: {
+            originalPath: ['paths', pathName],
+            value: paths[pathName]
+        },
+        pathName
+    }));
+
 const parseSwagger2Spec = (swagger2Spec: Swagger2): ParsedSpec => {
     return {
         basePath: {
@@ -26,6 +36,7 @@ const parseSwagger2Spec = (swagger2Spec: Swagger2): ParsedSpec => {
             value: swagger2Spec.basePath
         },
         format: 'swagger2',
+        paths: parsePaths(swagger2Spec.paths),
         schemes: {
             originalPath: ['schemes'],
             value: swagger2Spec.schemes ? parseTopLevelArrayProperties('schemes', swagger2Spec.schemes) : undefined

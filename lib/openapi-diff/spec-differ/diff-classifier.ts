@@ -1,6 +1,11 @@
 import {Difference, DiffResult} from '../../api-types';
-import {ClassifiedDiffResults} from '../types';
 import {resultTypeFinder} from './result-type-finder';
+
+export interface ClassifiedDiffResults {
+    breakingDifferences: DiffResult[];
+    nonBreakingDifferences: DiffResult[];
+    unclassifiedDifferences: DiffResult[];
+}
 
 export class DiffClassifier {
     public static classifyDifferences(differences: Difference[]): ClassifiedDiffResults {
