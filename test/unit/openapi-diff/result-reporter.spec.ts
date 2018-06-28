@@ -53,10 +53,10 @@ describe('openapi-diff/result-reporter', () => {
     });
 
     it('should report errors', async () => {
-        reporter.reportError(new OpenApiDiffErrorImpl('openapi-diff.filesystem.error', 'file system error'));
+        reporter.reportError(new OpenApiDiffErrorImpl('OPENAPI_DIFF_FILE_SYSTEM_ERROR', 'file system error'));
 
         expect(mockWrappedConsole.error).toHaveBeenCalledWith(
-            new OpenApiDiffErrorImpl('openapi-diff.filesystem.error', 'file system error')
+            new OpenApiDiffErrorImpl('OPENAPI_DIFF_FILE_SYSTEM_ERROR', 'file system error')
         );
     });
 

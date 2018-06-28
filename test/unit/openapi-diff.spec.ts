@@ -27,6 +27,21 @@ describe('openapi-diff', () => {
         return openApiDiff.diffPaths(sourceSpecPath, destinationSpecPath);
     };
 
+    it('should load the specs as yaml if content is yaml but not json', async () => {
+        const swagger2YamlSpec = '' +
+            'info: \n' +
+            '  title: spec title\n' +
+            '  version: spec version\n' +
+            'paths: {}\n' +
+            'swagger: "2.0"\n';
+        mockFileSystem.givenReadFileReturns(
+            Promise.resolve(swagger2YamlSpec),
+            Promise.resolve(swagger2YamlSpec)
+        );
+
+        await invokeDiffLocations('source-spec.json', 'destination-spec.json');
+    });
+
     it('should load the source spec from the file system', async () => {
         await invokeDiffLocations('source-spec.json', 'destination-spec.json');
 
@@ -51,7 +66,7 @@ describe('openapi-diff', () => {
 
         expect(mockResultReporter.reportError).toHaveBeenCalledWith(
             new OpenApiDiffErrorImpl(
-                'openapi-diff.filesystem.error',
+                'OPENAPI_DIFF_FILE_SYSTEM_ERROR',
                 'Unable to read source-spec.json',
                 fileSystemError
             )
@@ -70,7 +85,7 @@ describe('openapi-diff', () => {
 
         expect(mockResultReporter.reportError).toHaveBeenCalledWith(
             new OpenApiDiffErrorImpl(
-                'openapi-diff.filesystem.error',
+                'OPENAPI_DIFF_FILE_SYSTEM_ERROR',
                 'Unable to read destination-spec.json',
                 fileSystemError
             )
@@ -83,9 +98,9 @@ describe('openapi-diff', () => {
 
         await expectToFail(invokeDiffLocations('source-spec-invalid.json', 'destination-spec.json'));
 
-        expect(mockResultReporter.reportError.calls.argsFor(0)[0]).toEqual(
+        expect(mockResultReporter.reportError).toHaveBeenCalledWith(
             new OpenApiDiffErrorImpl(
-                'openapi-diff.specdeserialiser.error',
+                'OPENAPI_DIFF_SPEC_DESERIALISER_ERROR',
                 'Unable to parse source-spec-invalid.json as a JSON or YAML file'
             )
         );

@@ -39,6 +39,7 @@
     "@types/js-yaml": "^3.10.1",
     "@types/lodash": "^4.14.74",
     "@types/request": "^2.0.3",
+    "@types/swagger-parser": "^4.0.2",
     "@types/swagger-schema-official": "^2.0.9",
     "@types/verror": "^1.10.1",
     "conventional-changelog-lint": "1.1.9",
@@ -63,6 +64,7 @@
     "lodash": "^4.17.4",
     "openapi3-ts": "^0.6.2",
     "request": "^2.81.0",
+    "swagger-parser": "^5.0.0",
     "verror": "^1.10.0"
   },
   "types": "dist/api-types.d.ts"

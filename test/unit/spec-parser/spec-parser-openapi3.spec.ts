@@ -1,13 +1,14 @@
-import {specParser} from '../../../../lib/openapi-diff/spec-parser';
-import {OpenApi3, ParsedSpec} from '../../../../lib/openapi-diff/types';
-import {openApi3SpecBuilder} from '../../../support/builders/openapi-3-spec-builder';
-import {parsedSpecBuilder} from '../../../support/builders/parsed-spec-builder';
+import {specParser} from '../../../lib/openapi-diff/spec-parser';
+import {OpenApi3, ParsedSpec} from '../../../lib/openapi-diff/types';
+import {openApi3SpecBuilder} from '../../support/builders/openapi-3-spec-builder';
+import {parsedSpecBuilder} from '../../support/builders/parsed-spec-builder';
 
-describe('specParser, with regards to the top level object,', () => {
-    const whenSpecIsParsed = (spec: OpenApi3): ParsedSpec => specParser.parse(spec);
+describe('openapi3 specParser', () => {
+    const whenSpecIsParsed = (spec: OpenApi3): Promise<ParsedSpec> =>
+        specParser.parse(spec, 'default-location');
 
     describe('x-properties', () => {
-        it('should generate a parsed spec copying across the x-property and its value', () => {
+        it('should generate a parsed spec copying across the x-property and its value', async () => {
             const originalSpec = openApi3SpecBuilder
                 .withTopLevelXProperty({
                     key: 'x-external-id',
@@ -19,7 +20,7 @@ describe('specParser, with regards to the top level object,', () => {
                 })
                 .build();
 
-            const actualResult = whenSpecIsParsed(originalSpec);
+            const actualResult = await whenSpecIsParsed(originalSpec);
 
             const expectedResult = parsedSpecBuilder
                 .withTopLevelXProperty({
@@ -38,10 +39,10 @@ describe('specParser, with regards to the top level object,', () => {
     });
 
     describe('basePath', () => {
-        it('should generate a parsed spec with undefined value for the basePath property ', () => {
+        it('should generate a parsed spec with undefined value for the basePath property ', async () => {
             const originalSpec = openApi3SpecBuilder.build();
 
-            const actualResult = whenSpecIsParsed(originalSpec);
+            const actualResult = await whenSpecIsParsed(originalSpec);
 
             const expectedResult = parsedSpecBuilder
                 .withNoBasePath()
@@ -51,11 +52,11 @@ describe('specParser, with regards to the top level object,', () => {
     });
 
     describe('schemes', () => {
-        it('should generate a parsed spec with a parsed schemes array property and undefined value', () => {
+        it('should generate a parsed spec with a parsed schemes array property and undefined value', async () => {
             const originalSpec = openApi3SpecBuilder
                 .build();
 
-            const actualResult = whenSpecIsParsed(originalSpec);
+            const actualResult = await whenSpecIsParsed(originalSpec);
 
             const expectedResult = parsedSpecBuilder
                 .withNoSchemes()

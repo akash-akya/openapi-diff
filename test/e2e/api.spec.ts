@@ -19,53 +19,19 @@ describe('api', () => {
     ): Promise<DiffOutcome> =>
         OpenApiDiff.diffSpecs({sourceSpec, destinationSpec});
 
-    describe('spec content parsing', () => {
-        it('should return an error when unable to parse the source spec contents as json or yaml', async () => {
-            const sourceSpec = specOptionBuilder
-                .withRawContent('{this is not json or yaml')
-                .withLocation('source-spec-invalid.json').build();
-            const destinationSpec = specOptionBuilder.build();
+    it('should return errors with code when specs cant be diffed', async () => {
+        const sourceSpec = specOptionBuilder
+            .withRawContent('{this is not json or yaml')
+            .withLocation('source-spec-invalid.json').build();
+        const destinationSpec = specOptionBuilder.build();
 
-            const error = await expectToFail(whenSourceAndDestinationSpecsAreDiffed(sourceSpec, destinationSpec));
+        const error = await expectToFail(whenSourceAndDestinationSpecsAreDiffed(sourceSpec, destinationSpec));
 
-            expect(error).toEqual(
-                new OpenApiDiffErrorImpl(
-                    'openapi-diff.specdeserialiser.error',
-                    'Unable to parse source-spec-invalid.json as a JSON or YAML file')
-            );
-        });
-
-        it('should return an error when unable to parse the destination spec contents as json or yaml', async () => {
-            const sourceSpec = specOptionBuilder.build();
-            const destinationSpec = specOptionBuilder
-                .withRawContent('{this is not json or yaml')
-                .withLocation('destination-spec-invalid.json').build();
-
-            const error = await expectToFail(whenSourceAndDestinationSpecsAreDiffed(sourceSpec, destinationSpec));
-
-            expect(error).toEqual(
-                new OpenApiDiffErrorImpl(
-                    'openapi-diff.specdeserialiser.error',
-                    'Unable to parse destination-spec-invalid.json as a JSON or YAML file')
-            );
-        });
-
-        it('should load the specs as yaml if content is yaml but not json', async () => {
-            const swagger2YamlSpec = '' +
-                'info: \n' +
-                '  title: spec title\n' +
-                '  version: spec version\n' +
-                'paths: {}\n' +
-                'swagger: "2.0"\n';
-
-            const sourceSpec = specOptionBuilder.withRawContent(swagger2YamlSpec).build();
-            const destinationSpec = specOptionBuilder.withRawContent(swagger2YamlSpec).build();
-
-            const result = await whenSourceAndDestinationSpecsAreDiffed(sourceSpec, destinationSpec);
-
-            expect(result.breakingDifferencesFound).toBeFalsy();
-        });
-
+        expect(error).toEqual(
+            new OpenApiDiffErrorImpl(
+                'OPENAPI_DIFF_SPEC_DESERIALISER_ERROR',
+                'Unable to parse source-spec-invalid.json as a JSON or YAML file')
+        );
     });
 
     it('should include the source and destination spec locations', async () => {

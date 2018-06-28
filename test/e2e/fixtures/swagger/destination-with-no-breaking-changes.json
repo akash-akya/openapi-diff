@@ -1,4 +1,9 @@
 {
   "schemes": ["http", "https"],
-  "swagger": "2.0"
+  "info": {
+    "title": "",
+    "version": ""
+  },
+  "swagger": "2.0",
+  "paths": {}
 }

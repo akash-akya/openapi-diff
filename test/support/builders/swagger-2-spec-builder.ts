@@ -23,7 +23,7 @@ export class Swagger2SpecBuilder {
 
     public withNoBasePath(): Swagger2SpecBuilder {
         const copyOfSwagger2Spec = _.cloneDeep(this.swagger2Spec);
-        copyOfSwagger2Spec.basePath = undefined;
+        delete copyOfSwagger2Spec.basePath;
         return new Swagger2SpecBuilder(copyOfSwagger2Spec);
     }
 
@@ -36,7 +36,7 @@ export class Swagger2SpecBuilder {
 
     public withNoSchemes(): Swagger2SpecBuilder {
         const copyOfSwagger2Spec = _.cloneDeep(this.swagger2Spec);
-        copyOfSwagger2Spec.schemes = undefined;
+        delete copyOfSwagger2Spec.schemes;
         return new Swagger2SpecBuilder(copyOfSwagger2Spec);
     }
 

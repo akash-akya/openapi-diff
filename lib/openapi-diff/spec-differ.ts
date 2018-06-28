@@ -17,8 +17,8 @@ export class SpecDiffer {
         const loadedSourceSpec = SpecDeserialiser.load(sourceSpec);
         const loadedDestinationSpec = SpecDeserialiser.load(destinationSpec);
 
-        const parsedSourceSpec = specParser.parse(loadedSourceSpec);
-        const parsedDestinationSpec = specParser.parse(loadedDestinationSpec);
+        const parsedSourceSpec = await specParser.parse(loadedSourceSpec, sourceSpec.location);
+        const parsedDestinationSpec = await specParser.parse(loadedDestinationSpec, destinationSpec.location);
 
         const resultsByType = await this.diffSourceAndDestinationParsedSpecs(
             parsedSourceSpec, parsedDestinationSpec
@@ -40,8 +40,8 @@ export class SpecDiffer {
         const loadedSourceSpec = SpecDeserialiser.load(sourceSpec);
         const loadedDestinationSpec = SpecDeserialiser.load(destinationSpec);
 
-        const parsedSourceSpec = specParser.parse(loadedSourceSpec);
-        const parsedDestinationSpec = specParser.parse(loadedDestinationSpec);
+        const parsedSourceSpec = await specParser.parse(loadedSourceSpec, sourceSpec.location);
+        const parsedDestinationSpec = await specParser.parse(loadedDestinationSpec, destinationSpec.location);
 
         const differences = await DiffFinder.findDifferences({
             destinationSpec: parsedDestinationSpec,

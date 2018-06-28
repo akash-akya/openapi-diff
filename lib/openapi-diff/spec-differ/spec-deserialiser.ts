@@ -1,18 +1,13 @@
 import * as yaml from 'js-yaml';
-import {OpenAPIObject} from 'openapi3-ts';
-// tslint:disable:no-implicit-dependencies
-import {Spec} from 'swagger-schema-official';
 import {SpecOption} from '../../api-types';
 import {OpenApiDiffErrorImpl} from '../../common/open-api-diff-error-impl';
 
-type SpecFormats = Spec | OpenAPIObject;
-
 export class SpecDeserialiser {
-    public static load(specOption: SpecOption): SpecFormats {
+    public static load(specOption: SpecOption): any {
         return SpecDeserialiser.parseSpec(specOption.location, specOption.content);
     }
 
-    private static parseSpec(location: string, content: string): SpecFormats {
+    private static parseSpec(location: string, content: string): any {
         try {
             return JSON.parse(content);
         } catch (parseJsonError) {
@@ -20,7 +15,7 @@ export class SpecDeserialiser {
                 return yaml.safeLoad(content);
             } catch (error) {
                 throw new OpenApiDiffErrorImpl(
-                    'openapi-diff.specdeserialiser.error',
+                    'OPENAPI_DIFF_SPEC_DESERIALISER_ERROR',
                     `Unable to parse ${location} as a JSON or YAML file`
                 );
             }

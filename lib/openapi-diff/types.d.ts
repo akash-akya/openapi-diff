@@ -22,11 +22,15 @@ export interface ParsedProperty<T> {
     value?: T;
 }
 
+export interface ParsedXProperties {
+    [name: string]: ParsedProperty<any>;
+}
+
 export interface ParsedSpec {
     format: 'swagger2' | 'openapi3';
     basePath: ParsedProperty<string>;
     schemes: ParsedProperty<Array<ParsedProperty<string>>>;
-    xProperties: { [name: string]: ParsedProperty<any> };
+    xProperties: ParsedXProperties;
 }
 
 interface ClassifiedDiffResults {

@@ -33,7 +33,7 @@ describe('contentLoader', () => {
             const error = await expectToFail(invokeLoad('non-existing-file.json'));
 
             expect(error).toEqual(new OpenApiDiffErrorImpl(
-                'openapi-diff.filesystem.error',
+                'OPENAPI_DIFF_FILE_SYSTEM_ERROR',
                 'Unable to read non-existing-file.json',
                 new Error('test file system error')
             ));
@@ -62,7 +62,7 @@ describe('contentLoader', () => {
             const error = await expectToFail(invokeLoad('http://url.that.errors.out'));
 
             expect(error).toEqual(new OpenApiDiffErrorImpl(
-                'openapi-diff.httpclient.error',
+                'OPENAPI_DIFF_HTTP_CLIENT_ERROR',
                 'Unable to load http://url.that.errors.out',
                 new Error('test http client error')
             ));

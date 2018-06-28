@@ -115,9 +115,10 @@ declare namespace OpenApiDiff {
     }
 
     export type ErrorCode =
-        'openapi-diff.specdeserialiser.error' |
-        'openapi-diff.filesystem.error' |
-        'openapi-diff.httpclient.error';
+        'OPENAPI_DIFF_SPEC_DESERIALISER_ERROR' |
+        'OPENAPI_DIFF_FILE_SYSTEM_ERROR' |
+        'OPENAPI_DIFF_VALIDATE_SWAGGER_2_ERROR' |
+        'OPENAPI_DIFF_HTTP_CLIENT_ERROR';
 
     export interface OpenApiDiffError extends Error {
         code: ErrorCode;
