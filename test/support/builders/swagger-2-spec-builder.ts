@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import {GenericProperty, Swagger2} from '../../../../lib/openapi-diff/types';
+import {GenericProperty, Swagger2} from '../../../lib/openapi-diff/types';
 
 export class Swagger2SpecBuilder {
     public constructor(private readonly swagger2Spec: Swagger2) {}

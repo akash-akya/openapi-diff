@@ -113,6 +113,15 @@ declare namespace OpenApiDiff {
         sourceSpec: SpecOption;
         destinationSpec: SpecOption;
     }
+
+    export type ErrorCode =
+        'openapi-diff.specdeserialiser.error' |
+        'openapi-diff.filesystem.error' |
+        'openapi-diff.httpclient.error';
+
+    export interface OpenApiDiffError extends Error {
+        code: ErrorCode;
+    }
 }
 
 declare interface OpenApiDiffStatic {

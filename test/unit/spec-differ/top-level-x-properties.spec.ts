@@ -1,7 +1,7 @@
 import {specFinder} from '../../../lib/openapi-diff/spec-finder';
-import {diffResultBuilder} from '../support/builders/diff-result-builder';
-import {specEntityDetailsBuilder} from '../support/builders/diff-result-spec-entity-details-builder';
-import {parsedSpecBuilder} from '../support/builders/parsed-spec-builder';
+import {diffResultBuilder} from '../../support/builders/diff-result-builder';
+import {specEntityDetailsBuilder} from '../../support/builders/diff-result-spec-entity-details-builder';
+import {parsedSpecBuilder} from '../../support/builders/parsed-spec-builder';
 
 describe('specFinder/top level ^x- properties', () => {
     const xPropertyDiffResultBuilder = diffResultBuilder

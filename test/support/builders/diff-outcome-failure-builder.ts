@@ -1,4 +1,4 @@
-import {DiffOutcome} from '../../../../lib/api-types';
+import {DiffOutcome} from '../../../lib/api-types';
 import {DiffResultBuilder} from './diff-result-builder';
 
 interface DiffOutcomeBuilderState {

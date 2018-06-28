@@ -29,6 +29,7 @@ const getPackageJsonVersion = () => {
 };
 
 const tsProjectBuildOutput = ts.createProject('tsconfig.json', {noEmit: false});
+const specHelperPath = 'build-output/test/support/spec-helper.js';
 
 gulp.task('bump-version', (callback) => {
     exec(`npm version ${getBumpType()} --no-git-tag-version`, (err, stdout, stderr) => {
@@ -107,11 +108,6 @@ gulp.task('default', (callback) => {
     );
 });
 
-gulp.task('e2e-test', () => {
-    return gulp.src('build-output/test/e2e/**/*.spec.js')
-        .pipe(jasmine())
-});
-
 gulp.task('lint-commits', (callback) => {
     exec('./node_modules/.bin/conventional-changelog-lint --from=HEAD~20 --preset angular',
         (err, stdout, stderr) => {
@@ -147,13 +143,18 @@ gulp.task('release', (callback) => {
     );
 });
 
+gulp.task('e2e-test', () => {
+    return gulp.src([specHelperPath, 'build-output/test/e2e/**/*.spec.js'])
+        .pipe(jasmine())
+});
+
 gulp.task('test', () => {
-    return gulp.src('build-output/test/**/*[sS]pec.js')
+    return gulp.src([specHelperPath, 'build-output/test/**/*[sS]pec.js'])
         .pipe(jasmine())
 });
 
 gulp.task('unit-test', () => {
-    return gulp.src('build-output/test/unit/**/*[sS]pec.js')
+    return gulp.src([specHelperPath, 'build-output/test/unit/**/*[sS]pec.js'])
         .pipe(jasmine())
 });
 

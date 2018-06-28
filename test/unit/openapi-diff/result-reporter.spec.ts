@@ -1,7 +1,8 @@
+import {OpenApiDiffErrorImpl} from '../../../lib/common/open-api-diff-error-impl';
 import {ResultReporter} from '../../../lib/openapi-diff/result-reporter';
-import {diffOutcomeFailureBuilder} from '../support/builders/diff-outcome-failure-builder';
-import {diffOutcomeSuccessBuilder} from '../support/builders/diff-outcome-success-builder';
-import {diffResultBuilder} from '../support/builders/diff-result-builder';
+import {diffOutcomeFailureBuilder} from '../../support/builders/diff-outcome-failure-builder';
+import {diffOutcomeSuccessBuilder} from '../../support/builders/diff-outcome-success-builder';
+import {diffResultBuilder} from '../../support/builders/diff-result-builder';
 import {createMockConsoleLogger, MockConsoleLogger} from '../support/mocks/mock-console-logger';
 
 describe('openapi-diff/result-reporter', () => {
@@ -52,9 +53,11 @@ describe('openapi-diff/result-reporter', () => {
     });
 
     it('should report errors', async () => {
-        reporter.reportError(new Error('some error'));
+        reporter.reportError(new OpenApiDiffErrorImpl('openapi-diff.filesystem.error', 'file system error'));
 
-        expect(mockWrappedConsole.error).toHaveBeenCalledWith(new Error('some error'));
+        expect(mockWrappedConsole.error).toHaveBeenCalledWith(
+            new OpenApiDiffErrorImpl('openapi-diff.filesystem.error', 'file system error')
+        );
     });
 
     it('should report a failure when breaking differences were found', async () => {

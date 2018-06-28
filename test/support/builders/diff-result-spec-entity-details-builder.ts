@@ -1,4 +1,4 @@
-import {DiffResultSpecEntityDetails} from '../../../../lib/api-types';
+import {DiffResultSpecEntityDetails} from '../../../lib/api-types';
 
 interface SpecEntityDetailsState {
     location: string | undefined;

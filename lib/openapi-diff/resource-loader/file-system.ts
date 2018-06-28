@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as VError from 'verror';
 
 export class FileSystem {
     public readFile(location: string): Promise<string> {
@@ -9,7 +8,7 @@ export class FileSystem {
         return new Promise((resolve, reject) => {
             fs.readFile(filePath, 'utf8', (error, fileContents) => {
                 if (error) {
-                    reject(new VError(error, `ERROR: unable to read ${location}`));
+                    reject(error);
                 } else {
                     resolve(fileContents.toString());
                 }

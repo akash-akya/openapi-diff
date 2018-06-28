@@ -1,9 +1,9 @@
 import {Difference} from '../../../../lib/api-types';
 import {DiffFinder} from '../../../../lib/openapi-diff/spec-differ/diff-finder';
 import {ParsedSpec} from '../../../../lib/openapi-diff/types';
-import {specEntityDetailsBuilder} from '../../support/builders/diff-result-spec-entity-details-builder';
-import {differenceBuilder} from '../../support/builders/difference-builder';
-import {parsedSpecBuilder} from '../../support/builders/parsed-spec-builder';
+import {specEntityDetailsBuilder} from '../../../support/builders/diff-result-spec-entity-details-builder';
+import {differenceBuilder} from '../../../support/builders/difference-builder';
+import {parsedSpecBuilder} from '../../../support/builders/parsed-spec-builder';
 
 describe('spec-differ/diff-finder/top level ^x- properties', () => {
     const xPropertyDiffResultBuilder = differenceBuilder

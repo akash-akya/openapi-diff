@@ -3,7 +3,7 @@ import * as _ from 'lodash';
 import {
     ParsedProperty,
     ParsedSpec
-} from '../../../../lib/openapi-diff/types';
+} from '../../../lib/openapi-diff/types';
 import {NamedGenericProperty} from './parsed-spec-builder/named-generic-property';
 
 class ParsedSpecBuilder {

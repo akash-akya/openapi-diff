@@ -1,11 +1,12 @@
 import * as assert from 'assert';
 import * as OpenApiDiff from '../../lib/api';
 import {DiffOutcome, DiffOutcomeFailure, SpecOption} from '../../lib/api-types';
+import {OpenApiDiffErrorImpl} from '../../lib/common/open-api-diff-error-impl';
+import {openApi3SpecBuilder} from '../support/builders/openapi-3-spec-builder';
+import {specOptionBuilder} from '../support/builders/spec-option-builder';
+import {swagger2SpecBuilder} from '../support/builders/swagger-2-spec-builder';
+import {swagger2SpecsDifferenceBuilder} from '../support/builders/swagger2-specs-difference-builder';
 import {expectToFail} from '../support/expect-to-fail';
-import {openApi3SpecBuilder} from './support/builders/openapi-3-spec-builder';
-import {specOptionBuilder} from './support/builders/spec-option-builder';
-import {swagger2SpecBuilder} from './support/builders/swagger-2-spec-builder';
-import {swagger2SpecsDifferenceBuilder} from './support/builders/swagger2-specs-difference-builder';
 
 describe('api', () => {
     const toDiffOutcomeFailure = (diffOutcome: DiffOutcome): DiffOutcomeFailure => {
@@ -19,7 +20,7 @@ describe('api', () => {
         OpenApiDiff.diffSpecs({sourceSpec, destinationSpec});
 
     describe('spec content parsing', () => {
-        it('should report an error when unable to parse the source spec contents as json or yaml', async () => {
+        it('should return an error when unable to parse the source spec contents as json or yaml', async () => {
             const sourceSpec = specOptionBuilder
                 .withRawContent('{this is not json or yaml')
                 .withLocation('source-spec-invalid.json').build();
@@ -28,11 +29,13 @@ describe('api', () => {
             const error = await expectToFail(whenSourceAndDestinationSpecsAreDiffed(sourceSpec, destinationSpec));
 
             expect(error).toEqual(
-                new Error('ERROR: unable to parse source-spec-invalid.json as a JSON or YAML file')
+                new OpenApiDiffErrorImpl(
+                    'openapi-diff.specdeserialiser.error',
+                    'Unable to parse source-spec-invalid.json as a JSON or YAML file')
             );
         });
 
-        it('should report an error when unable to parse the destination spec contents as json or yaml', async () => {
+        it('should return an error when unable to parse the destination spec contents as json or yaml', async () => {
             const sourceSpec = specOptionBuilder.build();
             const destinationSpec = specOptionBuilder
                 .withRawContent('{this is not json or yaml')
@@ -41,7 +44,9 @@ describe('api', () => {
             const error = await expectToFail(whenSourceAndDestinationSpecsAreDiffed(sourceSpec, destinationSpec));
 
             expect(error).toEqual(
-                new Error('ERROR: unable to parse destination-spec-invalid.json as a JSON or YAML file')
+                new OpenApiDiffErrorImpl(
+                    'openapi-diff.specdeserialiser.error',
+                    'Unable to parse destination-spec-invalid.json as a JSON or YAML file')
             );
         });
 

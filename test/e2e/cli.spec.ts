@@ -28,7 +28,7 @@ const invokeCommand = (options: InvokeCommandOptions): Promise<string> => {
     });
 };
 
-describe('openapi-diff', () => {
+describe('cli', () => {
 
     let server: http.Server;
 
@@ -67,7 +67,7 @@ describe('openapi-diff', () => {
         }));
 
         expect(error).toEqual(jasmine.stringMatching(
-            'ERROR: unable to parse test/e2e/fixtures/not-a-json-or-yaml.txt as a JSON or YAML file'));
+            'Unable to parse test/e2e/fixtures/not-a-json-or-yaml.txt as a JSON or YAML file'));
     });
 
     it('should succeed when no differences are found in open api 3');

@@ -1,10 +1,11 @@
+import {OpenApiDiffErrorImpl} from '../../lib/common/open-api-diff-error-impl';
 import {OpenApiDiff} from '../../lib/openapi-diff';
 import {ContentLoader} from '../../lib/openapi-diff/content-loader';
+import {diffOutcomeSuccessBuilder} from '../support/builders/diff-outcome-success-builder';
+import {specDetailsBuilder} from '../support/builders/spec-details-builder';
+import {swagger2SpecBuilder} from '../support/builders/swagger-2-spec-builder';
+import {swagger2SpecsDifferenceBuilder} from '../support/builders/swagger2-specs-difference-builder';
 import {expectToFail} from '../support/expect-to-fail';
-import {diffOutcomeSuccessBuilder} from './support/builders/diff-outcome-success-builder';
-import {specDetailsBuilder} from './support/builders/spec-details-builder';
-import {swagger2SpecBuilder} from './support/builders/swagger-2-spec-builder';
-import {swagger2SpecsDifferenceBuilder} from './support/builders/swagger2-specs-difference-builder';
 import {createMockFileSystem, MockFileSystem} from './support/mocks/mock-file-system';
 import {createMockHttpClient, MockHttpClient} from './support/mocks/mock-http-client';
 import {createMockResultReporter, MockResultReporter} from './support/mocks/mock-result-reporter';
@@ -40,26 +41,40 @@ describe('openapi-diff', () => {
 
     it('should report an error when failing to load the source spec from the file system', async () => {
         const swaggerSpecContent = JSON.stringify(swagger2SpecBuilder.build());
+        const fileSystemError = new Error('Failed to load file');
         mockFileSystem.givenReadFileReturns(
-            Promise.reject(new Error('spec-loader-error')),
+            Promise.reject(fileSystemError),
             Promise.resolve(swaggerSpecContent)
         );
 
         await expectToFail(invokeDiffLocations('source-spec.json', 'destination-spec.json'));
 
-        expect(mockResultReporter.reportError).toHaveBeenCalledWith(new Error('spec-loader-error'));
+        expect(mockResultReporter.reportError).toHaveBeenCalledWith(
+            new OpenApiDiffErrorImpl(
+                'openapi-diff.filesystem.error',
+                'Unable to read source-spec.json',
+                fileSystemError
+            )
+        );
     });
 
     it('should report an error when failing to load the destination spec from the file system', async () => {
         const swaggerSpecContent = JSON.stringify(swagger2SpecBuilder.build());
+        const fileSystemError = new Error('Failed to load file');
         mockFileSystem.givenReadFileReturns(
             Promise.resolve(swaggerSpecContent),
-            Promise.reject(new Error('spec-loader-error'))
+            Promise.reject(fileSystemError)
         );
 
         await expectToFail(invokeDiffLocations('source-spec.json', 'destination-spec.json'));
 
-        expect(mockResultReporter.reportError).toHaveBeenCalledWith(new Error('spec-loader-error'));
+        expect(mockResultReporter.reportError).toHaveBeenCalledWith(
+            new OpenApiDiffErrorImpl(
+                'openapi-diff.filesystem.error',
+                'Unable to read destination-spec.json',
+                fileSystemError
+            )
+        );
     });
 
     it('should report an error when unable to parse spec contents', async () => {
@@ -68,8 +83,11 @@ describe('openapi-diff', () => {
 
         await expectToFail(invokeDiffLocations('source-spec-invalid.json', 'destination-spec.json'));
 
-        expect(mockResultReporter.reportError).toHaveBeenCalledWith(
-            new Error('ERROR: unable to parse source-spec-invalid.json as a JSON or YAML file')
+        expect(mockResultReporter.reportError.calls.argsFor(0)[0]).toEqual(
+            new OpenApiDiffErrorImpl(
+                'openapi-diff.specdeserialiser.error',
+                'Unable to parse source-spec-invalid.json as a JSON or YAML file'
+            )
         );
     });
 

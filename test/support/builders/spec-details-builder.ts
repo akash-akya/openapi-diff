@@ -1,4 +1,4 @@
-import {SpecDetails, SpecFormat} from '../../../../lib/api-types';
+import {SpecDetails, SpecFormat} from '../../../lib/api-types';
 
 export class SpecDetailsBuilder {
     public static defaultSpecDetailsBuilder(): SpecDetailsBuilder {

@@ -1,7 +1,7 @@
 import {DiffOutcome, DiffResult, OpenApiDiffOptions, SpecDetails} from '../api-types';
 import {DiffClassifier} from './spec-differ/diff-classifier';
 import {DiffFinder} from './spec-differ/diff-finder';
-import {SpecLoader} from './spec-differ/spec-loader';
+import {SpecDeserialiser} from './spec-differ/spec-deserialiser';
 import {specFinder} from './spec-finder';
 import {specParser} from './spec-parser';
 import {ClassifiedDiffResults, ParsedSpec} from './types';
@@ -14,8 +14,8 @@ interface ResultsByType {
 
 export class SpecDiffer {
     public static async diffSpecs({sourceSpec, destinationSpec}: OpenApiDiffOptions): Promise<DiffOutcome> {
-        const loadedSourceSpec = SpecLoader.load(sourceSpec);
-        const loadedDestinationSpec = SpecLoader.load(destinationSpec);
+        const loadedSourceSpec = SpecDeserialiser.load(sourceSpec);
+        const loadedDestinationSpec = SpecDeserialiser.load(destinationSpec);
 
         const parsedSourceSpec = specParser.parse(loadedSourceSpec);
         const parsedDestinationSpec = specParser.parse(loadedDestinationSpec);
@@ -37,8 +37,8 @@ export class SpecDiffer {
     }
 
     public static async newDiffSpecs({sourceSpec, destinationSpec}: OpenApiDiffOptions): Promise<DiffOutcome> {
-        const loadedSourceSpec = SpecLoader.load(sourceSpec);
-        const loadedDestinationSpec = SpecLoader.load(destinationSpec);
+        const loadedSourceSpec = SpecDeserialiser.load(sourceSpec);
+        const loadedDestinationSpec = SpecDeserialiser.load(destinationSpec);
 
         const parsedSourceSpec = specParser.parse(loadedSourceSpec);
         const parsedDestinationSpec = specParser.parse(loadedDestinationSpec);

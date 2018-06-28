@@ -1,7 +1,7 @@
 import {specParser} from '../../../../lib/openapi-diff/spec-parser';
 import {ParsedSpec, Swagger2} from '../../../../lib/openapi-diff/types';
-import {parsedSpecBuilder} from '../../support/builders/parsed-spec-builder';
-import {swagger2SpecBuilder} from '../../support/builders/swagger-2-spec-builder';
+import {parsedSpecBuilder} from '../../../support/builders/parsed-spec-builder';
+import {swagger2SpecBuilder} from '../../../support/builders/swagger-2-spec-builder';
 
 describe('specParser, with regards to the top level object,', () => {
     const whenSpecIsParsed = (spec: Swagger2): ParsedSpec => specParser.parse(spec);

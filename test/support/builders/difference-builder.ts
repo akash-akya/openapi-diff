@@ -1,6 +1,6 @@
 import {
     Difference, DiffResultAction, DiffResultCode, DiffResultEntity, DiffResultSource
-} from '../../../../lib/api-types';
+} from '../../../lib/api-types';
 import {
     DiffResultSpecEntityDetailsBuilder, specEntityDetailsBuilder
 } from './diff-result-spec-entity-details-builder';

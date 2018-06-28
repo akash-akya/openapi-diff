@@ -1,7 +1,7 @@
 import {specParser} from '../../../../lib/openapi-diff/spec-parser';
 import {OpenApi3, ParsedSpec} from '../../../../lib/openapi-diff/types';
-import {openApi3SpecBuilder} from '../../support/builders/openapi-3-spec-builder';
-import {parsedSpecBuilder} from '../../support/builders/parsed-spec-builder';
+import {openApi3SpecBuilder} from '../../../support/builders/openapi-3-spec-builder';
+import {parsedSpecBuilder} from '../../../support/builders/parsed-spec-builder';
 
 describe('specParser, with regards to the top level object,', () => {
     const whenSpecIsParsed = (spec: OpenApi3): ParsedSpec => specParser.parse(spec);

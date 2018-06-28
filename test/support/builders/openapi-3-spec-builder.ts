@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import {GenericProperty, OpenApi3} from '../../../../lib/openapi-diff/types';
+import {GenericProperty, OpenApi3} from '../../../lib/openapi-diff/types';
 
 export class OpenApi3SpecBuilder {
     public constructor(private readonly openApi3Spec: OpenApi3) {}

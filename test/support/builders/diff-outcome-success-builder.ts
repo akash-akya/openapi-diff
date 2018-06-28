@@ -1,4 +1,4 @@
-import {DiffOutcomeSuccess} from '../../../../lib/api-types';
+import {DiffOutcomeSuccess} from '../../../lib/api-types';
 import {DiffResultBuilder} from './diff-result-builder';
 import {specDetailsBuilder, SpecDetailsBuilder} from './spec-details-builder';
 

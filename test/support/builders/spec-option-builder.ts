@@ -1,4 +1,4 @@
-import {SpecOption} from '../../../../lib/api-types';
+import {SpecOption} from '../../../lib/api-types';
 import {OpenApi3SpecBuilder} from './openapi-3-spec-builder';
 import {swagger2SpecBuilder, Swagger2SpecBuilder} from './swagger-2-spec-builder';
 

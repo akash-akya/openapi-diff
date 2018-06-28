@@ -1,3 +1,4 @@
+import {OpenApiDiffErrorImpl} from '../../../lib/common/open-api-diff-error-impl';
 import {ContentLoader} from '../../../lib/openapi-diff/content-loader';
 import {expectToFail} from '../../support/expect-to-fail';
 import {createMockFileSystem, MockFileSystem} from '../support/mocks/mock-file-system';
@@ -31,7 +32,11 @@ describe('contentLoader', () => {
 
             const error = await expectToFail(invokeLoad('non-existing-file.json'));
 
-            expect(error.message).toEqual(jasmine.stringMatching('test file system error'));
+            expect(error).toEqual(new OpenApiDiffErrorImpl(
+                'openapi-diff.filesystem.error',
+                'Unable to read non-existing-file.json',
+                new Error('test file system error')
+            ));
         });
 
         it('should return the file contents when able to read the file', async () => {
@@ -56,7 +61,11 @@ describe('contentLoader', () => {
 
             const error = await expectToFail(invokeLoad('http://url.that.errors.out'));
 
-            expect(error.message).toEqual(jasmine.stringMatching('test http client error'));
+            expect(error).toEqual(new OpenApiDiffErrorImpl(
+                'openapi-diff.httpclient.error',
+                'Unable to load http://url.that.errors.out',
+                new Error('test http client error')
+            ));
         });
 
         it('should return the url contents when able to open the url', async () => {
