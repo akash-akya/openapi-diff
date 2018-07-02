@@ -1,3 +1,14 @@
+<a name="0.9.0"></a>
+# [0.9.0](https://bitbucket.org/atlassian/openapi-diff/compare/0.8.1...0.9.0) (2018-07-02)
+
+
+### Features
+
+* added validation for swagger 2 specs ([406f00a](https://bitbucket.org/atlassian/openapi-diff/commits/406f00a))
+* introduced openapi diff error with error code to node api ([1c717bf](https://bitbucket.org/atlassian/openapi-diff/commits/1c717bf))
+
+
+
 <a name="0.8.1"></a>
 ## [0.8.1](https://bitbucket.org/atlassian/openapi-diff/compare/0.8.0...0.8.1) (2018-06-26)
 
