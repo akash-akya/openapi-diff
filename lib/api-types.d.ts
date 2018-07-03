@@ -6,11 +6,14 @@ declare namespace OpenApiDiff {
     export type DiffResultCode =
         'path.add' |
         'path.remove' |
+        'method.add' |
+        'method.remove' |
         'unclassified.add' |
         'unclassified.remove';
 
     export type DiffResultEntity =
         'path' |
+        'method' |
         'unclassified';
 
     export type DiffResultAction = 'add' | 'remove';
@@ -20,7 +23,7 @@ declare namespace OpenApiDiff {
         'unclassified' |
         'non-breaking';
 
-    export interface Difference {
+    export interface DiffResult<T extends DiffResultType> {
         action: DiffResultAction;
         code: DiffResultCode;
         entity: DiffResultEntity;
@@ -28,10 +31,7 @@ declare namespace OpenApiDiff {
         destinationSpecEntityDetails: DiffResultSpecEntityDetails;
         source: DiffResultSource;
         details?: any;
-    }
-
-    export interface DiffResult extends Difference {
-        type: DiffResultType;
+        type: T;
     }
 
     export interface DiffResultSpecEntityDetails {
@@ -47,20 +47,20 @@ declare namespace OpenApiDiff {
     }
 
     export interface DiffOutcomeFailure {
-        breakingDifferences: DiffResult[];
+        breakingDifferences: Array<DiffResult<'breaking'>>;
         breakingDifferencesFound: true;
         destinationSpecDetails: SpecDetails;
-        nonBreakingDifferences: DiffResult[];
+        nonBreakingDifferences: Array<DiffResult<'non-breaking'>>;
         sourceSpecDetails: SpecDetails;
-        unclassifiedDifferences: DiffResult[];
+        unclassifiedDifferences: Array<DiffResult<'unclassified'>>;
     }
 
     export interface DiffOutcomeSuccess {
         destinationSpecDetails: SpecDetails;
         breakingDifferencesFound: false;
-        nonBreakingDifferences: DiffResult[];
+        nonBreakingDifferences: Array<DiffResult<'non-breaking'>>;
         sourceSpecDetails: SpecDetails;
-        unclassifiedDifferences: DiffResult[];
+        unclassifiedDifferences: Array<DiffResult<'unclassified'>>;
     }
 
     export type DiffOutcome = DiffOutcomeSuccess | DiffOutcomeFailure;

@@ -1,33 +1,28 @@
-import {Difference} from '../../../../lib/api-types';
-import {DiffFinder} from '../../../../lib/openapi-diff/spec-differ/diff-finder';
-import {ParsedSpec} from '../../../../lib/openapi-diff/spec-parser-types';
-import {specEntityDetailsBuilder} from '../../../support/builders/diff-result-spec-entity-details-builder';
-import {differenceBuilder} from '../../../support/builders/difference-builder';
-import {openApi3PathItemBuilder} from '../../../support/builders/openapi-3-path-item-builder';
-import {parsedPathItemBuilder} from '../../../support/builders/parsed-path-item-builder';
-import {parsedAnyPropertyBuilder} from '../../../support/builders/parsed-property-builder';
-import {parsedSpecBuilder} from '../../../support/builders/parsed-spec-builder';
+import {DiffResult} from '../../../lib/api-types';
+import {breakingDiffResultBuilder, nonBreakingDiffResultBuilder} from '../../support/builders/diff-result-builder';
+import {specEntityDetailsBuilder} from '../../support/builders/diff-result-spec-entity-details-builder';
+import {openApi3PathItemBuilder} from '../../support/builders/openapi3-path-item-builder';
+import {OpenApi3SpecBuilder, openApi3SpecBuilder} from '../../support/builders/openapi3-spec-builder';
+import {CustomMatchers} from '../support/custom-matchers/custom-matchers';
+import {whenSpecsAreDiffed} from '../support/when-specs-are-diffed';
 
-describe('spec-differ/diff-finder/paths', () => {
+declare function expect<T>(actual: T): CustomMatchers<T>;
+
+describe('openapi-diff paths', () => {
     const defaultOriginalValue = openApi3PathItemBuilder.build();
 
-    const createSpecWithPaths = (paths: string[]): ParsedSpec => {
-        const parsedPathItems = paths.map((path) =>
-            parsedPathItemBuilder
-                .withPathName(path)
-                .withOriginalValue(
-                    parsedAnyPropertyBuilder
-                        .withOriginalPath(['paths', path])
-                        .withValue(defaultOriginalValue)
-                ));
+    const createSpecWithPaths = (paths: string[]): OpenApi3SpecBuilder => {
+        let spec = openApi3SpecBuilder;
 
-        return parsedSpecBuilder
-            .withPaths(parsedPathItems)
-            .build();
+        paths.forEach((path) => {
+            spec = spec.withPath(path, openApi3PathItemBuilder);
+        });
+
+        return spec;
     };
 
-    const createRemovedPathDifference = (path: string): Difference => {
-        return differenceBuilder
+    const createRemovedPathDiffResult = (path: string): DiffResult<'breaking'> => {
+        return breakingDiffResultBuilder
             .withAction('remove')
             .withCode('path.remove')
             .withEntity('path')
@@ -39,8 +34,8 @@ describe('spec-differ/diff-finder/paths', () => {
             .build();
     };
 
-    const createAddedPathDifference = (path: string): Difference => {
-        return differenceBuilder
+    const createAddedPathDiffResult = (path: string): DiffResult<'non-breaking'> => {
+        return nonBreakingDiffResultBuilder
             .withAction('add')
             .withCode('path.add')
             .withEntity('path')
@@ -52,15 +47,12 @@ describe('spec-differ/diff-finder/paths', () => {
             .build();
     };
 
-    const invokeDiffFinder = (sourceSpec: ParsedSpec, destinationSpec: ParsedSpec): Promise<Difference[]> =>
-        DiffFinder.findDifferences({sourceSpec, destinationSpec});
-
     it('should return no differences, when path items did not change', async () => {
         const aSpec = createSpecWithPaths(['/some/path']);
 
-        const result = await invokeDiffFinder(aSpec, aSpec);
+        const outcome = await whenSpecsAreDiffed(aSpec, aSpec);
 
-        expect(result).toEqual([]);
+        expect(outcome).toContainDifferences([]);
     });
 
     it('should return an add difference, when a new path was added', async () => {
@@ -68,9 +60,9 @@ describe('spec-differ/diff-finder/paths', () => {
         const sourceSpec = createSpecWithPaths([]);
         const destinationSpec = createSpecWithPaths([addedPath]);
 
-        const result = await invokeDiffFinder(sourceSpec, destinationSpec);
+        const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
 
-        expect(result).toEqual([createAddedPathDifference(addedPath)]);
+        expect(outcome).toContainDifferences([createAddedPathDiffResult(addedPath)]);
     });
 
     it('should return a remove difference, when a path was removed', async () => {
@@ -79,10 +71,10 @@ describe('spec-differ/diff-finder/paths', () => {
         const sourceSpec = createSpecWithPaths([removedPath]);
         const destinationSpec = createSpecWithPaths([]);
 
-        const result = await invokeDiffFinder(sourceSpec, destinationSpec);
+        const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
 
-        expect(result).toEqual([
-            createRemovedPathDifference(removedPath)
+        expect(outcome).toContainDifferences([
+            createRemovedPathDiffResult(removedPath)
         ]);
     });
 
@@ -93,29 +85,30 @@ describe('spec-differ/diff-finder/paths', () => {
         const sourceSpec = createSpecWithPaths([removedPath]);
         const destinationSpec = createSpecWithPaths([addedPath]);
 
-        const result = await invokeDiffFinder(sourceSpec, destinationSpec);
+        const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
 
-        expect(result.length).toBe(2);
-        expect(result).toContain(createAddedPathDifference(addedPath));
-        expect(result).toContain(createRemovedPathDifference(removedPath));
+        expect(outcome).toContainDifferences([
+            createAddedPathDiffResult(addedPath),
+            createRemovedPathDiffResult(removedPath)
+        ]);
     });
 
     it('should not find any differences if path parameter name changes', async () => {
         const sourceSpec = createSpecWithPaths(['/some/{oldName}']);
         const destinationSpec = createSpecWithPaths(['/some/{newName}']);
 
-        const result = await invokeDiffFinder(sourceSpec, destinationSpec);
+        const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
 
-        expect(result).toEqual([]);
+        expect(outcome).toContainDifferences([]);
     });
 
     it('should not detect differences when multiple path parameter names are changed', async () => {
         const sourceSpec = createSpecWithPaths(['/some/{name}/{id}']);
         const destinationSpec = createSpecWithPaths(['/some/{id}/{name}']);
 
-        const result = await invokeDiffFinder(sourceSpec, destinationSpec);
+        const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
 
-        expect(result).toEqual([]);
+        expect(outcome).toContainDifferences([]);
     });
 
     it('should detect differences when a duplicated parameter becomes two different parameters', async () => {
@@ -125,11 +118,12 @@ describe('spec-differ/diff-finder/paths', () => {
         const sourceSpec = createSpecWithPaths([removedPath]);
         const destinationSpec = createSpecWithPaths([addedPath]);
 
-        const result = await invokeDiffFinder(sourceSpec, destinationSpec);
+        const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
 
-        expect(result.length).toBe(2);
-        expect(result).toContain(createAddedPathDifference(addedPath));
-        expect(result).toContain(createRemovedPathDifference(removedPath));
+        expect(outcome).toContainDifferences([
+            createAddedPathDiffResult(addedPath),
+            createRemovedPathDiffResult(removedPath)
+        ]);
     });
 
     it('should detect differences in paths after parameters', async () => {
@@ -139,11 +133,12 @@ describe('spec-differ/diff-finder/paths', () => {
         const sourceSpec = createSpecWithPaths([removedPath]);
         const destinationSpec = createSpecWithPaths([addedPath]);
 
-        const result = await invokeDiffFinder(sourceSpec, destinationSpec);
+        const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
 
-        expect(result.length).toBe(2);
-        expect(result).toContain(createAddedPathDifference(addedPath));
-        expect(result).toContain(createRemovedPathDifference(removedPath));
+        expect(outcome).toContainDifferences([
+            createAddedPathDiffResult(addedPath),
+            createRemovedPathDiffResult(removedPath)
+        ]);
     });
 
     it('should detect differences in paths after multiple usages of the same parameter', async () => {
@@ -153,20 +148,21 @@ describe('spec-differ/diff-finder/paths', () => {
         const sourceSpec = createSpecWithPaths([removedPath]);
         const destinationSpec = createSpecWithPaths([addedPath]);
 
-        const result = await invokeDiffFinder(sourceSpec, destinationSpec);
+        const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
 
-        expect(result.length).toBe(2);
-        expect(result).toContain(createAddedPathDifference(addedPath));
-        expect(result).toContain(createRemovedPathDifference(removedPath));
+        expect(outcome).toContainDifferences([
+            createAddedPathDiffResult(addedPath),
+            createRemovedPathDiffResult(removedPath)
+        ]);
     });
 
     it('should not detect differences in equivalent paths containing brackets', async () => {
         const sourceSpec = createSpecWithPaths(['/{{id}/c/{{id}}/a{{}{id2}']);
         const destinationSpec = createSpecWithPaths(['/{{name}/c/{{name}}/a{{}{name2}']);
 
-        const result = await invokeDiffFinder(sourceSpec, destinationSpec);
+        const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
 
-        expect(result).toEqual([]);
+        expect(outcome).toContainDifferences([]);
     });
 
     it('should detect differences in paths containing brackets', async () => {
@@ -176,10 +172,11 @@ describe('spec-differ/diff-finder/paths', () => {
         const sourceSpec = createSpecWithPaths([removedPath]);
         const destinationSpec = createSpecWithPaths([addedPath]);
 
-        const result = await invokeDiffFinder(sourceSpec, destinationSpec);
+        const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
 
-        expect(result.length).toBe(2);
-        expect(result).toContain(createAddedPathDifference(addedPath));
-        expect(result).toContain(createRemovedPathDifference(removedPath));
+        expect(outcome).toContainDifferences([
+            createAddedPathDiffResult(addedPath),
+            createRemovedPathDiffResult(removedPath)
+        ]);
     });
 });

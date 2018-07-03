@@ -1,46 +1,55 @@
 import * as SwaggerParser from 'swagger-parser';
 import {OpenApiDiffErrorImpl} from '../../common/open-api-diff-error-impl';
-import {ParsedPathItem, ParsedProperty, ParsedSpec} from '../spec-parser-types';
-import {Swagger2, Swagger2Paths} from '../swagger2';
+import {ParsedOperations, ParsedPathItems, ParsedSpec} from '../spec-parser-types';
+import {Swagger2, Swagger2MethodNames, Swagger2PathItem, Swagger2Paths} from '../swagger2';
 import {parseXPropertiesInObject} from './common/parse-x-properties';
 
-const parseTopLevelArrayProperties = (arrayName: string,
-                                      inputArray: string[]): Array<ParsedProperty<string>> => {
-    const parsedSchemesArray: Array<ParsedProperty<string>> = [];
-
-    if (inputArray.length) {
-        inputArray.forEach((value, index) => {
-            parsedSchemesArray.push({
-                originalPath: [arrayName, index.toString()],
-                value
-            });
-        });
-    }
-
-    return parsedSchemesArray;
+const typeCheckedSwagger2Methods: {[method in Swagger2MethodNames]: undefined} = {
+    delete: undefined,
+    get: undefined,
+    head: undefined,
+    options: undefined,
+    patch: undefined,
+    post: undefined,
+    put: undefined
 };
 
-const parsePaths = (paths: Swagger2Paths): ParsedPathItem[] =>
-    Object.keys(paths).map((pathName) => ({
-        originalValue: {
-            originalPath: ['paths', pathName],
-            value: paths[pathName]
-        },
-        pathName
-    }));
+const isSwagger2Method = (propertyName: string): propertyName is Swagger2MethodNames =>
+    Object.keys(typeCheckedSwagger2Methods).indexOf(propertyName) >= 0;
+
+const parseOperations = (pathItemObject: Swagger2PathItem, pathItemOriginalPath: string[]): ParsedOperations => {
+    return Object.keys(pathItemObject)
+        .filter(isSwagger2Method)
+        .reduce<ParsedOperations>((accumulator, method) => {
+            accumulator[method] = {
+                originalValue: {
+                    originalPath: [...pathItemOriginalPath, method],
+                    value: pathItemObject[method]
+                }
+            };
+            return accumulator;
+        }, {});
+};
+
+const parsePaths = (paths: Swagger2Paths): ParsedPathItems =>
+    Object.keys(paths).reduce<ParsedPathItems>((accumulator, pathName) => {
+        const pathItemObject = paths[pathName];
+        const originalPath = ['paths', pathName];
+        accumulator[pathName] = {
+            operations: parseOperations(pathItemObject, originalPath),
+            originalValue: {
+                originalPath,
+                value: paths[pathName]
+            },
+            pathName
+        };
+        return accumulator;
+    }, {});
 
 const parseSwagger2Spec = (swagger2Spec: Swagger2): ParsedSpec => {
     return {
-        basePath: {
-            originalPath: ['basePath'],
-            value: swagger2Spec.basePath
-        },
         format: 'swagger2',
         paths: parsePaths(swagger2Spec.paths),
-        schemes: {
-            originalPath: ['schemes'],
-            value: swagger2Spec.schemes ? parseTopLevelArrayProperties('schemes', swagger2Spec.schemes) : undefined
-        },
         xProperties: parseXPropertiesInObject(swagger2Spec)
     };
 };

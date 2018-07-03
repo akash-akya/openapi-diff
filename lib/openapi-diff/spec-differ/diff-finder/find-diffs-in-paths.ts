@@ -1,56 +1,71 @@
-import * as _ from 'lodash';
-import {Difference} from '../../../api-types';
-import {ParsedPathItem} from '../../spec-parser-types';
+import {ParsedPathItems} from '../../spec-parser-types';
+import {getAddedKeysFromObjects} from './common/get-added-keys-from-objects';
+import {getCommonKeysFromObjects} from './common/get-common-keys-from-objects';
+import {getRemovedKeysFromObjects} from './common/get-removed-keys-from-objects';
 import {createDifference} from './create-difference';
+import {Difference} from './difference';
+import {findDifferencesInOperations} from './find-diffs-in-operations';
 import {normalizePath} from './normalize-path';
 
-const findAddedPathDifferences =  (
-    sourcePathItems: ParsedPathItem[], destinationPathItems: ParsedPathItem[]
+const findAddedPathDifferences = (
+    sourcePathItems: ParsedPathItems, destinationPathItems: ParsedPathItems
 ): Difference[] => {
-    const sourcePathNames = getPathNames(sourcePathItems);
-
-    return destinationPathItems
-        .filter((pathItem) => !_.includes(sourcePathNames, pathItem.pathName))
-        .map<Difference>((pathItem) =>
-            createDifference({
+    return getAddedKeysFromObjects(sourcePathItems, destinationPathItems)
+        .map((addedPathName) => {
+            const addedDestinationPathItem = destinationPathItems[addedPathName];
+            return createDifference({
                 action: 'add',
-                destinationObject: pathItem.originalValue,
+                destinationObject: addedDestinationPathItem.originalValue,
                 propertyName: 'path'
-            })
-        );
+            });
+        });
 };
 
 const findRemovedPathDifferences = (
-    sourcePathItems: ParsedPathItem[], destinationPathItems: ParsedPathItem[]
+    sourcePathItems: ParsedPathItems, destinationPathItems: ParsedPathItems
 ): Difference[] => {
-    const destinationPathNames = getPathNames(destinationPathItems);
-
-    return sourcePathItems
-        .filter((pathItem) => !_.includes(destinationPathNames, pathItem.pathName))
-        .map<Difference>((pathItem) =>
-            createDifference({
+    return getRemovedKeysFromObjects(sourcePathItems, destinationPathItems)
+        .map<Difference>((removedPathName) => {
+            const removedSourcePathItem = sourcePathItems[removedPathName];
+            return createDifference({
                 action: 'remove',
                 propertyName: 'path',
-                sourceObject: pathItem.originalValue
-            })
-        );
+                sourceObject: removedSourcePathItem.originalValue
+            });
+        });
 };
 
-const getPathNames = (pathItems: ParsedPathItem[]): string[] => pathItems.map((pathItem) => pathItem.pathName);
+const findMatchingPathDifferences = (
+    sourcePathItems: ParsedPathItems, destinationPathItems: ParsedPathItems
+): Difference[] => {
+    const matchingPaths = getCommonKeysFromObjects(sourcePathItems, destinationPathItems);
 
-const normalizePathItems = (pathItems: ParsedPathItem[]): ParsedPathItem[] =>
-    pathItems.map((pathItem) => (
-        {...pathItem, pathName: normalizePath(pathItem.pathName)}
-    ));
+    return matchingPaths.reduce<Difference[]>((allDifferences, matchingPathItem) => {
+        const differencesInOperations = findDifferencesInOperations(
+            sourcePathItems[matchingPathItem].operations,
+            destinationPathItems[matchingPathItem].operations
+        );
+        return [...allDifferences, ...differencesInOperations];
+    }, []);
+};
+
+const normalizePathItems = (parsedPathItems: ParsedPathItems): ParsedPathItems =>
+    Object.keys(parsedPathItems).reduce<ParsedPathItems>((normalizedParsedPathItems, pathName) => {
+        const parsedPathItem = parsedPathItems[pathName];
+        const normalizedPathName = normalizePath(pathName);
+        normalizedParsedPathItems[normalizedPathName] = {...parsedPathItem, pathName: normalizedPathName};
+        return normalizedParsedPathItems;
+    }, {});
 
 export const findDiffsInPaths = (
-    sourcePathItems: ParsedPathItem[], destinationPathItems: ParsedPathItem[]
+    sourcePathItems: ParsedPathItems, destinationPathItems: ParsedPathItems
 ): Difference[] => {
-    const normalisedSourcePathItems = normalizePathItems(sourcePathItems);
-    const normalisedDestinationPathItems = normalizePathItems(destinationPathItems);
+    const normalizedSourcePathItems = normalizePathItems(sourcePathItems);
+    const normalizedDestinationPathItems = normalizePathItems(destinationPathItems);
 
-    const addedPaths = findAddedPathDifferences(normalisedSourcePathItems, normalisedDestinationPathItems);
-    const removedPaths = findRemovedPathDifferences(normalisedSourcePathItems, normalisedDestinationPathItems);
+    const addedPaths = findAddedPathDifferences(normalizedSourcePathItems, normalizedDestinationPathItems);
+    const removedPaths = findRemovedPathDifferences(normalizedSourcePathItems, normalizedDestinationPathItems);
+    const matchingPaths = findMatchingPathDifferences(normalizedSourcePathItems, normalizedDestinationPathItems);
 
-    return [...addedPaths, ...removedPaths];
+    return [...addedPaths, ...removedPaths, ...matchingPaths];
 };

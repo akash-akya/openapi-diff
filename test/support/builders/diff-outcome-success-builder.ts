@@ -5,8 +5,8 @@ import {specDetailsBuilder, SpecDetailsBuilder} from './spec-details-builder';
 interface DiffOutcomeBuilderState {
     sourceSpecDetails: SpecDetailsBuilder;
     destinationSpecDetails: SpecDetailsBuilder;
-    nonBreakingDifferences: DiffResultBuilder[];
-    unclassifiedDifferences: DiffResultBuilder[];
+    nonBreakingDifferences: Array<DiffResultBuilder<'non-breaking'>>;
+    unclassifiedDifferences: Array<DiffResultBuilder<'unclassified'>>;
 }
 
 export class DiffOutcomeSuccessBuilder {
@@ -50,7 +50,7 @@ export class DiffOutcomeSuccessBuilder {
     }
 
     public withNonBreakingDifferences(
-        nonBreakingDifferences: DiffResultBuilder[]
+        nonBreakingDifferences: Array<DiffResultBuilder<'non-breaking'>>
     ): DiffOutcomeSuccessBuilder {
         const copyOfNoneBreakingDifferences = Array.from(nonBreakingDifferences);
         return new DiffOutcomeSuccessBuilder({
@@ -62,7 +62,7 @@ export class DiffOutcomeSuccessBuilder {
     }
 
     public withUnclassifiedDifferences(
-        unclassifiedDifferences: DiffResultBuilder[]
+        unclassifiedDifferences: Array<DiffResultBuilder<'unclassified'>>
     ): DiffOutcomeSuccessBuilder {
         const copyOfUnclassifiedDifferences = Array.from(unclassifiedDifferences);
         return new DiffOutcomeSuccessBuilder({

@@ -2,9 +2,9 @@ import * as assert from 'assert';
 import * as OpenApiDiff from '../../lib/api';
 import {DiffOutcome, DiffOutcomeFailure, SpecOption} from '../../lib/api-types';
 import {OpenApiDiffErrorImpl} from '../../lib/common/open-api-diff-error-impl';
-import {openApi3SpecBuilder} from '../support/builders/openapi-3-spec-builder';
+import {openApi3SpecBuilder} from '../support/builders/openapi3-spec-builder';
 import {specOptionBuilder} from '../support/builders/spec-option-builder';
-import {swagger2SpecBuilder} from '../support/builders/swagger-2-spec-builder';
+import {swagger2SpecBuilder} from '../support/builders/swagger2-spec-builder';
 import {swagger2SpecsDifferenceBuilder} from '../support/builders/swagger2-specs-difference-builder';
 import {expectToFail} from '../support/expect-to-fail';
 

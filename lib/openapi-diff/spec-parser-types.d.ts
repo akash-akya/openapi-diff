@@ -1,6 +1,19 @@
+export interface ParsedOperation {
+    originalValue: ParsedProperty<any>;
+}
+
+export interface ParsedOperations {
+    [method: string]: ParsedOperation;
+}
+
+export interface ParsedPathItems {
+    [path: string]: ParsedPathItem;
+}
+
 export interface ParsedPathItem {
     originalValue: ParsedProperty<any>;
     pathName: string;
+    operations: ParsedOperations;
 }
 
 export interface ParsedProperty<T> {
@@ -14,8 +27,6 @@ export interface ParsedXProperties {
 
 export interface ParsedSpec {
     format: 'swagger2' | 'openapi3';
-    basePath: ParsedProperty<string>;
-    schemes: ParsedProperty<Array<ParsedProperty<string>>>;
     xProperties: ParsedXProperties;
-    paths: ParsedPathItem[];
+    paths: ParsedPathItems;
 }

@@ -1,6 +1,6 @@
 import {SpecOption} from '../../../lib/api-types';
-import {OpenApi3SpecBuilder} from './openapi-3-spec-builder';
-import {swagger2SpecBuilder, Swagger2SpecBuilder} from './swagger-2-spec-builder';
+import {OpenApi3SpecBuilder} from './openapi3-spec-builder';
+import {swagger2SpecBuilder, Swagger2SpecBuilder} from './swagger2-spec-builder';
 
 type ContentBuilder = Swagger2SpecBuilder | OpenApi3SpecBuilder;
 

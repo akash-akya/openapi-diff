@@ -1,9 +1,13 @@
-import {OpenApiDiffErrorImpl} from '../../../lib/common/open-api-diff-error-impl';
-import {ResultReporter} from '../../../lib/openapi-diff/result-reporter';
-import {diffOutcomeFailureBuilder} from '../../support/builders/diff-outcome-failure-builder';
-import {diffOutcomeSuccessBuilder} from '../../support/builders/diff-outcome-success-builder';
-import {diffResultBuilder} from '../../support/builders/diff-result-builder';
-import {createMockConsoleLogger, MockConsoleLogger} from '../support/mocks/mock-console-logger';
+import {OpenApiDiffErrorImpl} from '../../lib/common/open-api-diff-error-impl';
+import {ResultReporter} from '../../lib/openapi-diff/result-reporter';
+import {diffOutcomeFailureBuilder} from '../support/builders/diff-outcome-failure-builder';
+import {diffOutcomeSuccessBuilder} from '../support/builders/diff-outcome-success-builder';
+import {
+    breakingDiffResultBuilder,
+    nonBreakingDiffResultBuilder,
+    unclassifiedDiffResultBuilder
+} from '../support/builders/diff-result-builder';
+import {createMockConsoleLogger, MockConsoleLogger} from './support/mocks/mock-console-logger';
 
 describe('openapi-diff/result-reporter', () => {
     let reporter: ResultReporter;
@@ -17,7 +21,7 @@ describe('openapi-diff/result-reporter', () => {
     it('should report a success message when only non-breaking changes are found', async () => {
         const outcome = diffOutcomeSuccessBuilder
             .withUnclassifiedDifferences([])
-            .withNonBreakingDifferences([diffResultBuilder.withEntity('path')])
+            .withNonBreakingDifferences([nonBreakingDiffResultBuilder.withEntity('path')])
             .build();
 
         reporter.reportOutcome(outcome);
@@ -30,7 +34,7 @@ describe('openapi-diff/result-reporter', () => {
 
     it('should report a success message when only unclassified changes are found', async () => {
         const outcome = diffOutcomeSuccessBuilder
-            .withUnclassifiedDifferences([diffResultBuilder.withEntity('path')])
+            .withUnclassifiedDifferences([unclassifiedDiffResultBuilder.withEntity('path')])
             .withNonBreakingDifferences([])
             .build();
 
@@ -62,7 +66,7 @@ describe('openapi-diff/result-reporter', () => {
 
     it('should report a failure when breaking differences were found', async () => {
         const outcome = diffOutcomeFailureBuilder
-            .withBreakingDifferences([diffResultBuilder.withEntity('path')])
+            .withBreakingDifferences([breakingDiffResultBuilder.withEntity('path')])
             .build();
 
         reporter.reportOutcome(outcome);

@@ -1,11 +1,10 @@
 import {OpenApiDiffErrorImpl} from '../../lib/common/open-api-diff-error-impl';
-import {OpenApiDiff} from '../../lib/openapi-diff';
-import {ContentLoader} from '../../lib/openapi-diff/content-loader';
 import {diffOutcomeSuccessBuilder} from '../support/builders/diff-outcome-success-builder';
 import {specDetailsBuilder} from '../support/builders/spec-details-builder';
-import {swagger2SpecBuilder} from '../support/builders/swagger-2-spec-builder';
+import {swagger2SpecBuilder} from '../support/builders/swagger2-spec-builder';
 import {swagger2SpecsDifferenceBuilder} from '../support/builders/swagger2-specs-difference-builder';
 import {expectToFail} from '../support/expect-to-fail';
+import {createOpenApiDiffWithMocks} from './support/create-openapi-diff';
 import {createMockFileSystem, MockFileSystem} from './support/mocks/mock-file-system';
 import {createMockHttpClient, MockHttpClient} from './support/mocks/mock-http-client';
 import {createMockResultReporter, MockResultReporter} from './support/mocks/mock-result-reporter';
@@ -22,24 +21,56 @@ describe('openapi-diff', () => {
     });
 
     const invokeDiffLocations = (sourceSpecPath: string, destinationSpecPath: string): Promise<void> => {
-        const contentLoader = new ContentLoader(mockHttpClient, mockFileSystem);
-        const openApiDiff = new OpenApiDiff(contentLoader, mockResultReporter);
+        const openApiDiff = createOpenApiDiffWithMocks({mockFileSystem, mockResultReporter, mockHttpClient});
         return openApiDiff.diffPaths(sourceSpecPath, destinationSpecPath);
     };
 
-    it('should load the specs as yaml if content is yaml but not json', async () => {
-        const swagger2YamlSpec = '' +
-            'info: \n' +
-            '  title: spec title\n' +
-            '  version: spec version\n' +
-            'paths: {}\n' +
-            'swagger: "2.0"\n';
-        mockFileSystem.givenReadFileReturns(
-            Promise.resolve(swagger2YamlSpec),
-            Promise.resolve(swagger2YamlSpec)
-        );
+    describe('content loading', () => {
+        it('should call the file system and http client handler with the provided location', async () => {
+            await invokeDiffLocations('source-spec.json', 'http://input.url');
 
-        await invokeDiffLocations('source-spec.json', 'destination-spec.json');
+            expect(mockFileSystem.readFile).toHaveBeenCalledWith('source-spec.json');
+            expect(mockHttpClient.get).toHaveBeenCalledWith('http://input.url');
+        });
+
+        it('should error out when the file system returns an error', async () => {
+            mockFileSystem.givenReadFileFailsWith(new Error('test file system error'));
+
+            await expectToFail(invokeDiffLocations('non-existing-file.json', 'destination-spec.json'));
+
+            expect(mockResultReporter.reportError).toHaveBeenCalledWith(new OpenApiDiffErrorImpl(
+                'OPENAPI_DIFF_FILE_SYSTEM_ERROR',
+                'Unable to read non-existing-file.json',
+                new Error('test file system error')
+            ));
+        });
+
+        it('should error out when the http client returns an error', async () => {
+            mockHttpClient.givenGetFailsWith(new Error('test http client error'));
+
+            await expectToFail(invokeDiffLocations('http://url.that.errors.out', 'destination-spec.json'));
+
+            expect(mockResultReporter.reportError).toHaveBeenCalledWith(new OpenApiDiffErrorImpl(
+                'OPENAPI_DIFF_HTTP_CLIENT_ERROR',
+                'Unable to load http://url.that.errors.out',
+                new Error('test http client error')
+            ));
+        });
+
+        it('should load the specs as yaml if content is yaml but not json', async () => {
+            const swagger2YamlSpec = '' +
+                'info: \n' +
+                '  title: spec title\n' +
+                '  version: spec version\n' +
+                'paths: {}\n' +
+                'swagger: "2.0"\n';
+            mockFileSystem.givenReadFileReturns(
+                Promise.resolve(swagger2YamlSpec),
+                Promise.resolve(swagger2YamlSpec)
+            );
+
+            await invokeDiffLocations('source-spec.json', 'destination-spec.json');
+        });
     });
 
     it('should load the source spec from the file system', async () => {

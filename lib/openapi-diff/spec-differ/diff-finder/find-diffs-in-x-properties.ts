@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
-import {Difference} from '../../../api-types';
 import {ParsedProperty} from '../../spec-parser-types';
 import {createDifference} from './create-difference';
+import {Difference} from './difference';
 
 const findDiffsInProperty = (
     sourceObject: ParsedProperty<string>, destinationObject: ParsedProperty<string>, propertyName: string

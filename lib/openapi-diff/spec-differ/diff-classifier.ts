@@ -1,11 +1,24 @@
-import {Difference, DiffResult} from '../../api-types';
+import {DiffResult, DiffResultType} from '../../api-types';
+import {Difference} from './diff-finder/difference';
 import {resultTypeFinder} from './result-type-finder';
 
 export interface ClassifiedDiffResults {
-    breakingDifferences: DiffResult[];
-    nonBreakingDifferences: DiffResult[];
-    unclassifiedDifferences: DiffResult[];
+    breakingDifferences: Array<DiffResult<'breaking'>>;
+    nonBreakingDifferences: Array<DiffResult<'non-breaking'>>;
+    unclassifiedDifferences: Array<DiffResult<'unclassified'>>;
 }
+
+const isBreakingDiffResult = (diffResult: DiffResult<DiffResultType>): diffResult is DiffResult<'breaking'> => {
+    return diffResult.type === 'breaking';
+};
+
+const isNonBreakingDiffResult = (diffResult: DiffResult<DiffResultType>): diffResult is DiffResult<'non-breaking'> => {
+    return diffResult.type === 'non-breaking';
+};
+
+const isUnclassifiedDiffResult = (diffResult: DiffResult<DiffResultType>): diffResult is DiffResult<'unclassified'> => {
+    return diffResult.type === 'unclassified';
+};
 
 export class DiffClassifier {
     public static classifyDifferences(differences: Difference[]): ClassifiedDiffResults {
@@ -19,23 +32,19 @@ export class DiffClassifier {
         differences
             .map(DiffClassifier.differenceToDiffResult)
             .forEach((diffResult) => {
-                switch (diffResult.type) {
-                case 'breaking':
+                if (isBreakingDiffResult(diffResult)) {
                     classifiedDiffResults.breakingDifferences.push(diffResult);
-                    break;
-                case 'non-breaking':
+                } else if (isNonBreakingDiffResult(diffResult)) {
                     classifiedDiffResults.nonBreakingDifferences.push(diffResult);
-                    break;
-                case 'unclassified':
+                } else if (isUnclassifiedDiffResult(diffResult)) {
                     classifiedDiffResults.unclassifiedDifferences.push(diffResult);
-                    break;
-            }
+                }
         });
 
         return classifiedDiffResults;
     }
 
-    private static differenceToDiffResult(difference: Difference): DiffResult {
+    private static differenceToDiffResult(difference: Difference): DiffResult<DiffResultType> {
         const type = resultTypeFinder.lookup(difference.code);
         return Object.assign({type}, difference);
     }

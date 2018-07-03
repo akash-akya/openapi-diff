@@ -1,11 +1,11 @@
 import {
-    Difference,
     DiffResultAction,
     DiffResultCode,
     DiffResultEntity,
     DiffResultSpecEntityDetails
 } from '../../../api-types';
 import {ParsedProperty} from '../../spec-parser-types';
+import {Difference} from './difference';
 
 interface CreateDifferenceOptions<T> {
     sourceObject?: T;

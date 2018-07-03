@@ -1,5 +1,5 @@
-import {swagger2SpecBuilder, Swagger2SpecBuilder} from './swagger-2-spec-builder';
 import {swagger2PathItemBuilder} from './swagger2-path-item-builder';
+import {swagger2SpecBuilder, Swagger2SpecBuilder} from './swagger2-spec-builder';
 
 export class Swagger2SpecsDifferenceBuilder {
     public static defaultSwagger2SpecsDifferenceBuilder(): Swagger2SpecsDifferenceBuilder {
@@ -12,13 +12,10 @@ export class Swagger2SpecsDifferenceBuilder {
 
     public withNonBreakingDifference(): Swagger2SpecsDifferenceBuilder {
         return new Swagger2SpecsDifferenceBuilder(
-            this.source.withPaths({
-                '/path': swagger2PathItemBuilder.build()
-            }),
-            this.destination.withPaths({
-                '/new/path': swagger2PathItemBuilder.build(),
-                '/path': swagger2PathItemBuilder.build()
-            })
+            this.source.withPath('/path', swagger2PathItemBuilder),
+            this.destination
+                .withPath('/new/path', swagger2PathItemBuilder)
+                .withPath('/path', swagger2PathItemBuilder)
         );
     }
 
@@ -31,10 +28,8 @@ export class Swagger2SpecsDifferenceBuilder {
 
     public withBreakingDifference(): Swagger2SpecsDifferenceBuilder {
         return new Swagger2SpecsDifferenceBuilder(
-            this.source.withPaths({
-                '/path': swagger2PathItemBuilder.build()
-            }),
-            this.destination.withPaths({})
+            this.source.withPath('/path', swagger2PathItemBuilder),
+            this.destination.withNoPaths()
         );
     }
 

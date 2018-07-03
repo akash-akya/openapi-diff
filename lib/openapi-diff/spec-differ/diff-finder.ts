@@ -1,5 +1,5 @@
-import {Difference} from '../../api-types';
 import {ParsedSpec} from '../spec-parser-types';
+import {Difference} from './diff-finder/difference';
 import {findDiffsInPaths} from './diff-finder/find-diffs-in-paths';
 import {findDiffsInXProperties} from './diff-finder/find-diffs-in-x-properties';
 

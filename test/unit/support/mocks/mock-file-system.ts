@@ -1,5 +1,5 @@
 import {FileSystem} from '../../../../lib/openapi-diff/resource-loader/file-system';
-import {swagger2SpecBuilder} from '../../../support/builders/swagger-2-spec-builder';
+import {swagger2SpecBuilder} from '../../../support/builders/swagger2-spec-builder';
 
 export type MockFileSystem = jasmine.SpyObj<FileSystem> & {
     givenReadFileReturnsContent(content: string): void;
