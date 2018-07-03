@@ -1,3 +1,13 @@
+<a name="0.10.0"></a>
+# [0.10.0](https://bitbucket.org/atlassian/openapi-diff/compare/0.9.0...0.10.0) (2018-07-03)
+
+
+### Features
+
+* add support for paths, remove support for schemes, basePath and host ([350993a](https://bitbucket.org/atlassian/openapi-diff/commits/350993a))
+
+
+
 <a name="0.9.0"></a>
 # [0.9.0](https://bitbucket.org/atlassian/openapi-diff/compare/0.8.1...0.9.0) (2018-07-02)
 
