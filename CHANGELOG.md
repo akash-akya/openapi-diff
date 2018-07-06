@@ -1,3 +1,13 @@
+<a name="0.11.0"></a>
+# [0.11.0](https://bitbucket.org/atlassian/openapi-diff/compare/0.10.0...0.11.0) (2018-07-06)
+
+
+### Features
+
+* add support for methods ([a1ad740](https://bitbucket.org/atlassian/openapi-diff/commits/a1ad740))
+
+
+
 <a name="0.10.0"></a>
 # [0.10.0](https://bitbucket.org/atlassian/openapi-diff/compare/0.9.0...0.10.0) (2018-07-03)
 
