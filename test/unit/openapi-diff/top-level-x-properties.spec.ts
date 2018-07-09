@@ -37,14 +37,12 @@ describe('spec-differ/diff-finder/top level ^x- properties', () => {
         const expectedDiffResult = xPropertyDiffResultBuilder
             .withAction('add')
             .withCode('unclassified.add')
-            .withSourceSpecEntityDetails(
-                specEntityDetailsBuilder
-                    .withLocation(undefined)
-                    .withValue(undefined))
-            .withDestinationSpecEntityDetails(
+            .withSourceSpecEntityDetails([])
+            .withDestinationSpecEntityDetails([
                 specEntityDetailsBuilder
                     .withLocation('x-external-id')
-                    .withValue('NEW x value'))
+                    .withValue('NEW x value')
+            ])
             .build();
 
         expect(outcome).toContainDifferences([expectedDiffResult]);
@@ -61,14 +59,12 @@ describe('spec-differ/diff-finder/top level ^x- properties', () => {
         const expectedDiffResult = xPropertyDiffResultBuilder
             .withAction('remove')
             .withCode('unclassified.remove')
-            .withSourceSpecEntityDetails(
+            .withSourceSpecEntityDetails([
                 specEntityDetailsBuilder
                     .withLocation('x-external-id')
-                    .withValue('x value'))
-            .withDestinationSpecEntityDetails(
-                specEntityDetailsBuilder
-                    .withLocation(undefined)
-                    .withValue(undefined))
+                    .withValue('x value')
+            ])
+            .withDestinationSpecEntityDetails([])
             .build();
 
         expect(outcome).toContainDifferences([expectedDiffResult]);
@@ -83,14 +79,16 @@ describe('spec-differ/diff-finder/top level ^x- properties', () => {
         const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
 
         const baseDiffResult = xPropertyDiffResultBuilder
-            .withSourceSpecEntityDetails(
+            .withSourceSpecEntityDetails([
                 specEntityDetailsBuilder
                     .withLocation('x-external-id')
-                    .withValue('x value'))
-            .withDestinationSpecEntityDetails(
+                    .withValue('x value')
+            ])
+            .withDestinationSpecEntityDetails([
                 specEntityDetailsBuilder
                     .withLocation('x-external-id')
-                    .withValue('NEW x value'));
+                    .withValue('NEW x value')
+            ]);
 
         expect(outcome).toContainDifferences([
             baseDiffResult.withAction('add').withCode('unclassified.add').build(),

@@ -1,6 +1,7 @@
 import * as assert from 'assert';
 import * as _ from 'lodash';
 import {OpenApi3, OpenApi3Paths} from '../../../lib/openapi-diff/openapi3';
+import {OpenApi3ComponentsBuilder, openApi3ComponentsBuilder} from './openapi3-components-builder';
 import {OpenApi3PathItemBuilder} from './openapi3-path-item-builder';
 
 interface Paths {
@@ -9,12 +10,13 @@ interface Paths {
 
 interface Openapi3SpecBuilderState {
     paths: Paths;
+    components: OpenApi3ComponentsBuilder;
     xProperties: {[key: string]: any};
 }
 
 export class OpenApi3SpecBuilder {
     public static defaultOpenApi3SpecBuilder(): OpenApi3SpecBuilder {
-        return new OpenApi3SpecBuilder({paths: {}, xProperties: {}});
+        return new OpenApi3SpecBuilder({paths: {}, components: openApi3ComponentsBuilder, xProperties: {}});
     }
     private constructor(private readonly state: Openapi3SpecBuilderState) {}
 
@@ -26,6 +28,7 @@ export class OpenApi3SpecBuilder {
         const copyOfXProperties = _.cloneDeep(this.state.xProperties);
 
         return {
+            components: this.state.components.build(),
             info: {
                 title: 'spec title',
                 version: 'spec version'
@@ -51,6 +54,14 @@ export class OpenApi3SpecBuilder {
         const copyOfPaths = {...this.state.paths};
         copyOfPaths[pathName] = pathItem;
         return new OpenApi3SpecBuilder({...this.state, paths: copyOfPaths});
+    }
+
+    public withComponents(components: OpenApi3ComponentsBuilder): OpenApi3SpecBuilder {
+        return new OpenApi3SpecBuilder({...this.state, components});
+    }
+
+    public withNoPaths(): OpenApi3SpecBuilder {
+        return new OpenApi3SpecBuilder({...this.state, paths: {}});
     }
 }
 

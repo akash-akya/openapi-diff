@@ -2,16 +2,19 @@ import {
     DiffResultAction,
     DiffResultCode,
     DiffResultEntity,
+    DiffResultSource,
     DiffResultSpecEntityDetails
 } from '../../../api-types';
 import {ParsedProperty} from '../../spec-parser-types';
 import {Difference} from './difference';
 
-interface CreateDifferenceOptions<T> {
-    sourceObject?: T;
-    destinationObject?: T;
+interface CreateDifferenceOptions<T, U> {
+    sourceSpecOrigins: Array<ParsedProperty<T>>;
+    destinationSpecOrigins: Array<ParsedProperty<U>>;
     propertyName: string;
     action: DiffResultAction;
+    details?: any;
+    source: DiffResultSource;
 }
 
 const findEntityForDiff = (propertyName: string): DiffResultEntity => {
@@ -20,26 +23,29 @@ const findEntityForDiff = (propertyName: string): DiffResultEntity => {
         : `${propertyName}` as DiffResultEntity;
 };
 
-const createSpecEntityDetails = <T>(parsedProperty?: ParsedProperty<T>): DiffResultSpecEntityDetails => {
-    return parsedProperty
-        ? {
-            location: parsedProperty.originalPath.join('.'),
-            value: parsedProperty.value
-        }
-        : {
-            location: undefined,
-            value: undefined
-        };
-};
+const createSpecEntityDetails = <T>(parsedProperty: ParsedProperty<T>): DiffResultSpecEntityDetails => (
+    {
+        location: parsedProperty.originalPath.join('.'),
+        value: parsedProperty.value
+    }
+);
 
-export const createDifference = <T>(options: CreateDifferenceOptions<ParsedProperty<T>>): Difference => {
+export const createDifference = <T, U>(
+    options: CreateDifferenceOptions<T, U>
+): Difference => {
     const entity = findEntityForDiff(options.propertyName);
-    return {
+    const difference: Difference = {
         action: options.action,
         code: `${entity}.${options.action}` as DiffResultCode,
-        destinationSpecEntityDetails: createSpecEntityDetails(options.destinationObject),
+        destinationSpecEntityDetails: options.destinationSpecOrigins.map(createSpecEntityDetails),
         entity,
-        source: 'openapi-diff',
-        sourceSpecEntityDetails: createSpecEntityDetails(options.sourceObject)
+        source: options.source,
+        sourceSpecEntityDetails: options.sourceSpecOrigins.map(createSpecEntityDetails)
     };
+
+    if (options.details) {
+        difference.details = options.details;
+    }
+
+    return difference;
 };

@@ -7,6 +7,8 @@ const codeToTypeMap: CodeToTypeMap = {
     'method.remove': 'breaking',
     'path.add': 'non-breaking',
     'path.remove': 'breaking',
+    'request.body.scope.add': 'non-breaking',
+    'request.body.scope.remove': 'breaking',
     'unclassified.add': 'unclassified',
     'unclassified.remove': 'unclassified'
 };

@@ -1,6 +1,7 @@
 .conventional-changelog-lintrc
 .gitignore
 .idea
+.vs
 .nvmrc
 CONTRIBUTING.md
 bitbucket-pipelines.yml

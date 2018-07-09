@@ -1,7 +1,8 @@
+import * as _ from 'lodash';
 import {DiffResultSpecEntityDetails} from '../../../lib/api-types';
 
 interface SpecEntityDetailsState {
-    location: string | undefined;
+    location: string;
     value: any;
 }
 
@@ -16,24 +17,18 @@ export class DiffResultSpecEntityDetailsBuilder {
 
     private constructor(private readonly state: SpecEntityDetailsState) {}
 
-    public withLocation(location: string | undefined): DiffResultSpecEntityDetailsBuilder {
-        return new DiffResultSpecEntityDetailsBuilder({
-            location,
-            value: this.state.value
-        });
+    public withLocation(location: string): DiffResultSpecEntityDetailsBuilder {
+        return new DiffResultSpecEntityDetailsBuilder({...this.state, location});
     }
 
-    public withValue(value: any | undefined): DiffResultSpecEntityDetailsBuilder {
-        return new DiffResultSpecEntityDetailsBuilder({
-            location: this.state.location,
-            value
-        });
+    public withValue(value: any): DiffResultSpecEntityDetailsBuilder {
+        return new DiffResultSpecEntityDetailsBuilder({...this.state, value: _.cloneDeep(value)});
     }
 
     public build(): DiffResultSpecEntityDetails {
         return {
             location: this.state.location,
-            value: this.state.value
+            value: _.cloneDeep(this.state.value)
         };
     }
 }

@@ -5,6 +5,8 @@ import {
     unclassifiedDiffResultBuilder
 } from '../../support/builders/diff-result-builder';
 import {specEntityDetailsBuilder} from '../../support/builders/diff-result-spec-entity-details-builder';
+import {refObjectBuilder} from '../../support/builders/ref-object-builder';
+import {swagger2BodyParameterBuilder} from '../../support/builders/swagger2-body-parameter-builder';
 import {swagger2OperationBuilder} from '../../support/builders/swagger2-operation-builder';
 import {swagger2PathItemBuilder} from '../../support/builders/swagger2-path-item-builder';
 import {swagger2SpecBuilder} from '../../support/builders/swagger2-spec-builder';
@@ -47,6 +49,33 @@ describe('openapi-diff swagger2', () => {
         ));
     });
 
+    it('should fail when request body parameter contains circular references', async () => {
+        const sourceSpec = swagger2SpecBuilder
+            .withDefinition('circularSchema',
+                    {
+                        additionalProperties: {$ref: '#/definitions/circularSchema'},
+                        type: 'object'
+                    })
+            .withPath('/some/path', swagger2PathItemBuilder
+                .withOperation('post', swagger2OperationBuilder
+                    .withParameters([
+                        swagger2BodyParameterBuilder.withSchema({$ref: '#/definitions/circularSchema'})
+                    ])));
+
+        mockFileSystem.givenReadFileReturns(
+            Promise.resolve(JSON.stringify(sourceSpec.build())),
+            Promise.resolve(JSON.stringify(sourceSpec.build()))
+        );
+
+        await expectToFail(invokeDiffLocations('source-spec-with-circular-refs.json', 'destination-spec.json'));
+
+        expect(mockResultReporter.reportError).toHaveBeenCalledWith(new OpenApiDiffErrorImpl(
+            'OPENAPI_DIFF_VALIDATE_SWAGGER_2_ERROR',
+            'Validation errors in source-spec-with-circular-refs.json',
+            new Error('The API contains circular references')
+        ));
+    });
+
     it('should report an add and remove differences, when a method was changed', async () => {
         const sourceSpec = swagger2SpecBuilder
             .withPath('/path', swagger2PathItemBuilder
@@ -61,16 +90,12 @@ describe('openapi-diff swagger2', () => {
 
         expect(outcome).toContainDifferences([
             nonBreakingDiffResultBuilder
-                .withDestinationSpecEntityDetails(
+                .withDestinationSpecEntityDetails([
                     specEntityDetailsBuilder
                         .withLocation('paths./path.post')
                         .withValue(swagger2OperationBuilder.build())
-                )
-                .withSourceSpecEntityDetails(
-                    specEntityDetailsBuilder
-                        .withLocation(undefined)
-                        .withValue(undefined)
-                )
+                ])
+                .withSourceSpecEntityDetails([])
                 .withCode('method.add')
                 .withSource('openapi-diff')
                 .withEntity('method')
@@ -78,16 +103,12 @@ describe('openapi-diff swagger2', () => {
                 .build(),
 
             breakingDiffResultBuilder
-                .withDestinationSpecEntityDetails(
-                    specEntityDetailsBuilder
-                        .withLocation(undefined)
-                        .withValue(undefined)
-                )
-                .withSourceSpecEntityDetails(
+                .withDestinationSpecEntityDetails([])
+                .withSourceSpecEntityDetails([
                     specEntityDetailsBuilder
                         .withLocation('paths./path.get')
                         .withValue(swagger2OperationBuilder.build())
-                )
+                ])
                 .withCode('method.remove')
                 .withSource('openapi-diff')
                 .withEntity('method')
@@ -107,14 +128,16 @@ describe('openapi-diff swagger2', () => {
         const baseDiffResult = unclassifiedDiffResultBuilder
             .withSource('openapi-diff')
             .withEntity('unclassified')
-            .withSourceSpecEntityDetails(
+            .withSourceSpecEntityDetails([
                 specEntityDetailsBuilder
                     .withLocation('x-external-id')
-                    .withValue('x value'))
-            .withDestinationSpecEntityDetails(
+                    .withValue('x value')
+            ])
+            .withDestinationSpecEntityDetails([
                 specEntityDetailsBuilder
                     .withLocation('x-external-id')
-                    .withValue('NEW x value'));
+                    .withValue('NEW x value')
+            ]);
 
         expect(outcome).toContainDifferences([
             baseDiffResult.withAction('add').withCode('unclassified.add').build(),
@@ -140,20 +163,83 @@ describe('openapi-diff swagger2', () => {
                 .withCode('path.add')
                 .withEntity('path')
                 .withSource('openapi-diff')
-                .withDestinationSpecEntityDetails(specEntityDetailsBuilder
-                    .withLocation(`paths.${addedPath}`)
-                    .withValue(swagger2PathItemBuilder.build()))
-                .withSourceSpecEntityDetails(specEntityDetailsBuilder.withLocation(undefined).withValue(undefined))
+                .withDestinationSpecEntityDetails([
+                    specEntityDetailsBuilder
+                        .withLocation(`paths.${addedPath}`)
+                        .withValue(swagger2PathItemBuilder.build())
+                ])
+                .withSourceSpecEntityDetails([])
                 .build(),
             breakingDiffResultBuilder
                 .withAction('remove')
                 .withCode('path.remove')
                 .withEntity('path')
                 .withSource('openapi-diff')
-                .withSourceSpecEntityDetails(specEntityDetailsBuilder
-                    .withLocation(`paths.${removedPath}`)
-                    .withValue(swagger2PathItemBuilder.build()))
-                .withDestinationSpecEntityDetails(specEntityDetailsBuilder.withLocation(undefined).withValue(undefined))
+                .withSourceSpecEntityDetails([
+                    specEntityDetailsBuilder
+                        .withLocation(`paths.${removedPath}`)
+                        .withValue(swagger2PathItemBuilder.build())
+                ])
+                .withDestinationSpecEntityDetails([])
+                .build()
+        ]);
+    });
+
+    it('should find differences in request bodies with references', async () => {
+        const path = '/some/path';
+        const sourceSpec = swagger2SpecBuilder
+            .withDefinition('stringSchema', {type: 'string'})
+            .withDefinition('requestBodySchema', {$ref: '#/definitions/stringSchema'})
+            .withParameter(
+                'RequestBody',
+                swagger2BodyParameterBuilder.withSchema({$ref: '#/definitions/requestBodySchema'})
+            )
+            .withPath(path, swagger2PathItemBuilder
+                .withOperation('post', swagger2OperationBuilder
+                    .withParameters([refObjectBuilder.withRef('#/parameters/RequestBody')])));
+
+        const destinationSpec = swagger2SpecBuilder
+            .withPath(path, swagger2PathItemBuilder
+                .withOperation('post', swagger2OperationBuilder
+                    .withParameters([swagger2BodyParameterBuilder.withSchema({type: 'number'})])));
+
+        const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
+
+        const typeChangeLocation = `paths.${path}.post.parameters.0.schema.type`;
+        expect(outcome).toContainDifferences([
+            nonBreakingDiffResultBuilder
+                .withAction('add')
+                .withCode('request.body.scope.add')
+                .withEntity('request.body.scope')
+                .withSource('json-schema-diff')
+                .withSourceSpecEntityDetails([
+                    specEntityDetailsBuilder
+                        .withLocation(typeChangeLocation)
+                        .withValue('string')
+                ])
+                .withDestinationSpecEntityDetails([
+                    specEntityDetailsBuilder
+                        .withLocation(typeChangeLocation)
+                        .withValue('number')
+                ])
+                .withDetails({value: 'number'})
+                .build(),
+            breakingDiffResultBuilder
+                .withAction('remove')
+                .withCode('request.body.scope.remove')
+                .withEntity('request.body.scope')
+                .withSource('json-schema-diff')
+                .withSourceSpecEntityDetails([
+                    specEntityDetailsBuilder
+                        .withLocation(typeChangeLocation)
+                        .withValue('string')
+                ])
+                .withDestinationSpecEntityDetails([
+                    specEntityDetailsBuilder
+                        .withLocation(typeChangeLocation)
+                        .withValue('number')
+                ])
+                .withDetails({value: 'string'})
                 .build()
         ]);
     });

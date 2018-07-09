@@ -3,9 +3,9 @@ import * as OpenApiDiff from '../../lib/api';
 import {DiffOutcome, DiffOutcomeFailure, SpecOption} from '../../lib/api-types';
 import {OpenApiDiffErrorImpl} from '../../lib/common/open-api-diff-error-impl';
 import {openApi3SpecBuilder} from '../support/builders/openapi3-spec-builder';
+import {openapi3SpecsDifferenceBuilder} from '../support/builders/openapi3-specs-difference-builder';
 import {specOptionBuilder} from '../support/builders/spec-option-builder';
 import {swagger2SpecBuilder} from '../support/builders/swagger2-spec-builder';
-import {swagger2SpecsDifferenceBuilder} from '../support/builders/swagger2-specs-difference-builder';
 import {expectToFail} from '../support/expect-to-fail';
 
 describe('api', () => {
@@ -65,7 +65,7 @@ describe('api', () => {
     });
 
     it('should include non breaking differences', async () => {
-        const specContents = swagger2SpecsDifferenceBuilder
+        const specContents = openapi3SpecsDifferenceBuilder
             .withNonBreakingDifference()
             .build();
 
@@ -81,7 +81,7 @@ describe('api', () => {
     });
 
     it('should include unclassified differences', async () => {
-        const specContents = swagger2SpecsDifferenceBuilder
+        const specContents = openapi3SpecsDifferenceBuilder
             .withUnclassifiedDifference()
             .build();
 
@@ -97,7 +97,7 @@ describe('api', () => {
     });
 
     it('should include breaking differences', async () => {
-        const specContents = swagger2SpecsDifferenceBuilder
+        const specContents = openapi3SpecsDifferenceBuilder
             .withBreakingDifference()
             .build();
 

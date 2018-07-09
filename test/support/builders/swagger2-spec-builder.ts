@@ -1,26 +1,36 @@
 import * as assert from 'assert';
 import * as _ from 'lodash';
-import {Swagger2, Swagger2Paths} from '../../../lib/openapi-diff/swagger2';
+import {Swagger2, Swagger2BodyParameter, Swagger2Paths} from '../../../lib/openapi-diff/swagger2';
+import {Swagger2BodyParameterBuilder} from './swagger2-body-parameter-builder';
 import {Swagger2PathItemBuilder} from './swagger2-path-item-builder';
 
 interface Paths {
     [pathName: string]: Swagger2PathItemBuilder;
 }
 
+interface Swagger2Parameters {
+    [parameterName: string]: Swagger2BodyParameter;
+}
+
 interface Swagger2SpecBuilderState {
     paths: Paths;
-    xProperties: {[key: string]: any};
+    definitions: { [definitionsName: string]: any };
+    parameters: { [name: string]: Swagger2BodyParameterBuilder };
+    xProperties: { [key: string]: any };
 }
 
 export class Swagger2SpecBuilder {
     public static defaultSwagger2SpecBuilder(): Swagger2SpecBuilder {
         return new Swagger2SpecBuilder({
+            definitions: {},
+            parameters: {},
             paths: {},
             xProperties: {}
         });
     }
 
-    private constructor(private readonly state: Swagger2SpecBuilderState) {}
+    private constructor(private readonly state: Swagger2SpecBuilderState) {
+    }
 
     public build(): Swagger2 {
         const paths = Object.keys(this.state.paths).reduce<Swagger2Paths>((swagger2Paths, currentPath) => {
@@ -29,11 +39,19 @@ export class Swagger2SpecBuilder {
         }, {});
         const copyOfXProperties = _.cloneDeep(this.state.xProperties);
 
+        const parameters = Object.keys(this.state.parameters)
+            .reduce<Swagger2Parameters>((accumulator, parameterName) => {
+                accumulator[parameterName] = this.state.parameters[parameterName].build();
+                return accumulator;
+            }, {});
+
         return {
+            definitions: _.cloneDeep(this.state.definitions),
             info: {
                 title: '',
                 version: ''
             },
+            parameters,
             paths,
             swagger: '2.0',
             ...copyOfXProperties
@@ -51,6 +69,18 @@ export class Swagger2SpecBuilder {
         const copyOfPaths = {...this.state.paths};
         copyOfPaths[pathName] = pathItemBuilder;
         return new Swagger2SpecBuilder({...this.state, paths: copyOfPaths});
+    }
+
+    public withDefinition(name: string, schema: any): Swagger2SpecBuilder {
+        const copyOfDefinitions = {...this.state.definitions};
+        copyOfDefinitions[name] = _.cloneDeep(schema);
+        return new Swagger2SpecBuilder({...this.state, definitions: copyOfDefinitions});
+    }
+
+    public withParameter(name: string, parameter: Swagger2BodyParameterBuilder): Swagger2SpecBuilder {
+        const copyOfParameters = {...this.state.parameters};
+        copyOfParameters[name] = parameter;
+        return new Swagger2SpecBuilder({...this.state, parameters: copyOfParameters});
     }
 
     public withNoPaths(): Swagger2SpecBuilder {

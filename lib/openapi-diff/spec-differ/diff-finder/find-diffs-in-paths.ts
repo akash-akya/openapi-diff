@@ -15,8 +15,10 @@ const findAddedPathDifferences = (
             const addedDestinationPathItem = destinationPathItems[addedPathName];
             return createDifference({
                 action: 'add',
-                destinationObject: addedDestinationPathItem.originalValue,
-                propertyName: 'path'
+                destinationSpecOrigins: [addedDestinationPathItem.originalValue],
+                propertyName: 'path',
+                source: 'openapi-diff',
+                sourceSpecOrigins: []
             });
         });
 };
@@ -29,24 +31,30 @@ const findRemovedPathDifferences = (
             const removedSourcePathItem = sourcePathItems[removedPathName];
             return createDifference({
                 action: 'remove',
+                destinationSpecOrigins: [],
                 propertyName: 'path',
-                sourceObject: removedSourcePathItem.originalValue
+                source: 'openapi-diff',
+                sourceSpecOrigins: [removedSourcePathItem.originalValue]
             });
         });
 };
 
-const findMatchingPathDifferences = (
+const findMatchingPathDifferences = async (
     sourcePathItems: ParsedPathItems, destinationPathItems: ParsedPathItems
-): Difference[] => {
+): Promise<Difference[]> => {
     const matchingPaths = getCommonKeysFromObjects(sourcePathItems, destinationPathItems);
 
-    return matchingPaths.reduce<Difference[]>((allDifferences, matchingPathItem) => {
-        const differencesInOperations = findDifferencesInOperations(
+    const whenFindDifferencesInAllOperations = matchingPaths.map((matchingPathItem) =>
+        findDifferencesInOperations(
             sourcePathItems[matchingPathItem].operations,
-            destinationPathItems[matchingPathItem].operations
-        );
-        return [...allDifferences, ...differencesInOperations];
-    }, []);
+            destinationPathItems[matchingPathItem].operations));
+
+    const differencesByOperation = await Promise.all(whenFindDifferencesInAllOperations);
+
+    const flattenDifferences = differencesByOperation.reduce<Difference[]>((allDifferences, operationDifferences) =>
+        [...allDifferences, ...operationDifferences], []);
+
+    return flattenDifferences;
 };
 
 const normalizePathItems = (parsedPathItems: ParsedPathItems): ParsedPathItems =>
@@ -57,15 +65,15 @@ const normalizePathItems = (parsedPathItems: ParsedPathItems): ParsedPathItems =
         return normalizedParsedPathItems;
     }, {});
 
-export const findDiffsInPaths = (
+export const findDiffsInPaths = async (
     sourcePathItems: ParsedPathItems, destinationPathItems: ParsedPathItems
-): Difference[] => {
+): Promise<Difference[]> => {
     const normalizedSourcePathItems = normalizePathItems(sourcePathItems);
     const normalizedDestinationPathItems = normalizePathItems(destinationPathItems);
 
     const addedPaths = findAddedPathDifferences(normalizedSourcePathItems, normalizedDestinationPathItems);
     const removedPaths = findRemovedPathDifferences(normalizedSourcePathItems, normalizedDestinationPathItems);
-    const matchingPaths = findMatchingPathDifferences(normalizedSourcePathItems, normalizedDestinationPathItems);
+    const matchingPaths = await findMatchingPathDifferences(normalizedSourcePathItems, normalizedDestinationPathItems);
 
     return [...addedPaths, ...removedPaths, ...matchingPaths];
 };

@@ -1,9 +1,17 @@
+export type Path = Array<string | number>;
+
 export interface ParsedOperation {
     originalValue: ParsedProperty<any>;
+    requestBody: ParsedRequestBody;
 }
 
 export interface ParsedOperations {
     [method: string]: ParsedOperation;
+}
+
+export interface ParsedRequestBody {
+    originalValue: ParsedProperty<any>;
+    jsonSchema?: ParsedProperty<any>;
 }
 
 export interface ParsedPathItems {
@@ -17,7 +25,7 @@ export interface ParsedPathItem {
 }
 
 export interface ParsedProperty<T> {
-    originalPath: string[];
+    originalPath: Path;
     value?: T;
 }
 

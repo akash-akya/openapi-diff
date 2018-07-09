@@ -1,8 +1,10 @@
 import {ParsedOperations} from '../../spec-parser-types';
 import {getAddedKeysFromObjects} from './common/get-added-keys-from-objects';
+import {getCommonKeysFromObjects} from './common/get-common-keys-from-objects';
 import {getRemovedKeysFromObjects} from './common/get-removed-keys-from-objects';
 import {createDifference} from './create-difference';
 import {Difference} from './difference';
+import {findDifferencesInRequestBodies} from './find-diffs-in-request-bodies';
 
 const findAddedMethodDifferences = (
     sourceOperations: ParsedOperations, destinationOperations: ParsedOperations
@@ -12,8 +14,10 @@ const findAddedMethodDifferences = (
             const addedDestinationOperation = destinationOperations[addedMethod];
             return createDifference({
                 action: 'add',
-                destinationObject: addedDestinationOperation.originalValue,
-                propertyName: 'method'
+                destinationSpecOrigins: [addedDestinationOperation.originalValue],
+                propertyName: 'method',
+                source: 'openapi-diff',
+                sourceSpecOrigins: []
             });
         });
 };
@@ -26,16 +30,39 @@ const findRemovedMethodDifferences = (
             const removedSourceOperation = sourceOperations[removedMethod];
             return createDifference({
                 action: 'remove',
+                destinationSpecOrigins: [],
                 propertyName: 'method',
-                sourceObject: removedSourceOperation.originalValue
+                source: 'openapi-diff',
+                sourceSpecOrigins: [removedSourceOperation.originalValue]
             });
         });
 };
-export const findDifferencesInOperations = (
+
+const findMatchingMethodsDifferences = async (
     sourceOperations: ParsedOperations, destinationOperations: ParsedOperations
-): Difference[] => {
+): Promise<Difference[]> => {
+    const whenDifferencesForAllMatchingMethods = getCommonKeysFromObjects(sourceOperations, destinationOperations)
+        .map((matchingMethod) => {
+            const matchingSourceOperation = sourceOperations[matchingMethod];
+            const matchingDestinationOperation = destinationOperations[matchingMethod];
+
+            return findDifferencesInRequestBodies(
+                matchingSourceOperation.requestBody,
+                matchingDestinationOperation.requestBody
+            );
+        });
+    const differencesByMethod = await Promise.all(whenDifferencesForAllMatchingMethods);
+    return differencesByMethod
+        .reduce<Difference[]>((allDifferences, methodDifferences) => [...allDifferences, ...methodDifferences], []);
+};
+
+export const findDifferencesInOperations = async (
+    sourceOperations: ParsedOperations, destinationOperations: ParsedOperations
+): Promise<Difference[]> => {
+    const matchingMethodsDifferences = await findMatchingMethodsDifferences(sourceOperations, destinationOperations);
     return [
         ...findAddedMethodDifferences(sourceOperations, destinationOperations),
-        ...findRemovedMethodDifferences(sourceOperations, destinationOperations)
+        ...findRemovedMethodDifferences(sourceOperations, destinationOperations),
+        ...matchingMethodsDifferences
     ];
 };

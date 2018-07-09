@@ -1,7 +1,9 @@
 // tslint:disable:no-implicit-dependencies
-import {Operation, Path, Spec} from 'swagger-schema-official';
+import {BodyParameter, Operation, Parameter, Path, Spec} from 'swagger-schema-official';
 
 export type Swagger2 = Spec;
+export type Swagger2Parameter = Parameter;
+export type Swagger2BodyParameter = BodyParameter;
 export type Swagger2PathItem = Path;
 export type Swagger2Operation = Operation;
 

@@ -1,10 +1,14 @@
+import * as _ from 'lodash';
+import {isUndefined} from 'util';
 import {
-    DiffResult, DiffResultAction, DiffResultCode, DiffResultEntity,
-    DiffResultSource, DiffResultType
+    DiffResult,
+    DiffResultAction,
+    DiffResultCode,
+    DiffResultEntity,
+    DiffResultSource,
+    DiffResultType
 } from '../../../lib/api-types';
-import {
-    DiffResultSpecEntityDetailsBuilder, specEntityDetailsBuilder
-} from './diff-result-spec-entity-details-builder';
+import {DiffResultSpecEntityDetailsBuilder} from './diff-result-spec-entity-details-builder';
 
 interface DiffResultBuilderState<T extends DiffResultType> {
     action: DiffResultAction;
@@ -12,8 +16,8 @@ interface DiffResultBuilderState<T extends DiffResultType> {
     entity: DiffResultEntity;
     code: DiffResultCode;
     source: DiffResultSource;
-    destinationSpecEntityDetails: DiffResultSpecEntityDetailsBuilder;
-    sourceSpecEntityDetails: DiffResultSpecEntityDetailsBuilder;
+    destinationSpecEntityDetails: DiffResultSpecEntityDetailsBuilder[];
+    sourceSpecEntityDetails: DiffResultSpecEntityDetailsBuilder[];
     type: T;
 }
 
@@ -22,11 +26,11 @@ export class DiffResultBuilder<T extends DiffResultType> {
         return new DiffResultBuilder({
             action: 'add',
             code: 'path.add',
-            destinationSpecEntityDetails: specEntityDetailsBuilder,
+            destinationSpecEntityDetails: [],
             details: undefined,
             entity: 'path',
             source: 'openapi-diff',
-            sourceSpecEntityDetails: specEntityDetailsBuilder,
+            sourceSpecEntityDetails: [],
             type
         });
     }
@@ -48,27 +52,44 @@ export class DiffResultBuilder<T extends DiffResultType> {
         return new DiffResultBuilder({...this.state, source});    }
 
     public withDestinationSpecEntityDetails(
-        destinationSpecEntityDetails: DiffResultSpecEntityDetailsBuilder
+        destinationSpecEntityDetails: DiffResultSpecEntityDetailsBuilder[]
     ): DiffResultBuilder<T> {
-        return new DiffResultBuilder({...this.state, destinationSpecEntityDetails});
+        return new DiffResultBuilder({
+            ...this.state,
+            destinationSpecEntityDetails: [...destinationSpecEntityDetails]
+        });
     }
 
     public withSourceSpecEntityDetails(
-        sourceSpecEntityDetails: DiffResultSpecEntityDetailsBuilder
+        sourceSpecEntityDetails: DiffResultSpecEntityDetailsBuilder[]
     ): DiffResultBuilder<T> {
-        return new DiffResultBuilder({...this.state, sourceSpecEntityDetails});
+        return new DiffResultBuilder({
+            ...this.state,
+            sourceSpecEntityDetails: [...sourceSpecEntityDetails]
+        });
+    }
+
+    public withDetails(details: any): DiffResultBuilder<T> {
+        const copyOfDetails = _.cloneDeep(details);
+        return new DiffResultBuilder({...this.state, details: copyOfDetails});
     }
 
     public build(): DiffResult<T> {
-        return {
+        const diffResult: DiffResult<T> =  {
             action: this.state.action,
             code: this.state.code,
-            destinationSpecEntityDetails: this.state.destinationSpecEntityDetails.build(),
+            destinationSpecEntityDetails: this.state.destinationSpecEntityDetails
+                .map((builder) => builder.build()),
             entity: this.state.entity,
             source: this.state.source,
-            sourceSpecEntityDetails: this.state.sourceSpecEntityDetails.build(),
+            sourceSpecEntityDetails: this.state.sourceSpecEntityDetails
+                .map((builder) => builder.build()),
             type: this.state.type
         };
+        if (!isUndefined(this.state.details)) {
+            diffResult.details = _.cloneDeep(this.state.details);
+        }
+        return diffResult;
     }
 }
 

@@ -20,7 +20,13 @@ const findAdditionDiffsInProperty = <T>(
     const isAddition = isUndefinedDeep(sourceObject) && isDefinedDeep(destinationObject);
 
     if (isAddition) {
-        return [createDifference({sourceObject, destinationObject, propertyName, action: 'add'})];
+        return [createDifference({
+            action: 'add',
+            destinationSpecOrigins: [destinationObject],
+            propertyName,
+            source: 'openapi-diff',
+            sourceSpecOrigins: []
+        })];
     }
 
     return [];
@@ -32,7 +38,13 @@ const findDeletionDiffsInProperty = <T>(
     const isDeletion = isDefinedDeep(sourceObject) && isUndefinedDeep(destinationObject);
 
     if (isDeletion) {
-        return [createDifference({sourceObject, destinationObject, propertyName, action: 'remove'})];
+        return [createDifference({
+            action: 'remove',
+            destinationSpecOrigins: [],
+            propertyName,
+            source: 'openapi-diff',
+            sourceSpecOrigins: [sourceObject]
+        })];
     }
 
     return [];
@@ -46,8 +58,20 @@ const findEditionDiffsInProperty = (
 
     if (isEdition) {
         return [
-            createDifference({sourceObject, destinationObject, propertyName, action: 'add'}),
-            createDifference({sourceObject, destinationObject, propertyName, action: 'remove'})
+            createDifference({
+                action: 'add',
+                destinationSpecOrigins: [destinationObject],
+                propertyName,
+                source: 'openapi-diff',
+                sourceSpecOrigins: [sourceObject]
+            }),
+            createDifference({
+                action: 'remove',
+                destinationSpecOrigins: [destinationObject],
+                propertyName,
+                source: 'openapi-diff',
+                sourceSpecOrigins: [sourceObject]
+            })
         ];
     }
 

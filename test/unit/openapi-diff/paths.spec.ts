@@ -27,10 +27,12 @@ describe('openapi-diff paths', () => {
             .withCode('path.remove')
             .withEntity('path')
             .withSource('openapi-diff')
-            .withSourceSpecEntityDetails(specEntityDetailsBuilder
+            .withSourceSpecEntityDetails([
+                specEntityDetailsBuilder
                 .withLocation(`paths.${path}`)
-                .withValue(defaultOriginalValue))
-            .withDestinationSpecEntityDetails(specEntityDetailsBuilder.withLocation(undefined).withValue(undefined))
+                .withValue(defaultOriginalValue)
+            ])
+            .withDestinationSpecEntityDetails([])
             .build();
     };
 
@@ -40,10 +42,12 @@ describe('openapi-diff paths', () => {
             .withCode('path.add')
             .withEntity('path')
             .withSource('openapi-diff')
-            .withDestinationSpecEntityDetails(specEntityDetailsBuilder
+            .withDestinationSpecEntityDetails([
+                specEntityDetailsBuilder
                 .withLocation(`paths.${path}`)
-                .withValue(defaultOriginalValue))
-            .withSourceSpecEntityDetails(specEntityDetailsBuilder.withLocation(undefined).withValue(undefined))
+                .withValue(defaultOriginalValue)
+            ])
+            .withSourceSpecEntityDetails([])
             .build();
     };
 

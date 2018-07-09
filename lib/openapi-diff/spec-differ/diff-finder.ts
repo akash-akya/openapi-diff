@@ -9,14 +9,14 @@ interface ParsedSpecs {
 }
 
 export class DiffFinder {
-    public static findDifferences(specs: ParsedSpecs): Promise<Difference[]> {
+    public static async findDifferences(specs: ParsedSpecs): Promise<Difference[]> {
 
         const topLevelXPropertiesDiffs = findDiffsInXProperties(
             specs.sourceSpec.xProperties,
             specs.destinationSpec.xProperties,
             'xProperties'
         );
-        const pathDiffs = findDiffsInPaths(specs.sourceSpec.paths, specs.destinationSpec.paths);
+        const pathDiffs = await findDiffsInPaths(specs.sourceSpec.paths, specs.destinationSpec.paths);
 
         const allDiffs = [...topLevelXPropertiesDiffs, ...pathDiffs];
 

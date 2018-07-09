@@ -8,12 +8,15 @@ declare namespace OpenApiDiff {
         'path.remove' |
         'method.add' |
         'method.remove' |
+        'request.body.scope.add' |
+        'request.body.scope.remove' |
         'unclassified.add' |
         'unclassified.remove';
 
     export type DiffResultEntity =
         'path' |
         'method' |
+        'request.body.scope' |
         'unclassified';
 
     export type DiffResultAction = 'add' | 'remove';
@@ -27,15 +30,15 @@ declare namespace OpenApiDiff {
         action: DiffResultAction;
         code: DiffResultCode;
         entity: DiffResultEntity;
-        sourceSpecEntityDetails: DiffResultSpecEntityDetails;
-        destinationSpecEntityDetails: DiffResultSpecEntityDetails;
+        sourceSpecEntityDetails: DiffResultSpecEntityDetails[];
+        destinationSpecEntityDetails: DiffResultSpecEntityDetails[];
         source: DiffResultSource;
         details?: any;
         type: T;
     }
 
     export interface DiffResultSpecEntityDetails {
-        location?: string;
+        location: string;
         value?: any;
     }
 
@@ -79,6 +82,7 @@ declare namespace OpenApiDiff {
         'OPENAPI_DIFF_SPEC_DESERIALISER_ERROR' |
         'OPENAPI_DIFF_FILE_SYSTEM_ERROR' |
         'OPENAPI_DIFF_VALIDATE_SWAGGER_2_ERROR' |
+        'OPENAPI_DIFF_VALIDATE_OPENAPI_3_ERROR' |
         'OPENAPI_DIFF_HTTP_CLIENT_ERROR';
 
     export interface OpenApiDiffError extends Error {

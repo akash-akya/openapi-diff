@@ -10,8 +10,8 @@ interface Difference {
     action: DiffResultAction;
     code: DiffResultCode;
     entity: DiffResultEntity;
-    sourceSpecEntityDetails: DiffResultSpecEntityDetails;
-    destinationSpecEntityDetails: DiffResultSpecEntityDetails;
+    sourceSpecEntityDetails: DiffResultSpecEntityDetails[];
+    destinationSpecEntityDetails: DiffResultSpecEntityDetails[];
     source: DiffResultSource;
     details?: any;
 }

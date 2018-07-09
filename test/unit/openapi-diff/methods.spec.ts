@@ -30,10 +30,12 @@ describe('openapi-diff methods', () => {
             .withSource('openapi-diff')
             .withEntity('method')
             .withAction('remove')
-            .withSourceSpecEntityDetails(specEntityDetailsBuilder
+            .withSourceSpecEntityDetails([
+                specEntityDetailsBuilder
                 .withLocation(`paths.${defaultPath}.${method}`)
-                .withValue(defaultOriginalValue))
-            .withDestinationSpecEntityDetails(specEntityDetailsBuilder.withLocation(undefined).withValue(undefined))
+                .withValue(defaultOriginalValue)
+            ])
+            .withDestinationSpecEntityDetails([])
             .build();
     };
 
@@ -43,10 +45,12 @@ describe('openapi-diff methods', () => {
             .withSource('openapi-diff')
             .withEntity('method')
             .withAction('add')
-            .withDestinationSpecEntityDetails(specEntityDetailsBuilder
+            .withDestinationSpecEntityDetails([
+                specEntityDetailsBuilder
                 .withLocation(`paths.${defaultPath}.${method}`)
-                .withValue(defaultOriginalValue))
-            .withSourceSpecEntityDetails(specEntityDetailsBuilder.withLocation(undefined).withValue(undefined))
+                .withValue(defaultOriginalValue)
+            ])
+            .withSourceSpecEntityDetails([])
             .build();
     };
 
