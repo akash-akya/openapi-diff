@@ -1,3 +1,13 @@
+<a name="0.12.0"></a>
+# [0.12.0](https://bitbucket.org/atlassian/openapi-diff/compare/0.11.0...0.12.0) (2018-07-18)
+
+
+### Features
+
+* add support for request bodies ([5f897d4](https://bitbucket.org/atlassian/openapi-diff/commits/5f897d4))
+
+
+
 <a name="0.11.0"></a>
 # [0.11.0](https://bitbucket.org/atlassian/openapi-diff/compare/0.10.0...0.11.0) (2018-07-06)
 
