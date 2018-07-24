@@ -15,10 +15,12 @@ export const whenSpecsAreDiffed = async (
     return openApiDiff.diffSpecs({
         destinationSpec: {
             content: JSON.stringify(destinationSpecBuilder.build()),
+            format: 'auto-detect',
             location: defaultDestinationSpecPath
         },
         sourceSpec: {
             content: JSON.stringify(sourceSpecBuilder.build()),
+            format: 'auto-detect',
             location: defaultSourceSpecPath
         }
     });

@@ -1,4 +1,6 @@
 import {OpenApiDiffErrorImpl} from '../../../lib/common/open-api-diff-error-impl';
+import {DiffPathsOptions} from '../../../lib/openapi-diff';
+import {diffPathsOptionsBuilder} from '../../support/builders/diff-paths-options-builder';
 import {
     breakingDiffResultBuilder,
     nonBreakingDiffResultBuilder,
@@ -6,6 +8,7 @@ import {
 } from '../../support/builders/diff-result-builder';
 import {specEntityDetailsBuilder} from '../../support/builders/diff-result-spec-entity-details-builder';
 import {refObjectBuilder} from '../../support/builders/ref-object-builder';
+import {specPathOptionBuilder} from '../../support/builders/spec-path-option-builder';
 import {swagger2BodyParameterBuilder} from '../../support/builders/swagger2-body-parameter-builder';
 import {swagger2OperationBuilder} from '../../support/builders/swagger2-operation-builder';
 import {swagger2PathItemBuilder} from '../../support/builders/swagger2-path-item-builder';
@@ -31,49 +34,95 @@ describe('openapi-diff swagger2', () => {
         mockResultReporter = createMockResultReporter();
     });
 
-    const invokeDiffLocations = (sourceSpecPath: string, destinationSpecPath: string): Promise<void> => {
+    const invokeDiffLocations = (options: DiffPathsOptions): Promise<void> => {
         const openApiDiff = createOpenApiDiffWithMocks({mockFileSystem, mockResultReporter, mockHttpClient});
-        return openApiDiff.diffPaths(sourceSpecPath, destinationSpecPath);
+        return openApiDiff.diffPaths(options);
     };
 
-    it('should report an error when the swagger 2 file is not valid', async () => {
-        const invalidSwagger2Spec = '{"swagger": "2.0"}';
-        mockFileSystem.givenReadFileReturnsContent(invalidSwagger2Spec);
+    describe('content parsing', () => {
+        it('should report an error when the swagger 2 file is not valid', async () => {
+            const invalidSwagger2Spec = '{"swagger": "2.0"}';
+            mockFileSystem.givenReadFileReturnsContent(invalidSwagger2Spec);
 
-        await expectToFail(invokeDiffLocations('source-spec-invalid.json', 'destination-spec.json'));
+            await expectToFail(invokeDiffLocations(diffPathsOptionsBuilder
+                .withSourceSpec(specPathOptionBuilder.withLocation('source-spec-invalid.json'))
+                .build()
+            ));
 
-        expect(mockResultReporter.reportError).toHaveBeenCalledWith(new OpenApiDiffErrorImpl(
-            'OPENAPI_DIFF_VALIDATE_SWAGGER_2_ERROR',
-            'Validation errors in source-spec-invalid.json',
-            new Error('[object Object] is not a valid Swagger API definition')
-        ));
-    });
+            expect(mockResultReporter.reportError).toHaveBeenCalledWith(new OpenApiDiffErrorImpl(
+                'OPENAPI_DIFF_PARSE_ERROR',
+                'Validation errors in source-spec-invalid.json: [object Object] is not a valid Swagger API definition'
+            ));
+        });
 
-    it('should fail when request body parameter contains circular references', async () => {
-        const sourceSpec = swagger2SpecBuilder
-            .withDefinition('circularSchema',
+        it('should report an error when format is swagger2 but content is not', async () => {
+            const specContent = JSON.stringify({openapi: '3.0.0'});
+
+            mockFileSystem.givenReadFileReturnsContent(specContent);
+
+            await expectToFail(invokeDiffLocations(diffPathsOptionsBuilder
+                .withSourceSpec(
+                    specPathOptionBuilder
+                        .withLocation('source-spec.json')
+                        .withFormat('swagger2')
+                )
+                .build()
+            ));
+
+            expect(mockResultReporter.reportError).toHaveBeenCalledWith(new OpenApiDiffErrorImpl(
+                'OPENAPI_DIFF_PARSE_ERROR',
+                '"source-spec.json" is not a "swagger2" spec'
+            ));
+        });
+
+        it('should successfully parse when spec content is swagger2 and given format is swagger2', async () => {
+            const swagger2Content = swagger2SpecBuilder.build();
+
+            mockFileSystem.givenReadFileReturns(
+                Promise.resolve(JSON.stringify(swagger2Content)),
+                Promise.resolve(JSON.stringify(swagger2Content))
+            );
+
+            await invokeDiffLocations(diffPathsOptionsBuilder
+                .withSourceSpec(
+                    specPathOptionBuilder
+                        .withLocation('source-spec.json')
+                        .withFormat('swagger2')
+                )
+                .build()
+            );
+
+            expect(mockResultReporter.reportError).not.toHaveBeenCalled();
+        });
+
+        it('should fail when request body parameter contains circular references', async () => {
+            const sourceSpec = swagger2SpecBuilder
+                .withDefinition('circularSchema',
                     {
                         additionalProperties: {$ref: '#/definitions/circularSchema'},
                         type: 'object'
                     })
-            .withPath('/some/path', swagger2PathItemBuilder
-                .withOperation('post', swagger2OperationBuilder
-                    .withParameters([
-                        swagger2BodyParameterBuilder.withSchema({$ref: '#/definitions/circularSchema'})
-                    ])));
+                .withPath('/some/path', swagger2PathItemBuilder
+                    .withOperation('post', swagger2OperationBuilder
+                        .withParameters([
+                            swagger2BodyParameterBuilder.withSchema({$ref: '#/definitions/circularSchema'})
+                        ])));
 
-        mockFileSystem.givenReadFileReturns(
-            Promise.resolve(JSON.stringify(sourceSpec.build())),
-            Promise.resolve(JSON.stringify(sourceSpec.build()))
-        );
+            mockFileSystem.givenReadFileReturns(
+                Promise.resolve(JSON.stringify(sourceSpec.build())),
+                Promise.resolve(JSON.stringify(sourceSpec.build()))
+            );
 
-        await expectToFail(invokeDiffLocations('source-spec-with-circular-refs.json', 'destination-spec.json'));
+            await expectToFail(invokeDiffLocations(diffPathsOptionsBuilder
+                .withSourceSpec(specPathOptionBuilder.withLocation('source-spec-with-circular-refs.json'))
+                .build()
+            ));
 
-        expect(mockResultReporter.reportError).toHaveBeenCalledWith(new OpenApiDiffErrorImpl(
-            'OPENAPI_DIFF_VALIDATE_SWAGGER_2_ERROR',
-            'Validation errors in source-spec-with-circular-refs.json',
-            new Error('The API contains circular references')
-        ));
+            expect(mockResultReporter.reportError).toHaveBeenCalledWith(new OpenApiDiffErrorImpl(
+                'OPENAPI_DIFF_PARSE_ERROR',
+                'Validation errors in source-spec-with-circular-refs.json: The API contains circular references'
+            ));
+        });
     });
 
     it('should report an add and remove differences, when a method was changed', async () => {

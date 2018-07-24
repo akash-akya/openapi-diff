@@ -1,12 +1,18 @@
+import {SpecFormat} from '../../lib/api-types';
 import {OpenApiDiffErrorImpl} from '../../lib/common/open-api-diff-error-impl';
+import {DiffPathsOptions} from '../../lib/openapi-diff';
 import {diffOutcomeSuccessBuilder} from '../support/builders/diff-outcome-success-builder';
+import {diffPathsOptionsBuilder} from '../support/builders/diff-paths-options-builder';
+import {unclassifiedDiffResultBuilder} from '../support/builders/diff-result-builder';
+import {specEntityDetailsBuilder} from '../support/builders/diff-result-spec-entity-details-builder';
 import {openApi3ComponentsBuilder} from '../support/builders/openapi3-components-builder';
 import {openApi3OperationBuilder} from '../support/builders/openapi3-operation-builder';
 import {openApi3PathItemBuilder} from '../support/builders/openapi3-path-item-builder';
 import {openApi3RequestBodyBuilder} from '../support/builders/openapi3-request-body-builder';
 import {openApi3SpecBuilder} from '../support/builders/openapi3-spec-builder';
 import {openapi3SpecsDifferenceBuilder} from '../support/builders/openapi3-specs-difference-builder';
-import {specDetailsBuilder} from '../support/builders/spec-details-builder';
+import {specPathOptionBuilder} from '../support/builders/spec-path-option-builder';
+import {swagger2SpecBuilder} from '../support/builders/swagger2-spec-builder';
 import {expectToFail} from '../support/expect-to-fail';
 import {createOpenApiDiffWithMocks} from './support/create-openapi-diff';
 import {createMockFileSystem, MockFileSystem} from './support/mocks/mock-file-system';
@@ -24,63 +30,190 @@ describe('openapi-diff', () => {
         mockResultReporter = createMockResultReporter();
     });
 
-    const invokeDiffLocations = (sourceSpecPath: string, destinationSpecPath: string): Promise<void> => {
+    const invokeDiffLocations = (options: DiffPathsOptions): Promise<void> => {
         const openApiDiff = createOpenApiDiffWithMocks({mockFileSystem, mockResultReporter, mockHttpClient});
-        return openApiDiff.diffPaths(sourceSpecPath, destinationSpecPath);
+        return openApiDiff.diffPaths(options);
     };
 
-    describe('content loading', () => {
-        it('should call the file system and http client handler with the provided location', async () => {
-            await invokeDiffLocations('source-spec.json', 'http://input.url');
-
-            expect(mockFileSystem.readFile).toHaveBeenCalledWith('source-spec.json');
-            expect(mockHttpClient.get).toHaveBeenCalledWith('http://input.url');
-        });
-
-        it('should error out when the file system returns an error', async () => {
-            mockFileSystem.givenReadFileFailsWith(new Error('test file system error'));
-
-            await expectToFail(invokeDiffLocations('non-existing-file.json', 'destination-spec.json'));
-
-            expect(mockResultReporter.reportError).toHaveBeenCalledWith(new OpenApiDiffErrorImpl(
-                'OPENAPI_DIFF_FILE_SYSTEM_ERROR',
-                'Unable to read non-existing-file.json',
-                new Error('test file system error')
-            ));
-        });
-
-        it('should error out when the http client returns an error', async () => {
-            mockHttpClient.givenGetFailsWith(new Error('test http client error'));
-
-            await expectToFail(invokeDiffLocations('http://url.that.errors.out', 'destination-spec.json'));
-
-            expect(mockResultReporter.reportError).toHaveBeenCalledWith(new OpenApiDiffErrorImpl(
-                'OPENAPI_DIFF_HTTP_CLIENT_ERROR',
-                'Unable to load http://url.that.errors.out',
-                new Error('test http client error')
-            ));
-        });
-
-        it('should error out when openapi3 spec is invalid', async () => {
-            const invalidOpenApi3Spec = JSON.stringify({
-                invalidOpenapiProperty: '3'
-            });
-            mockFileSystem.givenReadFileReturns(
-                Promise.resolve(invalidOpenApi3Spec),
-                Promise.resolve(invalidOpenApi3Spec)
+    describe('content reading', () => {
+        it('should call the file system and http client handler with the provided locations', async () => {
+            await invokeDiffLocations(
+                diffPathsOptionsBuilder
+                    .withSourceSpec(specPathOptionBuilder.withLocation('source-spec.json'))
+                    .withDestinationSpec(specPathOptionBuilder.withLocation('http://destination.url'))
+                    .build()
             );
 
-            await expectToFail(invokeDiffLocations('source-spec-invalid.json', 'destination-spec.json'));
+            expect(mockFileSystem.readFile).toHaveBeenCalledWith('source-spec.json');
+            expect(mockHttpClient.get).toHaveBeenCalledWith('http://destination.url');
+        });
+
+        it('should report an error when failing to load the source spec from the file system', async () => {
+            const openapi3SpecContent = JSON.stringify(openApi3SpecBuilder.build());
+            const fileSystemError = new Error('Failed to load file');
+            mockFileSystem.givenReadFileReturns(
+                Promise.reject(fileSystemError),
+                Promise.resolve(openapi3SpecContent)
+            );
+
+            await expectToFail(invokeDiffLocations(diffPathsOptionsBuilder
+                .withSourceSpec(specPathOptionBuilder.withLocation('source-spec.json'))
+                .build()
+            ));
+
+            expect(mockResultReporter.reportError).toHaveBeenCalledWith(
+                new OpenApiDiffErrorImpl(
+                    'OPENAPI_DIFF_READ_ERROR',
+                    'Unable to read source-spec.json: Failed to load file'
+                )
+            );
+        });
+
+        it('should report an error when failing to load the destination spec from the file system', async () => {
+            const openapi3SpecContent = JSON.stringify(openApi3SpecBuilder.build());
+            const fileSystemError = new Error('Failed to load file');
+            mockFileSystem.givenReadFileReturns(
+                Promise.resolve(openapi3SpecContent),
+                Promise.reject(fileSystemError)
+            );
+
+            await expectToFail(invokeDiffLocations(diffPathsOptionsBuilder
+                .withDestinationSpec(specPathOptionBuilder.withLocation('destination-spec.json'))
+                .build()
+            ));
+
+            expect(mockResultReporter.reportError).toHaveBeenCalledWith(
+                new OpenApiDiffErrorImpl(
+                    'OPENAPI_DIFF_READ_ERROR',
+                    'Unable to read destination-spec.json: Failed to load file'
+                )
+            );
+        });
+
+        it('should report an error when the http client returns an error', async () => {
+            mockHttpClient.givenGetFailsWith(new Error('test http client error'));
+
+            await expectToFail(invokeDiffLocations(diffPathsOptionsBuilder
+                .withSourceSpec(specPathOptionBuilder.withLocation('http://url.that.errors.out'))
+                .build()
+            ));
 
             expect(mockResultReporter.reportError).toHaveBeenCalledWith(new OpenApiDiffErrorImpl(
-                'OPENAPI_DIFF_VALIDATE_OPENAPI_3_ERROR',
-                'Validation errors in source-spec-invalid.json',
-                new Error('[object Object] is not a valid Openapi API definition')
+                'OPENAPI_DIFF_READ_ERROR',
+                'Unable to load http://url.that.errors.out: test http client error'
+            ));
+        });
+    });
+
+    describe('content parsing', () => {
+        it('should report an error when unable to parse spec contents', async () => {
+            const malformedFileContents: string = '{this is not json or yaml';
+            mockFileSystem.givenReadFileReturnsContent(malformedFileContents);
+
+            await expectToFail(invokeDiffLocations(diffPathsOptionsBuilder
+                .withSourceSpec(specPathOptionBuilder.withLocation('source-spec-invalid.json'))
+                .build()
+            ));
+
+            expect(mockResultReporter.reportError).toHaveBeenCalledWith(
+                new OpenApiDiffErrorImpl(
+                    'OPENAPI_DIFF_PARSE_ERROR',
+                    'Unable to parse source-spec-invalid.json as a JSON or YAML file'
+                )
+            );
+        });
+
+        it('should load the specs as yaml if content is yaml but not json', async () => {
+            const openapi3YamlSpec = '' +
+                'info: \n' +
+                '  title: spec title\n' +
+                '  version: spec version\n' +
+                'paths: {}\n' +
+                'openapi: "3.0.0"\n';
+
+            mockFileSystem.givenReadFileReturnsContent(openapi3YamlSpec);
+
+            await invokeDiffLocations(diffPathsOptionsBuilder.build());
+
+            expect(mockResultReporter.reportError).not.toHaveBeenCalled();
+        });
+
+        it('should report an error when openapi3 spec is invalid', async () => {
+            const invalidOpenApi3Spec = JSON.stringify({
+                openapi: '3.0.0'
+            });
+            mockFileSystem.givenReadFileReturnsContent(invalidOpenApi3Spec);
+
+            await expectToFail(invokeDiffLocations(diffPathsOptionsBuilder
+                .withSourceSpec(specPathOptionBuilder.withLocation('source-spec-invalid.json'))
+                .build()
+            ));
+
+            expect(mockResultReporter.reportError).toHaveBeenCalledWith(new OpenApiDiffErrorImpl(
+                'OPENAPI_DIFF_PARSE_ERROR',
+                'Validation errors in source-spec-invalid.json: [object Object] is not a valid Openapi API definition'
+            ));
+        });
+
+        it('should report an error when given format is openapi3 but content is not', async () => {
+            const specContent = JSON.stringify({
+                openapi: '30.4.1'
+            });
+
+            mockFileSystem.givenReadFileReturnsContent(specContent);
+
+            await expectToFail(invokeDiffLocations(diffPathsOptionsBuilder
+                .withSourceSpec(
+                    specPathOptionBuilder
+                        .withLocation('source-spec.json')
+                        .withFormat('openapi3')
+                )
+                .build()
+            ));
+
+            expect(mockResultReporter.reportError).toHaveBeenCalledWith(new OpenApiDiffErrorImpl(
+                'OPENAPI_DIFF_PARSE_ERROR',
+                '"source-spec.json" is not a "openapi3" spec'
+            ));
+        });
+
+        it('should successfully parse when spec content is openapi3 and given format is openapi3', async () => {
+            const openApi3Content = JSON.stringify(openApi3SpecBuilder.build());
+            mockFileSystem.givenReadFileReturnsContent(openApi3Content);
+
+            await invokeDiffLocations(diffPathsOptionsBuilder
+                .withSourceSpec(
+                    specPathOptionBuilder
+                        .withLocation('source-spec.json')
+                        .withFormat('openapi3')
+                )
+                .build()
+            );
+
+            expect(mockResultReporter.reportError).not.toHaveBeenCalled();
+        });
+
+        it('should report an error when given spec format is unknown', async () => {
+            const openApi3Content = JSON.stringify(openApi3SpecBuilder.build());
+            mockFileSystem.givenReadFileReturnsContent(openApi3Content);
+
+            await expectToFail(invokeDiffLocations(diffPathsOptionsBuilder
+                .withSourceSpec(
+                    specPathOptionBuilder
+                        .withLocation('source-spec.json')
+                        .withFormat('unknown-format' as SpecFormat)
+                )
+                .build()
+            ));
+
+            expect(mockResultReporter.reportError).toHaveBeenCalledWith(new OpenApiDiffErrorImpl(
+                'OPENAPI_DIFF_PARSE_ERROR',
+                '"source-spec.json" format "unknown-format" is not supported'
             ));
         });
 
         it('should fail when request body schema contains circular references', async () => {
-            const sourceSpec = openApi3SpecBuilder
+            const spec = openApi3SpecBuilder
                 .withComponents(openApi3ComponentsBuilder
                     .withSchema('stringSchema',
                         {
@@ -92,134 +225,96 @@ describe('openapi-diff', () => {
                         .withRequestBody(openApi3RequestBodyBuilder
                             .withSchemaRef('#/components/schemas/stringSchema'))));
 
-            mockFileSystem.givenReadFileReturns(
-                Promise.resolve(JSON.stringify(sourceSpec.build())),
-                Promise.resolve(JSON.stringify(sourceSpec.build()))
-            );
+            mockFileSystem.givenReadFileReturnsContent(JSON.stringify(spec.build()));
 
-            await expectToFail(invokeDiffLocations('source-spec-with-circular-refs.json', 'destination-spec.json'));
+            await expectToFail(invokeDiffLocations(diffPathsOptionsBuilder
+                .withSourceSpec(specPathOptionBuilder.withLocation('source-spec-with-circular-refs.json'))
+                .build()
+            ));
 
             expect(mockResultReporter.reportError).toHaveBeenCalledWith(new OpenApiDiffErrorImpl(
-                'OPENAPI_DIFF_VALIDATE_OPENAPI_3_ERROR',
-                'Validation errors in source-spec-with-circular-refs.json',
-                new Error('The API contains circular references')
+                'OPENAPI_DIFF_PARSE_ERROR',
+                'Validation errors in source-spec-with-circular-refs.json: The API contains circular references'
             ));
         });
+    });
 
-        it('should load the specs as yaml if content is yaml but not json', async () => {
-            const openapi3YamlSpec = '' +
-                'info: \n' +
-                '  title: spec title\n' +
-                '  version: spec version\n' +
-                'paths: {}\n' +
-                'openapi: "3.0.0"\n';
+    describe('spec diffing', () => {
+        it('should report the diff outcome when diffing is successfully executed', async () => {
+            const openapi3SpecContent = JSON.stringify(openApi3SpecBuilder.build());
+            mockFileSystem.givenReadFileReturnsContent(openapi3SpecContent);
+
+            await invokeDiffLocations(diffPathsOptionsBuilder.build());
+
+            expect(mockResultReporter.reportOutcome).toHaveBeenCalledWith(
+                diffOutcomeSuccessBuilder
+                    .withNonBreakingDifferences([])
+                    .withUnclassifiedDifferences([])
+                    .build()
+            );
+        });
+
+        it('should return a rejected promise when breaking differences have been found', async () => {
+            const {source, destination} = openapi3SpecsDifferenceBuilder
+                .withBreakingDifference()
+                .build();
+
+            const sourceSpecContent = JSON.stringify(source.build());
+            const destinationSpecContent = JSON.stringify(destination.build());
+
             mockFileSystem.givenReadFileReturns(
-                Promise.resolve(openapi3YamlSpec),
-                Promise.resolve(openapi3YamlSpec)
+                Promise.resolve(sourceSpecContent),
+                Promise.resolve(destinationSpecContent)
             );
 
-            await invokeDiffLocations('source-spec.json', 'destination-spec.json');
+            const error = await expectToFail(invokeDiffLocations(diffPathsOptionsBuilder.build()));
+            expect(error.message).toEqual('Breaking differences found');
         });
-    });
 
-    it('should load the source spec from the file system', async () => {
-        await invokeDiffLocations('source-spec.json', 'destination-spec.json');
+        it('should allow diffing swagger2 against an openapi3 with format auto-detect', async () => {
+            const openapi3SpecContent = JSON.stringify(
+                openApi3SpecBuilder
+                    .withTopLevelXProperty('x-some-value', 'OLD')
+                    .build()
+            );
+            const swagger2SpecContent = JSON.stringify(
+                swagger2SpecBuilder
+                    .withTopLevelXProperty('x-some-value', 'NEW')
+                    .build()
+            );
 
-        expect(mockFileSystem.readFile).toHaveBeenCalledWith('source-spec.json');
-    });
+            mockFileSystem.givenReadFileReturns(
+                Promise.resolve(openapi3SpecContent),
+                Promise.resolve(swagger2SpecContent)
+            );
+            await invokeDiffLocations(diffPathsOptionsBuilder
+                .withSourceSpec(specPathOptionBuilder.withFormat('auto-detect'))
+                .withDestinationSpec(specPathOptionBuilder.withFormat('auto-detect'))
+                .build());
 
-    it('should load the destination spec from the file system', async () => {
-        await invokeDiffLocations('source-spec.json', 'destination-spec.json');
+            const baseDifference = unclassifiedDiffResultBuilder
+                .withEntity('unclassified')
+                .withSource('openapi-diff')
+                .withSourceSpecEntityDetails([
+                    specEntityDetailsBuilder
+                        .withLocation('x-some-value')
+                        .withValue('OLD')
+                ])
+                .withDestinationSpecEntityDetails([
+                    specEntityDetailsBuilder
+                        .withLocation('x-some-value')
+                        .withValue('NEW')
+                ]);
 
-        expect(mockFileSystem.readFile).toHaveBeenCalledWith('destination-spec.json');
-    });
-
-    it('should report an error when failing to load the source spec from the file system', async () => {
-        const openapi3SpecContent = JSON.stringify(openApi3SpecBuilder.build());
-        const fileSystemError = new Error('Failed to load file');
-        mockFileSystem.givenReadFileReturns(
-            Promise.reject(fileSystemError),
-            Promise.resolve(openapi3SpecContent)
-        );
-
-        await expectToFail(invokeDiffLocations('source-spec.json', 'destination-spec.json'));
-
-        expect(mockResultReporter.reportError).toHaveBeenCalledWith(
-            new OpenApiDiffErrorImpl(
-                'OPENAPI_DIFF_FILE_SYSTEM_ERROR',
-                'Unable to read source-spec.json',
-                fileSystemError
-            )
-        );
-    });
-
-    it('should report an error when failing to load the destination spec from the file system', async () => {
-        const openapi3SpecContent = JSON.stringify(openApi3SpecBuilder.build());
-        const fileSystemError = new Error('Failed to load file');
-        mockFileSystem.givenReadFileReturns(
-            Promise.resolve(openapi3SpecContent),
-            Promise.reject(fileSystemError)
-        );
-
-        await expectToFail(invokeDiffLocations('source-spec.json', 'destination-spec.json'));
-
-        expect(mockResultReporter.reportError).toHaveBeenCalledWith(
-            new OpenApiDiffErrorImpl(
-                'OPENAPI_DIFF_FILE_SYSTEM_ERROR',
-                'Unable to read destination-spec.json',
-                fileSystemError
-            )
-        );
-    });
-
-    it('should report an error when unable to parse spec contents', async () => {
-        const malformedFileContents: string = '{this is not json or yaml';
-        mockFileSystem.givenReadFileReturnsContent(malformedFileContents);
-
-        await expectToFail(invokeDiffLocations('source-spec-invalid.json', 'destination-spec.json'));
-
-        expect(mockResultReporter.reportError).toHaveBeenCalledWith(
-            new OpenApiDiffErrorImpl(
-                'OPENAPI_DIFF_SPEC_DESERIALISER_ERROR',
-                'Unable to parse source-spec-invalid.json as a JSON or YAML file'
-            )
-        );
-    });
-
-    it('should report the diff outcome when diffing is successfully executed', async () => {
-        const openapi3SpecContent = JSON.stringify(openApi3SpecBuilder.build());
-        mockFileSystem.givenReadFileReturns(
-            Promise.resolve(openapi3SpecContent),
-            Promise.resolve(openapi3SpecContent)
-        );
-        await invokeDiffLocations('source-spec.json', 'destination-spec.json');
-
-        expect(mockResultReporter.reportOutcome).toHaveBeenCalledWith(
-            diffOutcomeSuccessBuilder
-                .withNonBreakingDifferences([])
-                .withUnclassifiedDifferences([])
-                .withSourceSpecDetails(
-                    specDetailsBuilder.withFormat('openapi3').withLocation('source-spec.json'))
-                .withDestinationSpecDetails(
-                    specDetailsBuilder.withFormat('openapi3').withLocation('destination-spec.json'))
-                .build()
-        );
-    });
-
-    it('should return a rejected promise when breaking differences have been found', async () => {
-        const {source, destination} = openapi3SpecsDifferenceBuilder
-            .withBreakingDifference()
-            .build();
-
-        const sourceSpecContent = JSON.stringify(source.build());
-        const destinationSpecContent = JSON.stringify(destination.build());
-
-        mockFileSystem.givenReadFileReturns(
-            Promise.resolve(sourceSpecContent),
-            Promise.resolve(destinationSpecContent)
-        );
-
-        const error = await expectToFail(invokeDiffLocations('source-spec.json', 'destination-spec.json'));
-        expect(error.message).toEqual('Breaking differences found');
+            expect(mockResultReporter.reportOutcome).toHaveBeenCalledWith(
+                diffOutcomeSuccessBuilder
+                    .withNonBreakingDifferences([])
+                    .withUnclassifiedDifferences([
+                        baseDifference.withAction('add').withCode('unclassified.add'),
+                        baseDifference.withAction('remove').withCode('unclassified.remove')
+                    ])
+                    .build()
+            );
+        });
     });
 });

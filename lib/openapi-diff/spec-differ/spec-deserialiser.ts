@@ -1,9 +1,9 @@
 import * as yaml from 'js-yaml';
-import {SpecOption} from '../../api-types';
 import {OpenApiDiffErrorImpl} from '../../common/open-api-diff-error-impl';
+import {SerialisedSpec} from '../../openapi-diff';
 
 export class SpecDeserialiser {
-    public static load(specOption: SpecOption): any {
+    public static load(specOption: SerialisedSpec): any {
         return SpecDeserialiser.parseSpec(specOption.location, specOption.content);
     }
 
@@ -15,7 +15,7 @@ export class SpecDeserialiser {
                 return yaml.safeLoad(content);
             } catch (error) {
                 throw new OpenApiDiffErrorImpl(
-                    'OPENAPI_DIFF_SPEC_DESERIALISER_ERROR',
+                    'OPENAPI_DIFF_PARSE_ERROR',
                     `Unable to parse ${location} as a JSON or YAML file`
                 );
             }

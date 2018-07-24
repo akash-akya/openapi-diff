@@ -1,0 +1,32 @@
+{
+  "components": {
+    "requestBodies": {},
+    "schemas": {}
+  },
+  "info": {
+    "title": "spec title",
+    "version": "spec version"
+  },
+  "openapi": "3.0.0",
+  "paths": {
+    "/some/path": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "default description"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": false
+        }
+      }
+    }
+  }
+}

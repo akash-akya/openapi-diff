@@ -22,7 +22,7 @@ export class ContentLoader {
             return await this.fileSystem.readFile(filePath);
         } catch (error) {
             throw new OpenApiDiffErrorImpl(
-                'OPENAPI_DIFF_FILE_SYSTEM_ERROR',
+                'OPENAPI_DIFF_READ_ERROR',
                 `Unable to read ${filePath}`,
                 error
             );
@@ -34,7 +34,7 @@ export class ContentLoader {
             return await this.httpClient.get(fileUrl);
         } catch (error) {
             throw new OpenApiDiffErrorImpl(
-                'OPENAPI_DIFF_HTTP_CLIENT_ERROR',
+                'OPENAPI_DIFF_READ_ERROR',
                 `Unable to load ${fileUrl}`,
                 error
             );

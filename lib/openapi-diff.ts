@@ -1,7 +1,36 @@
-import {DiffOutcome, OpenApiDiffOptions} from './api-types';
+import {DiffOutcome, SpecFormat} from './api-types';
 import {ContentLoader} from './openapi-diff/content-loader';
 import {ResultReporter} from './openapi-diff/result-reporter';
 import {SpecDiffer} from './openapi-diff/spec-differ';
+
+export type SpecFormatOrAuto = SpecFormat | 'auto-detect';
+
+export interface SpecReference {
+    location: string;
+    format: SpecFormatOrAuto;
+}
+
+export interface DiffPathsOptions {
+    sourceSpec: SpecReference;
+    destinationSpec: SpecReference;
+}
+
+export interface SerialisedSpec {
+    content: string;
+    location: string;
+    format: string;
+}
+
+export interface DiffSpecsOptions {
+    sourceSpec: SerialisedSpec;
+    destinationSpec: SerialisedSpec;
+}
+
+export interface DeserialisedSpec {
+    content: any;
+    location: string;
+    unverifiedFormat: string;
+}
 
 export class OpenApiDiff {
     public constructor(
@@ -9,11 +38,10 @@ export class OpenApiDiff {
         private readonly resultReporter: ResultReporter
     ) {}
 
-    public async diffPaths(sourceSpecPath: string, destinationSpecPath: string): Promise<void> {
+    public async diffPaths(diffPathOptions: DiffPathsOptions): Promise<void> {
         try {
-            const loadedSpecs = await this.loadSpecs(sourceSpecPath, destinationSpecPath);
-
-            const diffOutcome = await this.diffSpecs(loadedSpecs);
+            const diffSpecOptions = await this.toDiffSpecsOptions(diffPathOptions);
+            const diffOutcome = await this.diffSpecs(diffSpecOptions);
 
             this.resultReporter.reportOutcome(diffOutcome);
 
@@ -26,17 +54,24 @@ export class OpenApiDiff {
         }
     }
 
-    public diffSpecs(options: OpenApiDiffOptions): Promise<DiffOutcome> {
+    public async diffSpecs(options: DiffSpecsOptions): Promise<DiffOutcome> {
         return SpecDiffer.diffSpecs(options);
     }
 
-    private async loadSpecs(sourceSpecPath: string, destinationSpecPath: string): Promise<OpenApiDiffOptions> {
-        const whenSourceSpec = this.contentLoader.load(sourceSpecPath);
-        const whenDestinationSpec = this.contentLoader.load(destinationSpecPath);
-        const [sourceSpec, destinationSpec] = await Promise.all([whenSourceSpec, whenDestinationSpec]);
+    private async toDiffSpecsOptions({sourceSpec, destinationSpec}: DiffPathsOptions): Promise<DiffSpecsOptions> {
+        const [sourceSerialisedSpec, destinationSerialisedSpec] = await Promise.all([
+            this.toSerialisedSpec(sourceSpec),
+            this.toSerialisedSpec(destinationSpec)
+        ]);
+        return {sourceSpec: sourceSerialisedSpec, destinationSpec: destinationSerialisedSpec};
+    }
+
+    private async toSerialisedSpec(specReference: SpecReference): Promise<SerialisedSpec> {
+        const serializedContent = await this.contentLoader.load(specReference.location);
         return {
-            destinationSpec: {location: destinationSpecPath, content: destinationSpec},
-            sourceSpec: {location: sourceSpecPath, content: sourceSpec}
+            content: serializedContent,
+            format: specReference.format,
+            location: specReference.location
         };
     }
 }

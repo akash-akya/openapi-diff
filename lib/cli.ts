@@ -20,7 +20,10 @@ commander
         The <source> spec and <destination> spec arguments should be paths to where the specs live in your filesystem.`)
     .action(async (sourceSpecPath, destinationSpecPath) => {
         try {
-            await openApiDiff.diffPaths(sourceSpecPath, destinationSpecPath);
+            await openApiDiff.diffPaths({
+                destinationSpec: {format: 'auto-detect', location: destinationSpecPath},
+                sourceSpec: {format: 'auto-detect', location: sourceSpecPath}
+            });
         } catch (error) {
             process.exit(1);
         }

@@ -1,10 +1,14 @@
 import {PathItemObject, ReferenceObject, RequestBodyObject} from 'openapi3-ts';
-import * as SwaggerParser from 'swagger-parser';
-import {OpenApiDiffErrorImpl} from '../../common/open-api-diff-error-impl';
-import {OpenApi3, OpenApi3MethodName, OpenApi3Paths} from '../openapi3';
-import {ParsedOperations, ParsedPathItems, ParsedProperty, ParsedRequestBody, ParsedSpec} from '../spec-parser-types';
-import {parseXPropertiesInObject} from './common/parse-x-properties';
-import {PathBuilder} from './common/path-builder';
+import {OpenApi3, OpenApi3MethodName, OpenApi3Paths} from '../../openapi3';
+import {
+    ParsedOperations,
+    ParsedPathItems,
+    ParsedProperty,
+    ParsedRequestBody,
+    ParsedSpec
+} from '../../spec-parser-types';
+import {parseXPropertiesInObject} from '../common/parse-x-properties';
+import {PathBuilder} from '../common/path-builder';
 
 const typeCheckedOpenApi3Methods: {[method in OpenApi3MethodName]: undefined} = {
     delete: undefined,
@@ -85,22 +89,7 @@ const parsePaths = (paths: OpenApi3Paths, pathBuilder: PathBuilder): ParsedPathI
         return accumulator;
     }, {});
 
-const validateOpenApi3 = async (openApi3Spec: object, location: string): Promise<OpenApi3> => {
-    try {
-        const options: any = {
-            dereference: {circular: false}
-        };
-        return await SwaggerParser.validate(openApi3Spec as any, options);
-    } catch (error) {
-        throw new OpenApiDiffErrorImpl(
-            'OPENAPI_DIFF_VALIDATE_OPENAPI_3_ERROR',
-            `Validation errors in ${location}`,
-            error
-        );
-    }
-};
-
-const parseOpenApi3Spec = (spec: OpenApi3): ParsedSpec => {
+export const parseOpenApi3Spec = (spec: OpenApi3): ParsedSpec => {
     const pathBuilder = PathBuilder.createRootPathBuilder();
 
     return {
@@ -108,9 +97,4 @@ const parseOpenApi3Spec = (spec: OpenApi3): ParsedSpec => {
         paths: parsePaths(spec.paths, pathBuilder.withChild('paths')),
         xProperties: parseXPropertiesInObject(spec, pathBuilder)
     };
-};
-
-export const validateAndParseOpenApi3Spec = async (openApi3Spec: object, location: string): Promise<ParsedSpec> => {
-    const validatedOpenApi3Spec = await validateOpenApi3(openApi3Spec, location);
-    return parseOpenApi3Spec(validatedOpenApi3Spec);
 };

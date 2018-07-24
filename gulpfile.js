@@ -145,17 +145,17 @@ gulp.task('release', (callback) => {
 
 gulp.task('e2e-test', () => {
     return gulp.src([specHelperPath, 'build-output/test/e2e/**/*.spec.js'])
-        .pipe(jasmine())
+        .pipe(jasmine({includeStackTrace: true}))
 });
 
 gulp.task('test', () => {
     return gulp.src([specHelperPath, 'build-output/test/**/*[sS]pec.js'])
-        .pipe(jasmine())
+        .pipe(jasmine({includeStackTrace: true}))
 });
 
 gulp.task('unit-test', () => {
     return gulp.src([specHelperPath, 'build-output/test/unit/**/*[sS]pec.js'])
-        .pipe(jasmine())
+        .pipe(jasmine({includeStackTrace: true}))
 });
 
 gulp.task('watch', ['clean-copy-and-compile-build-output'], () => {

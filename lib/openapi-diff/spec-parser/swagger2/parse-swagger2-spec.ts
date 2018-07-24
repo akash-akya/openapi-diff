@@ -1,6 +1,4 @@
-import * as SwaggerParser from 'swagger-parser';
-import {OpenApiDiffErrorImpl} from '../../common/open-api-diff-error-impl';
-import {ParsedOperations, ParsedPathItems, ParsedRequestBody, ParsedSpec} from '../spec-parser-types';
+import {ParsedOperations, ParsedPathItems, ParsedRequestBody, ParsedSpec} from '../../spec-parser-types';
 import {
     Swagger2,
     Swagger2BodyParameter,
@@ -8,9 +6,9 @@ import {
     Swagger2Parameter,
     Swagger2PathItem,
     Swagger2Paths
-} from '../swagger2';
-import {parseXPropertiesInObject} from './common/parse-x-properties';
-import {PathBuilder} from './common/path-builder';
+} from '../../swagger2';
+import {parseXPropertiesInObject} from '../common/parse-x-properties';
+import {PathBuilder} from '../common/path-builder';
 
 const typeCheckedSwagger2Methods: {[method in Swagger2MethodNames]: undefined} = {
     delete: undefined,
@@ -97,29 +95,11 @@ const parsePaths = (paths: Swagger2Paths, pathBuilder: PathBuilder): ParsedPathI
         return accumulator;
     }, {});
 
-const parseSwagger2Spec = (swagger2Spec: Swagger2): ParsedSpec => {
+export const parseSwagger2Spec = (swagger2Spec: Swagger2): ParsedSpec => {
     const pathBuilder = PathBuilder.createRootPathBuilder();
     return {
         format: 'swagger2',
         paths: parsePaths(swagger2Spec.paths, pathBuilder.withChild('paths')),
         xProperties: parseXPropertiesInObject(swagger2Spec, pathBuilder)
     };
-};
-
-const validateSwagger2 = async (document: object, location: string): Promise<Swagger2> => {
-    try {
-        const options = {dereference: {circular: false}} as any;
-        return await SwaggerParser.validate(document as any, options);
-    } catch (error) {
-        throw new OpenApiDiffErrorImpl(
-            'OPENAPI_DIFF_VALIDATE_SWAGGER_2_ERROR',
-            `Validation errors in ${location}`,
-            error
-        );
-    }
-};
-
-export const validateAndParseSwagger2Spec = async (swagger2Spec: object, location: string): Promise<ParsedSpec> => {
-    const validatedSpec = await validateSwagger2(swagger2Spec, location);
-    return parseSwagger2Spec(validatedSpec);
 };

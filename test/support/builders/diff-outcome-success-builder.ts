@@ -1,10 +1,7 @@
 import {DiffOutcomeSuccess} from '../../../lib/api-types';
 import {DiffResultBuilder} from './diff-result-builder';
-import {specDetailsBuilder, SpecDetailsBuilder} from './spec-details-builder';
 
 interface DiffOutcomeBuilderState {
-    sourceSpecDetails: SpecDetailsBuilder;
-    destinationSpecDetails: SpecDetailsBuilder;
     nonBreakingDifferences: Array<DiffResultBuilder<'non-breaking'>>;
     unclassifiedDifferences: Array<DiffResultBuilder<'unclassified'>>;
 }
@@ -12,9 +9,7 @@ interface DiffOutcomeBuilderState {
 export class DiffOutcomeSuccessBuilder {
     public static defaultDiffOutcomeSuccessBuilder() {
         return new DiffOutcomeSuccessBuilder({
-            destinationSpecDetails: specDetailsBuilder,
             nonBreakingDifferences: [],
-            sourceSpecDetails: specDetailsBuilder,
             unclassifiedDifferences: []
         });
     }
@@ -24,53 +19,23 @@ export class DiffOutcomeSuccessBuilder {
     public build(): DiffOutcomeSuccess {
         return {
             breakingDifferencesFound: false,
-            destinationSpecDetails: this.state.destinationSpecDetails.build(),
             nonBreakingDifferences: this.state.nonBreakingDifferences.map((builder) => builder.build()),
-            sourceSpecDetails: this.state.sourceSpecDetails.build(),
             unclassifiedDifferences: this.state.unclassifiedDifferences.map((builder) => builder.build())
         };
-    }
-
-    public withSourceSpecDetails(specDetails: SpecDetailsBuilder): DiffOutcomeSuccessBuilder {
-        return new DiffOutcomeSuccessBuilder({
-            destinationSpecDetails: this.state.destinationSpecDetails,
-            nonBreakingDifferences: this.state.nonBreakingDifferences,
-            sourceSpecDetails: specDetails,
-            unclassifiedDifferences: this.state.unclassifiedDifferences
-        });
-    }
-
-    public withDestinationSpecDetails(specDetails: SpecDetailsBuilder): DiffOutcomeSuccessBuilder {
-        return new DiffOutcomeSuccessBuilder({
-            destinationSpecDetails: specDetails,
-            nonBreakingDifferences: this.state.nonBreakingDifferences,
-            sourceSpecDetails: this.state.sourceSpecDetails,
-            unclassifiedDifferences: this.state.unclassifiedDifferences
-        });
     }
 
     public withNonBreakingDifferences(
         nonBreakingDifferences: Array<DiffResultBuilder<'non-breaking'>>
     ): DiffOutcomeSuccessBuilder {
         const copyOfNoneBreakingDifferences = Array.from(nonBreakingDifferences);
-        return new DiffOutcomeSuccessBuilder({
-            destinationSpecDetails: this.state.destinationSpecDetails,
-            nonBreakingDifferences: copyOfNoneBreakingDifferences,
-            sourceSpecDetails: this.state.sourceSpecDetails,
-            unclassifiedDifferences: this.state.unclassifiedDifferences
-        });
+        return new DiffOutcomeSuccessBuilder({...this.state, nonBreakingDifferences: copyOfNoneBreakingDifferences});
     }
 
     public withUnclassifiedDifferences(
         unclassifiedDifferences: Array<DiffResultBuilder<'unclassified'>>
     ): DiffOutcomeSuccessBuilder {
         const copyOfUnclassifiedDifferences = Array.from(unclassifiedDifferences);
-        return new DiffOutcomeSuccessBuilder({
-            destinationSpecDetails: this.state.destinationSpecDetails,
-            nonBreakingDifferences: this.state.nonBreakingDifferences,
-            sourceSpecDetails: this.state.sourceSpecDetails,
-            unclassifiedDifferences: copyOfUnclassifiedDifferences
-        });
+        return new DiffOutcomeSuccessBuilder({...this.state, unclassifiedDifferences: copyOfUnclassifiedDifferences});
     }
 }
 

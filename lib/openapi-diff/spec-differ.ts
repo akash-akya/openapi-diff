@@ -1,62 +1,52 @@
-import {DiffOutcome, OpenApiDiffOptions, SpecDetails} from '../api-types';
+import {DiffOutcome} from '../api-types';
+import {DiffSpecsOptions, SerialisedSpec} from '../openapi-diff';
 import {ClassifiedDiffResults, DiffClassifier} from './spec-differ/diff-classifier';
-import {DiffFinder} from './spec-differ/diff-finder';
+import {DiffFinder, ParsedSpecs} from './spec-differ/diff-finder';
 import {SpecDeserialiser} from './spec-differ/spec-deserialiser';
-import {specParser} from './spec-parser';
+import {SpecParser} from './spec-parser';
+import {ParsedSpec} from './spec-parser-types';
 
 export class SpecDiffer {
-    public static async diffSpecs({sourceSpec, destinationSpec}: OpenApiDiffOptions): Promise<DiffOutcome> {
-        const loadedSourceSpec = SpecDeserialiser.load(sourceSpec);
-        const loadedDestinationSpec = SpecDeserialiser.load(destinationSpec);
-
-        const parsedSourceSpec = await specParser.parse(loadedSourceSpec, sourceSpec.location);
-        const parsedDestinationSpec = await specParser.parse(loadedDestinationSpec, destinationSpec.location);
-
-        const differences = await DiffFinder.findDifferences({
-            destinationSpec: parsedDestinationSpec,
-            sourceSpec: parsedSourceSpec
-        });
-
+    public static async diffSpecs(options: DiffSpecsOptions): Promise<DiffOutcome> {
+        const parsedSpecs = await this.toParsedSpecs(options);
+        const differences = await DiffFinder.findDifferences(parsedSpecs);
         const classifiedDifferences = DiffClassifier.classifyDifferences(differences);
 
-        const sourceSpecDetails: SpecDetails = {
-            format: parsedSourceSpec.format,
-            location: sourceSpec.location
-        };
-
-        const destinationSpecDetails: SpecDetails = {
-            format: parsedDestinationSpec.format,
-            location: destinationSpec.location
-        };
-
-        return this.generateDiffOutcome(classifiedDifferences, sourceSpecDetails, destinationSpecDetails);
+        return this.createDiffOutcome(classifiedDifferences);
     }
 
-    private static generateDiffOutcome(
-        classifiedDifferences: ClassifiedDiffResults,
-        sourceSpecDetails: SpecDetails,
-        destinationSpecDetails: SpecDetails
-    ): DiffOutcome {
+    private static createDiffOutcome(classifiedDifferences: ClassifiedDiffResults): DiffOutcome {
 
         const breakingDifferencesFound = classifiedDifferences.breakingDifferences.length > 0;
 
-        if (breakingDifferencesFound) {
-            return {
+        return breakingDifferencesFound
+            ? {
                 breakingDifferences: classifiedDifferences.breakingDifferences,
                 breakingDifferencesFound,
-                destinationSpecDetails,
                 nonBreakingDifferences: classifiedDifferences.nonBreakingDifferences,
-                sourceSpecDetails,
                 unclassifiedDifferences: classifiedDifferences.unclassifiedDifferences
-            };
-        } else {
-            return {
+            }
+            : {
                 breakingDifferencesFound,
-                destinationSpecDetails,
                 nonBreakingDifferences: classifiedDifferences.nonBreakingDifferences,
-                sourceSpecDetails,
                 unclassifiedDifferences: classifiedDifferences.unclassifiedDifferences
             };
-        }
+    }
+
+    private static async toParsedSpecs(options: DiffSpecsOptions): Promise<ParsedSpecs> {
+        const [sourceSpec, destinationSpec] = await Promise.all([
+            this.toParsedSpec(options.sourceSpec),
+            this.toParsedSpec(options.destinationSpec)
+        ]);
+        return {sourceSpec, destinationSpec};
+    }
+
+    private static toParsedSpec(serialisedSpec: SerialisedSpec): Promise<ParsedSpec> {
+        const deserialisedContent = SpecDeserialiser.load(serialisedSpec);
+        return SpecParser.parse({
+            content: deserialisedContent,
+            location: serialisedSpec.location,
+            unverifiedFormat: serialisedSpec.format
+        });
     }
 }

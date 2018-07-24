@@ -42,27 +42,16 @@ declare namespace OpenApiDiff {
         value?: any;
     }
 
-    export type SpecFormat = 'swagger2' | 'openapi3';
-
-    export interface SpecDetails {
-        location: string;
-        format: SpecFormat;
-    }
-
     export interface DiffOutcomeFailure {
         breakingDifferences: Array<DiffResult<'breaking'>>;
         breakingDifferencesFound: true;
-        destinationSpecDetails: SpecDetails;
         nonBreakingDifferences: Array<DiffResult<'non-breaking'>>;
-        sourceSpecDetails: SpecDetails;
         unclassifiedDifferences: Array<DiffResult<'unclassified'>>;
     }
 
     export interface DiffOutcomeSuccess {
-        destinationSpecDetails: SpecDetails;
         breakingDifferencesFound: false;
         nonBreakingDifferences: Array<DiffResult<'non-breaking'>>;
-        sourceSpecDetails: SpecDetails;
         unclassifiedDifferences: Array<DiffResult<'unclassified'>>;
     }
 
@@ -71,7 +60,10 @@ declare namespace OpenApiDiff {
     export interface SpecOption {
         content: string;
         location: string;
+        format: SpecFormat;
     }
+
+    export type SpecFormat = 'swagger2' | 'openapi3';
 
     export interface OpenApiDiffOptions {
         sourceSpec: SpecOption;
@@ -79,11 +71,8 @@ declare namespace OpenApiDiff {
     }
 
     export type ErrorCode =
-        'OPENAPI_DIFF_SPEC_DESERIALISER_ERROR' |
-        'OPENAPI_DIFF_FILE_SYSTEM_ERROR' |
-        'OPENAPI_DIFF_VALIDATE_SWAGGER_2_ERROR' |
-        'OPENAPI_DIFF_VALIDATE_OPENAPI_3_ERROR' |
-        'OPENAPI_DIFF_HTTP_CLIENT_ERROR';
+        'OPENAPI_DIFF_READ_ERROR' |
+        'OPENAPI_DIFF_PARSE_ERROR';
 
     export interface OpenApiDiffError extends Error {
         code: ErrorCode;

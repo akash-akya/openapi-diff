@@ -3,7 +3,7 @@ import {Difference} from './diff-finder/difference';
 import {findDiffsInPaths} from './diff-finder/find-diffs-in-paths';
 import {findDiffsInXProperties} from './diff-finder/find-diffs-in-x-properties';
 
-interface ParsedSpecs {
+export interface ParsedSpecs {
     sourceSpec: ParsedSpec;
     destinationSpec: ParsedSpec;
 }
