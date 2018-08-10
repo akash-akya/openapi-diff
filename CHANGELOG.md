@@ -1,3 +1,13 @@
+<a name="0.13.0"></a>
+# [0.13.0](https://bitbucket.org/atlassian/openapi-diff/compare/0.12.0...0.13.0) (2018-08-10)
+
+
+### Features
+
+* accept spec formats in programmatic API ([6389a57](https://bitbucket.org/atlassian/openapi-diff/commits/6389a57))
+
+
+
 <a name="0.12.0"></a>
 # [0.12.0](https://bitbucket.org/atlassian/openapi-diff/compare/0.11.0...0.12.0) (2018-07-18)
 
