@@ -1,3 +1,13 @@
+<a name="0.13.1"></a>
+## [0.13.1](https://bitbucket.org/atlassian/openapi-diff/compare/0.13.0...0.13.1) (2018-08-29)
+
+
+### Bug Fixes
+
+* pin swagger-parser to avoid breaking changes when validation logic is changed ([eb3a0fd](https://bitbucket.org/atlassian/openapi-diff/commits/eb3a0fd))
+
+
+
 <a name="0.13.0"></a>
 # [0.13.0](https://bitbucket.org/atlassian/openapi-diff/compare/0.12.0...0.13.0) (2018-08-10)
 
