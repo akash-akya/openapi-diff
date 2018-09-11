@@ -11,6 +11,7 @@ const minimist = require('minimist');
 const ts = require('gulp-typescript');
 const tslint = require('gulp-tslint');
 const runSequence = require('run-sequence');
+const filter = require('gulp-filter');
 
 const options = minimist(process.argv.slice(2), {strings: ['type']});
 
@@ -29,7 +30,6 @@ const getPackageJsonVersion = () => {
 };
 
 const tsProjectBuildOutput = ts.createProject('tsconfig.json', {noEmit: false});
-const specHelperPath = 'build-output/test/support/spec-helper.js';
 
 gulp.task('bump-version', (callback) => {
     exec(`npm version ${getBumpType()} --no-git-tag-version`, (err, stdout, stderr) => {
@@ -76,9 +76,13 @@ gulp.task('commit-changes', () => {
         .pipe(git.commit(`chore: release ${getPackageJsonVersion()}`));
 });
 
-gulp.task('compile-build-output', () => {
+const compileBuildOutput = () => {
     const tsResult = tsProjectBuildOutput.src().pipe(tsProjectBuildOutput());
     return tsResult.js.pipe(gulp.dest('build-output'));
+};
+
+gulp.task('compile-build-output', () => {
+    return compileBuildOutput();
 });
 
 gulp.task('compile-dist', () => {
@@ -143,24 +147,33 @@ gulp.task('release', (callback) => {
     );
 });
 
+const specHelperPath = 'build-output/test/support/spec-helper.js';
+const unitTests = 'build-output/test/unit/**/*.spec.js';
+const e2eTests = 'build-output/test/e2e/**/*.spec.js';
+
 gulp.task('e2e-test', () => {
-    return gulp.src([specHelperPath, 'build-output/test/e2e/**/*.spec.js'])
+    return gulp.src([specHelperPath, e2eTests])
         .pipe(jasmine({includeStackTrace: true}))
 });
 
 gulp.task('test', () => {
-    return gulp.src([specHelperPath, 'build-output/test/**/*[sS]pec.js'])
+    return gulp.src([specHelperPath, e2eTests, unitTests])
         .pipe(jasmine({includeStackTrace: true}))
 });
 
 gulp.task('unit-test', () => {
-    return gulp.src([specHelperPath, 'build-output/test/unit/**/*[sS]pec.js'])
+    return gulp.src([specHelperPath, unitTests])
         .pipe(jasmine({includeStackTrace: true}))
 });
 
+gulp.task('compile-and-unit-test', () => {
+    return compileBuildOutput()
+        .pipe(filter([specHelperPath, unitTests]))
+        .pipe(jasmine({includeStackTrace: true}));
+});
+
 gulp.task('watch', ['clean-copy-and-compile-build-output'], () => {
-    gulp.watch(['lib/**/*.ts', 'test/**/*.ts'], ['compile-build-output']);
-    gulp.watch(['build-output/lib/**/*', 'build-output/test/unit/**/*'], ['unit-test']);
+    gulp.watch(['lib/**/*.ts', 'test/**/*.ts'], ['compile-and-unit-test']);
 });
 
 gulp.task('watch-e2e', () => {
