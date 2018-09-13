@@ -4,13 +4,13 @@ import {OpenApi3} from '../../openapi3';
 import {Swagger2} from '../../swagger2';
 
 export const validateAndDereferenceSpec = async <T extends Swagger2 | OpenApi3>(
-    openApi3Spec: object, location: string
+    spec: object, location: string
 ): Promise<T> => {
     try {
         const options: any = {
             dereference: {circular: false}
         };
-        return await SwaggerParser.validate(openApi3Spec as any, options);
+        return await SwaggerParser.validate(spec as any, options);
     } catch (error) {
         throw new OpenApiDiffErrorImpl(
             'OPENAPI_DIFF_PARSE_ERROR',

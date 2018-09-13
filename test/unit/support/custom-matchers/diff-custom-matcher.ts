@@ -1,5 +1,4 @@
 import * as _ from 'lodash';
-import {isString} from 'util';
 import {DiffOutcome, DiffResult, DiffResultType} from '../../../../lib/api-types';
 
 const getActualBreakingDifferences = (actualDiffOutcome: DiffOutcome): Array<DiffResult<'breaking'>> => {
@@ -77,3 +76,5 @@ export const compare = (actualDiffOutcome: DiffOutcome,
 
     return {message, pass};
 };
+
+const isString = (target: any): target is string => typeof target === 'string';

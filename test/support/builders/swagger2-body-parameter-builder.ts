@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 // tslint:disable-next-line:no-implicit-dependencies
 import {BodyParameter} from 'swagger-schema-official';
-import {isUndefined} from 'util';
+import {isDefined} from './builder-utils';
 
 interface Swagger2BodyParameterBuilderState {
     name: string;
@@ -31,7 +31,7 @@ export class Swagger2BodyParameterBuilder {
             in: 'body',
             name: this.state.name
         };
-        if (!isUndefined(this.state.schema)) {
+        if (isDefined(this.state.schema)) {
             bodyParameter.schema = _.cloneDeep(this.state.schema);
         }
         return bodyParameter;
