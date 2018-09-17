@@ -12,6 +12,7 @@ import {specPathOptionBuilder} from '../../support/builders/spec-path-option-bui
 import {swagger2BodyParameterBuilder} from '../../support/builders/swagger2-body-parameter-builder';
 import {swagger2OperationBuilder} from '../../support/builders/swagger2-operation-builder';
 import {swagger2PathItemBuilder} from '../../support/builders/swagger2-path-item-builder';
+import {swagger2ResponseBuilder} from '../../support/builders/swagger2-response-builder';
 import {swagger2SpecBuilder} from '../../support/builders/swagger2-spec-builder';
 import {expectToFail} from '../../support/expect-to-fail';
 import {createOpenApiDiffWithMocks} from '../support/create-openapi-diff';
@@ -289,6 +290,48 @@ describe('openapi-diff swagger2', () => {
                         .withValue('number')
                 ])
                 .withDetails({value: 'string'})
+                .build()
+        ]);
+    });
+
+    it('should return add and remove differences, when response status codes are added and removed', async () => {
+        const sourceSpec = swagger2SpecBuilder
+            .withPath('/some/path', swagger2PathItemBuilder
+                .withOperation('post', swagger2OperationBuilder
+                    .withResponse('200', swagger2ResponseBuilder)
+                    .withResponse('202', swagger2ResponseBuilder)));
+        const destinationSpec = swagger2SpecBuilder
+            .withPath('/some/path', swagger2PathItemBuilder
+                .withOperation('post', swagger2OperationBuilder
+                    .withResponse('200', swagger2ResponseBuilder)
+                    .withResponse('201', swagger2ResponseBuilder)));
+
+        const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
+
+        expect(outcome).toContainDifferences([
+            nonBreakingDiffResultBuilder
+                .withAction('add')
+                .withCode('response.status-code.add')
+                .withEntity('response.status-code')
+                .withSource('openapi-diff')
+                .withSourceSpecEntityDetails([])
+                .withDestinationSpecEntityDetails([
+                    specEntityDetailsBuilder
+                        .withLocation('paths./some/path.post.responses.201')
+                        .withValue(swagger2ResponseBuilder.build())
+                ])
+                .build(),
+            breakingDiffResultBuilder
+                .withAction('remove')
+                .withCode('response.status-code.remove')
+                .withEntity('response.status-code')
+                .withSource('openapi-diff')
+                .withSourceSpecEntityDetails([
+                    specEntityDetailsBuilder
+                        .withLocation('paths./some/path.post.responses.202')
+                        .withValue(swagger2ResponseBuilder.build())
+                ])
+                .withDestinationSpecEntityDetails([])
                 .build()
         ]);
     });

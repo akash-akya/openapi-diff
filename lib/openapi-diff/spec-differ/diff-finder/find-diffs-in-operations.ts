@@ -5,6 +5,7 @@ import {getRemovedKeysFromObjects} from './common/get-removed-keys-from-objects'
 import {createDifference} from './create-difference';
 import {Difference} from './difference';
 import {findDifferencesInRequestBodies} from './find-diffs-in-request-bodies';
+import {findDifferencesInResponses} from './find-diffs-in-responses';
 
 const findAddedMethodDifferences = (
     sourceOperations: ParsedOperations, destinationOperations: ParsedOperations
@@ -42,15 +43,26 @@ const findMatchingMethodsDifferences = async (
     sourceOperations: ParsedOperations, destinationOperations: ParsedOperations
 ): Promise<Difference[]> => {
     const whenDifferencesForAllMatchingMethods = getCommonKeysFromObjects(sourceOperations, destinationOperations)
-        .map((matchingMethod) => {
+        .map(async (matchingMethod) => {
             const matchingSourceOperation = sourceOperations[matchingMethod];
             const matchingDestinationOperation = destinationOperations[matchingMethod];
 
-            return findDifferencesInRequestBodies(
+            const requestBodyDifferences = await findDifferencesInRequestBodies(
                 matchingSourceOperation.requestBody,
                 matchingDestinationOperation.requestBody
             );
+
+            const responsesDifferences = findDifferencesInResponses(
+                matchingSourceOperation.responses,
+                matchingDestinationOperation.responses
+            );
+
+            return [
+                ...requestBodyDifferences,
+                ...responsesDifferences
+            ];
         });
+
     const differencesByMethod = await Promise.all(whenDifferencesForAllMatchingMethods);
     return differencesByMethod
         .reduce<Difference[]>((allDifferences, methodDifferences) => [...allDifferences, ...methodDifferences], []);

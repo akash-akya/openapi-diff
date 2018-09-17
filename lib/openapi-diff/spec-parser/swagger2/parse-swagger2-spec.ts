@@ -1,16 +1,23 @@
-import {ParsedOperations, ParsedPathItems, ParsedRequestBody, ParsedSpec} from '../../spec-parser-types';
+import {
+    ParsedOperations,
+    ParsedPathItems,
+    ParsedRequestBody,
+    ParsedResponses,
+    ParsedSpec
+} from '../../spec-parser-types';
 import {
     Swagger2,
     Swagger2BodyParameter,
     Swagger2MethodNames,
     Swagger2Parameter,
     Swagger2PathItem,
-    Swagger2Paths
+    Swagger2Paths,
+    Swagger2Responses
 } from '../../swagger2';
 import {parseXPropertiesInObject} from '../common/parse-x-properties';
 import {PathBuilder} from '../common/path-builder';
 
-const typeCheckedSwagger2Methods: {[method in Swagger2MethodNames]: undefined} = {
+const typeCheckedSwagger2Methods: { [method in Swagger2MethodNames]: undefined } = {
     delete: undefined,
     get: undefined,
     head: undefined,
@@ -25,7 +32,7 @@ const isSwagger2Method = (propertyName: string): propertyName is Swagger2MethodN
 
 const findBodyParameterAndIndex = (
     parameters: Swagger2Parameter[]
-): {bodyParameter?: Swagger2BodyParameter, index: number} => {
+): { bodyParameter?: Swagger2BodyParameter, index: number } => {
     let bodyParameterIndex = -1;
     const bodyParameter = parameters.find((parameter, index): parameter is Swagger2BodyParameter => {
         const isBody = parameter.in === 'body';
@@ -62,19 +69,44 @@ const parseBodyParameter = (parameters: Swagger2Parameter[], pathBuilder: PathBu
     };
 };
 
+const parseResponses = (responses: Swagger2Responses, pathBuilder: PathBuilder): ParsedResponses => {
+    return Object.keys(responses).reduce<ParsedResponses>((accumulator, statusCode) => {
+        const originalPath = pathBuilder.withChild(statusCode);
+        accumulator[statusCode] = {
+            originalValue: {
+                originalPath: originalPath.build(),
+                value: responses[statusCode]
+            }
+        };
+        return accumulator;
+    }, {});
+};
+
 const parseOperations = (pathItemObject: Swagger2PathItem, pathBuilder: PathBuilder): ParsedOperations => {
     return Object.keys(pathItemObject)
         .filter(isSwagger2Method)
         .reduce<ParsedOperations>((accumulator, method) => {
-            const operation = pathItemObject[method];
-            const parameters = operation ? operation.parameters || [] : [];
+            const operationObject = pathItemObject[method];
             const operationPath = pathBuilder.withChild(method);
+
+            const parametersPath = operationPath.withChild('parameters');
+            const parameters = operationObject
+                ? operationObject.parameters || []
+                : [];
+            const requestBody = parseBodyParameter(parameters, parametersPath);
+
+            const responsesPath = operationPath.withChild('responses');
+            const responses = operationObject
+                ? parseResponses(operationObject.responses, responsesPath)
+                : {};
+
             accumulator[method] = {
                 originalValue: {
                     originalPath: operationPath.build(),
                     value: pathItemObject[method]
                 },
-                requestBody: parseBodyParameter(parameters, operationPath.withChild('parameters'))
+                requestBody,
+                responses
             };
             return accumulator;
         }, {});

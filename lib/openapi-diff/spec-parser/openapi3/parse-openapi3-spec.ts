@@ -1,10 +1,11 @@
-import {PathItemObject, ReferenceObject, RequestBodyObject} from 'openapi3-ts';
+import {PathItemObject, ReferenceObject, RequestBodyObject, ResponsesObject} from 'openapi3-ts';
 import {OpenApi3, OpenApi3MethodName, OpenApi3Paths} from '../../openapi3';
 import {
     ParsedOperations,
     ParsedPathItems,
     ParsedProperty,
     ParsedRequestBody,
+    ParsedResponses,
     ParsedSpec
 } from '../../spec-parser-types';
 import {parseXPropertiesInObject} from '../common/parse-x-properties';
@@ -60,15 +61,23 @@ const parseOperations = (pathItemObject: PathItemObject, pathBuilder: PathBuilde
         .reduce<ParsedOperations>((accumulator, method) => {
             const operationObject = pathItemObject[method];
             const originalPath = pathBuilder.withChild(method);
+
             const requestBody = operationObject
                 ? parsedRequestBody(operationObject.requestBody, originalPath)
                 : parsedRequestBody(undefined, originalPath);
+
+            const responsesPath = originalPath.withChild('responses');
+            const responses = operationObject
+                ? parseResponses(operationObject.responses, responsesPath)
+                : {};
+
             accumulator[method] = {
                 originalValue: {
                     originalPath: originalPath.build(),
                     value: operationObject
                 },
-                requestBody
+                requestBody,
+                responses
             };
             return accumulator;
         }, {});
@@ -88,6 +97,19 @@ const parsePaths = (paths: OpenApi3Paths, pathBuilder: PathBuilder): ParsedPathI
         };
         return accumulator;
     }, {});
+
+const parseResponses = (responses: ResponsesObject, pathBuilder: PathBuilder): ParsedResponses => {
+    return Object.keys(responses).reduce<ParsedResponses>((accumulator, statusCode) => {
+        const originalPath = pathBuilder.withChild(statusCode);
+        accumulator[statusCode] = {
+            originalValue: {
+                originalPath: originalPath.build(),
+                value: responses[statusCode]
+            }
+        };
+        return accumulator;
+    }, {});
+};
 
 export const parseOpenApi3Spec = (spec: OpenApi3): ParsedSpec => {
     const pathBuilder = PathBuilder.createRootPathBuilder();

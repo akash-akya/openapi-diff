@@ -3,6 +3,7 @@ export type Path = Array<string | number>;
 export interface ParsedOperation {
     originalValue: ParsedProperty<any>;
     requestBody: ParsedRequestBody;
+    responses: ParsedResponses;
 }
 
 export interface ParsedOperations {
@@ -14,6 +15,14 @@ export interface ParsedRequestBody {
     jsonSchema?: ParsedProperty<any>;
 }
 
+export interface ParsedResponses {
+    [statuscode: string]: ParsedResponse;
+}
+
+export interface ParsedResponse {
+    originalValue: ParsedProperty<any>;
+
+}
 export interface ParsedPathItems {
     [path: string]: ParsedPathItem;
 }

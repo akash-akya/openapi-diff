@@ -61,7 +61,7 @@ This is a list of all the relevant field names in OpenApi 3 and if the validatio
 | --- | --- |
 | parameters | no |
 | requestBody | yes |
-| responses | no |
+| responses | partial (only for response status codes) |
 | callbacks | no |
 | deprecated | no |
 | security | no |
@@ -117,7 +117,7 @@ This is a list of all the relevant field names in OpenApi 3 and if the validatio
 
 | Field Name | Supported |
 | --- | --- |
-| {http status code} | no |
+| {http status code} | partial (only adds and removals) |
 | default | no |
 
 ## Response Object
