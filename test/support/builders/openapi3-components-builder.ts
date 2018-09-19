@@ -1,10 +1,7 @@
 import * as _ from 'lodash';
-import {ComponentsObject, RequestBodyObject} from 'openapi3-ts';
+import {OpenApi3Components, OpenApi3RequestBodies, OpenApi3RequestBody} from '../../../lib/openapi-diff/openapi3';
+import {buildMapFromBuilders} from './builder-utils';
 import {OpenApi3RequestBodyBuilder} from './openapi3-request-body-builder';
-
-interface RequestBodies {
-    [request: string]: RequestBodyObject;
-}
 
 interface OpenApi3ComponentsBuilderState {
     schemas: {[name: string]: any};
@@ -35,12 +32,10 @@ export class OpenApi3ComponentsBuilder {
         return new OpenApi3ComponentsBuilder({...this.state, requestBodies: copyOfRequestBodies});
     }
 
-    public build(): ComponentsObject {
-        const requestBodies = Object.keys(this.state.requestBodies)
-            .reduce<RequestBodies>((accumulator, requestBodyName) => {
-                accumulator[requestBodyName] = this.state.requestBodies[requestBodyName].build();
-                return accumulator;
-            }, {});
+    public build(): OpenApi3Components {
+        const requestBodies: OpenApi3RequestBodies =
+            buildMapFromBuilders<OpenApi3RequestBodyBuilder, OpenApi3RequestBody>(this.state.requestBodies);
+
         return {
             requestBodies,
             schemas: _.cloneDeep(this.state.schemas)

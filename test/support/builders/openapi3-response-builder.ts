@@ -1,4 +1,4 @@
-import {ResponseObject as OpenApi3Response} from 'openapi3-ts';
+import {OpenApi3Response} from '../../../lib/openapi-diff/openapi3';
 
 interface OpenApi3ResponseBuilderState {
     description: string;

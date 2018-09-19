@@ -1,5 +1,11 @@
-import {PathItemObject, ReferenceObject, RequestBodyObject, ResponsesObject} from 'openapi3-ts';
-import {OpenApi3, OpenApi3MethodName, OpenApi3Paths} from '../../openapi3';
+import {
+    OpenApi3,
+    OpenApi3MethodName,
+    OpenApi3PathItem,
+    OpenApi3Paths,
+    OpenApi3Reference,
+    OpenApi3RequestBody, OpenApi3Responses
+} from '../../openapi3';
 import {
     ParsedOperations,
     ParsedPathItems,
@@ -11,7 +17,7 @@ import {
 import {parseXPropertiesInObject} from '../common/parse-x-properties';
 import {PathBuilder} from '../common/path-builder';
 
-const typeCheckedOpenApi3Methods: {[method in OpenApi3MethodName]: undefined} = {
+const typeCheckedOpenApi3Methods: { [method in OpenApi3MethodName]: undefined } = {
     delete: undefined,
     get: undefined,
     head: undefined,
@@ -26,12 +32,12 @@ const isOpenApi3Method = (propertyName: string): propertyName is OpenApi3MethodN
     Object.keys(typeCheckedOpenApi3Methods).indexOf(propertyName) >= 0;
 
 const isRequestBodyObject = (
-    requestBody: RequestBodyObject | ReferenceObject | undefined
-): requestBody is RequestBodyObject =>
-    !!requestBody && !!(requestBody as RequestBodyObject).content;
+    requestBody: OpenApi3RequestBody | OpenApi3Reference | undefined
+): requestBody is OpenApi3RequestBody =>
+    !!requestBody && !!(requestBody as OpenApi3RequestBody).content;
 
 const parsedRequestBodyJsonSchema = (
-    requestBodyObject: RequestBodyObject | ReferenceObject | undefined, pathBuilder: PathBuilder
+    requestBodyObject: OpenApi3RequestBody | OpenApi3Reference | undefined, pathBuilder: PathBuilder
 ): ParsedProperty<any> | undefined => {
     if (isRequestBodyObject(requestBodyObject) && requestBodyObject.content['application/json']) {
         return {
@@ -43,7 +49,7 @@ const parsedRequestBodyJsonSchema = (
 };
 
 const parsedRequestBody = (
-    requestBody: RequestBodyObject | ReferenceObject | undefined, pathBuilder: PathBuilder
+    requestBody: OpenApi3RequestBody | OpenApi3Reference | undefined, pathBuilder: PathBuilder
 ): ParsedRequestBody => {
     const originalPath = pathBuilder.withChild('requestBody');
     return {
@@ -55,7 +61,7 @@ const parsedRequestBody = (
     };
 };
 
-const parseOperations = (pathItemObject: PathItemObject, pathBuilder: PathBuilder): ParsedOperations => {
+const parseOperations = (pathItemObject: OpenApi3PathItem, pathBuilder: PathBuilder): ParsedOperations => {
     return Object.keys(pathItemObject)
         .filter(isOpenApi3Method)
         .reduce<ParsedOperations>((accumulator, method) => {
@@ -98,7 +104,7 @@ const parsePaths = (paths: OpenApi3Paths, pathBuilder: PathBuilder): ParsedPathI
         return accumulator;
     }, {});
 
-const parseResponses = (responses: ResponsesObject, pathBuilder: PathBuilder): ParsedResponses => {
+const parseResponses = (responses: OpenApi3Responses, pathBuilder: PathBuilder): ParsedResponses => {
     return Object.keys(responses).reduce<ParsedResponses>((accumulator, statusCode) => {
         const originalPath = pathBuilder.withChild(statusCode);
         accumulator[statusCode] = {

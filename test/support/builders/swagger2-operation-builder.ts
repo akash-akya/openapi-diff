@@ -1,11 +1,12 @@
-import {Swagger2Operation, Swagger2Responses} from '../../../lib/openapi-diff/swagger2';
+import {Swagger2Operation, Swagger2Response, Swagger2Responses} from '../../../lib/openapi-diff/swagger2';
+import {buildMapFromBuilders} from './builder-utils';
 import {RefObjectBuilder} from './ref-object-builder';
 import {Swagger2BodyParameterBuilder} from './swagger2-body-parameter-builder';
 import {swagger2ResponseBuilder, Swagger2ResponseBuilder} from './swagger2-response-builder';
 
 type ParameterBuilder = Swagger2BodyParameterBuilder | RefObjectBuilder;
 
-interface Swagger2OperationBuilderState {
+interface Swagger2OperationBuilders {
     parameters: ParameterBuilder[];
     responses: {
         [statuscode: string]: Swagger2ResponseBuilder;
@@ -22,7 +23,7 @@ export class Swagger2OperationBuilder {
         });
     }
 
-    private constructor(private readonly state: Swagger2OperationBuilderState) {
+    private constructor(private readonly state: Swagger2OperationBuilders) {
     }
 
     public withParameters(parameters: ParameterBuilder[]): Swagger2OperationBuilder {
@@ -37,11 +38,8 @@ export class Swagger2OperationBuilder {
 
     public build(): Swagger2Operation {
         const parameters = this.state.parameters.map((parameterBuilder) => parameterBuilder.build() as any);
-        const responses =
-            Object.keys(this.state.responses).reduce<Swagger2Responses>((accumulator, statusCode) => {
-                accumulator[statusCode] = this.state.responses[statusCode].build();
-                return accumulator;
-            }, {});
+        const responses: Swagger2Responses
+            = buildMapFromBuilders<Swagger2ResponseBuilder, Swagger2Response>(this.state.responses);
 
         return {
             parameters,

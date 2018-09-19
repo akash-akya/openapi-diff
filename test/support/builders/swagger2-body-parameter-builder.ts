@@ -1,6 +1,5 @@
 import * as _ from 'lodash';
-// tslint:disable-next-line:no-implicit-dependencies
-import {BodyParameter} from 'swagger-schema-official';
+import {Swagger2BodyParameter} from '../../../lib/openapi-diff/swagger2';
 import {isDefined} from './builder-utils';
 
 interface Swagger2BodyParameterBuilderState {
@@ -26,8 +25,8 @@ export class Swagger2BodyParameterBuilder {
         return new Swagger2BodyParameterBuilder({...this.state, schema: copyOfSchema});
     }
 
-    public build(): BodyParameter {
-        const bodyParameter: BodyParameter = {
+    public build(): Swagger2BodyParameter {
+        const bodyParameter: Swagger2BodyParameter = {
             in: 'body',
             name: this.state.name
         };

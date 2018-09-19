@@ -1,14 +1,18 @@
-import {PathItemObject as OpenApi3PathItem} from 'openapi3-ts';
-import {OpenApi3MethodName} from '../../../lib/openapi-diff/openapi3';
+import {OpenApi3MethodName, OpenApi3Operation, OpenApi3PathItem} from '../../../lib/openapi-diff/openapi3';
+import {buildMapFromBuilders} from './builder-utils';
 import {OpenApi3OperationBuilder} from './openapi3-operation-builder';
 
-interface Operations {
+interface OperationsBuilderState {
     [method: string]: OpenApi3OperationBuilder;
 }
 
 interface OpenApi3PathItemBuilderState {
-    operations: Operations;
+    operations: OperationsBuilderState;
     description?: string;
+}
+
+interface OpenApi3Operations {
+    [key: string]: OpenApi3Operation;
 }
 
 export class OpenApi3PathItemBuilder {
@@ -38,11 +42,8 @@ export class OpenApi3PathItemBuilder {
     }
 
     public build(): OpenApi3PathItem {
-        const operations = Object.keys(this.state.operations)
-            .reduce<OpenApi3PathItem>((pathItem, currentMethod) => {
-                pathItem[currentMethod] = this.state.operations[currentMethod].build();
-                return pathItem;
-            }, {});
+        const operations: OpenApi3Operations =
+            buildMapFromBuilders<OpenApi3OperationBuilder, OpenApi3Operation>(this.state.operations);
 
         return this.state.description ? {...operations, description: this.state.description} : operations;
     }

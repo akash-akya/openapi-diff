@@ -1,6 +1,7 @@
 import * as assert from 'assert';
 import * as _ from 'lodash';
-import {Swagger2, Swagger2BodyParameter, Swagger2Paths} from '../../../lib/openapi-diff/swagger2';
+import {Swagger2, Swagger2BodyParameter, Swagger2PathItem, Swagger2Paths} from '../../../lib/openapi-diff/swagger2';
+import {buildMapFromBuilders} from './builder-utils';
 import {Swagger2BodyParameterBuilder} from './swagger2-body-parameter-builder';
 import {Swagger2PathItemBuilder} from './swagger2-path-item-builder';
 
@@ -33,17 +34,10 @@ export class Swagger2SpecBuilder {
     }
 
     public build(): Swagger2 {
-        const paths = Object.keys(this.state.paths).reduce<Swagger2Paths>((swagger2Paths, currentPath) => {
-            swagger2Paths[currentPath] = this.state.paths[currentPath].build();
-            return swagger2Paths;
-        }, {});
+        const paths: Swagger2Paths = buildMapFromBuilders<Swagger2PathItemBuilder, Swagger2PathItem>(this.state.paths);
+        const parameters: Swagger2Parameters
+            = buildMapFromBuilders<Swagger2BodyParameterBuilder, Swagger2BodyParameter>(this.state.parameters);
         const copyOfXProperties = _.cloneDeep(this.state.xProperties);
-
-        const parameters = Object.keys(this.state.parameters)
-            .reduce<Swagger2Parameters>((accumulator, parameterName) => {
-                accumulator[parameterName] = this.state.parameters[parameterName].build();
-                return accumulator;
-            }, {});
 
         return {
             definitions: _.cloneDeep(this.state.definitions),

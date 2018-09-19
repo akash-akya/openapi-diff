@@ -1,12 +1,13 @@
-import {Swagger2MethodNames, Swagger2PathItem} from '../../../lib/openapi-diff/swagger2';
+import {Swagger2MethodNames, Swagger2Operation, Swagger2PathItem} from '../../../lib/openapi-diff/swagger2';
+import {buildMapFromBuilders} from './builder-utils';
 import {Swagger2OperationBuilder} from './swagger2-operation-builder';
 
-interface Operations {
+interface OperationsStateBuilder {
     [method: string]: Swagger2OperationBuilder;
 }
 
 interface Swagger2PathItemBuilderState {
-    operations: Operations;
+    operations: OperationsStateBuilder;
 }
 
 export class Swagger2PathItemBuilder {
@@ -25,13 +26,7 @@ export class Swagger2PathItemBuilder {
     }
 
     public build(): Swagger2PathItem {
-        return Object.keys(this.state.operations)
-            .reduce<Swagger2PathItem>((pathItem, currentMethod) => {
-                const method = currentMethod as Swagger2MethodNames;
-                pathItem[method] = this.state.operations[method].build();
-                return pathItem;
-            }, {});
-
+        return buildMapFromBuilders<Swagger2OperationBuilder, Swagger2Operation>(this.state.operations);
     }
 }
 

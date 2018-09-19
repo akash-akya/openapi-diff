@@ -1,6 +1,7 @@
 import * as assert from 'assert';
 import * as _ from 'lodash';
-import {OpenApi3, OpenApi3Paths} from '../../../lib/openapi-diff/openapi3';
+import {OpenApi3, OpenApi3PathItem, OpenApi3Paths} from '../../../lib/openapi-diff/openapi3';
+import {buildMapFromBuilders} from './builder-utils';
 import {OpenApi3ComponentsBuilder, openApi3ComponentsBuilder} from './openapi3-components-builder';
 import {OpenApi3PathItemBuilder} from './openapi3-path-item-builder';
 
@@ -21,10 +22,7 @@ export class OpenApi3SpecBuilder {
     private constructor(private readonly state: Openapi3SpecBuilderState) {}
 
     public build(): OpenApi3 {
-        const paths = Object.keys(this.state.paths).reduce<OpenApi3Paths>((openApi3Paths, currentPath) => {
-            openApi3Paths[currentPath] = this.state.paths[currentPath].build();
-            return openApi3Paths;
-        }, {});
+        const paths: OpenApi3Paths = buildMapFromBuilders<OpenApi3PathItemBuilder, OpenApi3PathItem>(this.state.paths);
         const copyOfXProperties = _.cloneDeep(this.state.xProperties);
 
         return {

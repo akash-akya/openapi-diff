@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import {ContentObject, RequestBodyObject as OpenaApi3RequestBody} from 'openapi3-ts';
+import {OpenApi3Content, OpenApi3RequestBody} from '../../../lib/openapi-diff/openapi3';
 
 interface OpenApi3RequestBodyBuilderState {
     required: boolean;
@@ -27,8 +27,8 @@ export class OpenApi3RequestBodyBuilder {
         return new OpenApi3RequestBodyBuilder({...this.state, ref, jsonContentSchema: undefined});
     }
 
-    public build(): OpenaApi3RequestBody {
-        const content: ContentObject = {};
+    public build(): OpenApi3RequestBody {
+        const content: OpenApi3Content = {};
         if (this.state.jsonContentSchema) {
             content['application/json'] = {schema: _.cloneDeep(this.state.jsonContentSchema)};
         }
