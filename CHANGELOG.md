@@ -1,3 +1,18 @@
+<a name="0.14.0"></a>
+# [0.14.0](https://bitbucket.org/atlassian/openapi-diff/compare/0.13.1...0.14.0) (2018-09-19)
+
+
+### Bug Fixes
+
+* fixed race condition in the watch loop for unit tests ([1d8b706](https://bitbucket.org/atlassian/openapi-diff/commits/1d8b706))
+
+
+### Features
+
+* add support for response status codes ([cb3bb13](https://bitbucket.org/atlassian/openapi-diff/commits/cb3bb13))
+
+
+
 <a name="0.13.1"></a>
 ## [0.13.1](https://bitbucket.org/atlassian/openapi-diff/compare/0.13.0...0.13.1) (2018-08-29)
 
