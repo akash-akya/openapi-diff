@@ -7,7 +7,8 @@ import {
     ReferenceObject,
     RequestBodyObject,
     ResponseObject,
-    ResponsesObject
+    ResponsesObject,
+    SchemaObject
 } from 'openapi3-ts';
 
 export type OpenApi3 = OpenAPIObject;
@@ -19,6 +20,7 @@ export type OpenApi3Reference = ReferenceObject;
 export type OpenApi3RequestBody = RequestBodyObject;
 export type OpenApi3Responses = ResponsesObject;
 export type OpenApi3Response = ResponseObject;
+export type OpenApi3Schema = SchemaObject;
 
 export type OpenApi3MethodName = 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace';
 

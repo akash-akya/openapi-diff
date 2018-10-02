@@ -8,7 +8,7 @@ interface OpenApi3RequestBodyBuilderState {
 }
 
 export class OpenApi3RequestBodyBuilder {
-    public static defaultOpenApi3OperationBuilder(): OpenApi3RequestBodyBuilder {
+    public static defaultOpenApi3RequestBodyBuilder(): OpenApi3RequestBodyBuilder {
         return new OpenApi3RequestBodyBuilder({
             required: false
         });
@@ -43,4 +43,4 @@ export class OpenApi3RequestBodyBuilder {
     }
 }
 
-export const openApi3RequestBodyBuilder = OpenApi3RequestBodyBuilder.defaultOpenApi3OperationBuilder();
+export const openApi3RequestBodyBuilder = OpenApi3RequestBodyBuilder.defaultOpenApi3RequestBodyBuilder();

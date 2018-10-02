@@ -1,3 +1,4 @@
+import {DiffOutcomeFailure} from '../../../lib/api-types';
 import {OpenApiDiffErrorImpl} from '../../../lib/common/open-api-diff-error-impl';
 import {DiffPathsOptions} from '../../../lib/openapi-diff';
 import {diffPathsOptionsBuilder} from '../../support/builders/diff-paths-options-builder';
@@ -335,4 +336,81 @@ describe('openapi-diff swagger2', () => {
                 .build()
         ]);
     });
+
+    it('should return a breaking and non-breaking differences if response schema scope is changed', async () => {
+        const sourceSpec = swagger2SpecBuilder
+            .withPath('/some/path', swagger2PathItemBuilder
+                .withOperation('post', swagger2OperationBuilder
+                    .withResponse('200', swagger2ResponseBuilder
+                        .withResponseBody({type: 'string'}))));
+        const destinationSpec = swagger2SpecBuilder
+            .withPath('/some/path', swagger2PathItemBuilder
+                .withOperation('post', swagger2OperationBuilder
+                        .withResponse('200', swagger2ResponseBuilder
+                            .withResponseBody({type: 'number'}))));
+
+        const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
+
+        const typeChangeLocation = 'paths./some/path.post.responses.200.schema.type';
+
+        const nonBreakingDifference = nonBreakingDiffResultBuilder
+            .withAction('remove')
+            .withCode('response.body.scope.remove')
+            .withDetails({value: 'string'})
+            .withEntity('response.body.scope')
+            .withSource('json-schema-diff')
+            .withSourceSpecEntityDetails([
+                specEntityDetailsBuilder
+                    .withLocation(typeChangeLocation)
+                    .withValue('string')
+            ])
+            .withDestinationSpecEntityDetails([
+                specEntityDetailsBuilder
+                    .withLocation(typeChangeLocation)
+                    .withValue('number')
+            ])
+            .build();
+
+        const breakingDifference = breakingDiffResultBuilder
+            .withAction('add')
+            .withCode('response.body.scope.add')
+            .withDetails({value: 'number'})
+            .withEntity('response.body.scope')
+            .withSource('json-schema-diff')
+            .withSourceSpecEntityDetails([
+                specEntityDetailsBuilder
+                    .withLocation(typeChangeLocation)
+                    .withValue('string')
+            ])
+            .withDestinationSpecEntityDetails([
+                specEntityDetailsBuilder
+                    .withLocation(typeChangeLocation)
+                    .withValue('number')
+            ])
+            .build();
+
+        expect(outcome).toContainDifferences([nonBreakingDifference, breakingDifference]);
+    });
+
+    it('should find differences in response bodies with references', async () => {
+        const sourceSpec = swagger2SpecBuilder
+            .withDefinition('stringSchema', {type: 'string'})
+            .withResponse('aResponse', swagger2ResponseBuilder
+                .withSchemaRef('#/definitions/stringSchema'))
+            .withPath('/some/path', swagger2PathItemBuilder
+                .withOperation('post', swagger2OperationBuilder
+                    .withResponse('200', refObjectBuilder
+                        .withRef('#/responses/aResponse'))));
+        const destinationSpec = swagger2SpecBuilder
+            .withPath('/some/path', swagger2PathItemBuilder
+                .withOperation('post', swagger2OperationBuilder
+                    .withResponse('200', swagger2ResponseBuilder
+                        .withResponseBody({type: 'number'}))));
+
+        const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
+
+        expect(outcome.nonBreakingDifferences.length).toBe(1);
+        expect((outcome as DiffOutcomeFailure).breakingDifferences.length).toBe(1);
+    });
+
 });

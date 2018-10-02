@@ -4,13 +4,15 @@ import {
     OpenApi3PathItem,
     OpenApi3Paths,
     OpenApi3Reference,
-    OpenApi3RequestBody, OpenApi3Responses
+    OpenApi3RequestBody, OpenApi3Response,
+    OpenApi3Responses,
+    OpenApi3Schema
 } from '../../openapi3';
 import {
     ParsedOperations,
     ParsedPathItems,
     ParsedProperty,
-    ParsedRequestBody,
+    ParsedRequestBody, ParsedResponse,
     ParsedResponses,
     ParsedSpec
 } from '../../spec-parser-types';
@@ -28,8 +30,35 @@ const typeCheckedOpenApi3Methods: { [method in OpenApi3MethodName]: undefined } 
     trace: undefined
 };
 
-const isOpenApi3Method = (propertyName: string): propertyName is OpenApi3MethodName =>
-    Object.keys(typeCheckedOpenApi3Methods).indexOf(propertyName) >= 0;
+const parsedResponseBodyJsonSchema = (
+    response: OpenApi3Response, pathBuilder: PathBuilder
+): ParsedProperty<OpenApi3Schema | OpenApi3Reference> | undefined => {
+    return response.content && response.content['application/json']
+        ? {
+            originalPath: pathBuilder.withChild('content').withChild('application/json').withChild('schema').build(),
+            value: response.content['application/json'].schema
+        }
+        : undefined;
+};
+
+const parseResponse = (response: OpenApi3Response, pathBuilder: PathBuilder): ParsedResponse => {
+    return {
+        jsonSchema: parsedResponseBodyJsonSchema(response, pathBuilder),
+        originalValue: {
+            originalPath: pathBuilder.build(),
+            value: response
+        }
+    };
+};
+
+const parseResponses = (responses: OpenApi3Responses, pathBuilder: PathBuilder): ParsedResponses => {
+    return Object.keys(responses).reduce<ParsedResponses>((accumulator, statusCode) => {
+        const originalPath = pathBuilder.withChild(statusCode);
+        accumulator[statusCode] = parseResponse(responses[statusCode], originalPath);
+
+        return accumulator;
+    }, {});
+};
 
 const isRequestBodyObject = (
     requestBody: OpenApi3RequestBody | OpenApi3Reference | undefined
@@ -38,7 +67,7 @@ const isRequestBodyObject = (
 
 const parsedRequestBodyJsonSchema = (
     requestBodyObject: OpenApi3RequestBody | OpenApi3Reference | undefined, pathBuilder: PathBuilder
-): ParsedProperty<any> | undefined => {
+): ParsedProperty<OpenApi3Schema | OpenApi3Reference> | undefined => {
     if (isRequestBodyObject(requestBodyObject) && requestBodyObject.content['application/json']) {
         return {
             originalPath: pathBuilder.withChild('content').withChild('application/json').withChild('schema').build(),
@@ -60,6 +89,9 @@ const parsedRequestBody = (
         }
     };
 };
+
+const isOpenApi3Method = (propertyName: string): propertyName is OpenApi3MethodName =>
+    Object.keys(typeCheckedOpenApi3Methods).indexOf(propertyName) >= 0;
 
 const parseOperations = (pathItemObject: OpenApi3PathItem, pathBuilder: PathBuilder): ParsedOperations => {
     return Object.keys(pathItemObject)
@@ -103,19 +135,6 @@ const parsePaths = (paths: OpenApi3Paths, pathBuilder: PathBuilder): ParsedPathI
         };
         return accumulator;
     }, {});
-
-const parseResponses = (responses: OpenApi3Responses, pathBuilder: PathBuilder): ParsedResponses => {
-    return Object.keys(responses).reduce<ParsedResponses>((accumulator, statusCode) => {
-        const originalPath = pathBuilder.withChild(statusCode);
-        accumulator[statusCode] = {
-            originalValue: {
-                originalPath: originalPath.build(),
-                value: responses[statusCode]
-            }
-        };
-        return accumulator;
-    }, {});
-};
 
 export const parseOpenApi3Spec = (spec: OpenApi3): ParsedSpec => {
     const pathBuilder = PathBuilder.createRootPathBuilder();

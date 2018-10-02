@@ -10,6 +10,8 @@ declare namespace OpenApiDiff {
         'method.remove' |
         'request.body.scope.add' |
         'request.body.scope.remove' |
+        'response.body.scope.add' |
+        'response.body.scope.remove' |
         'response.status-code.add' |
         'response.status-code.remove' |
         'unclassified.add' |
@@ -20,6 +22,7 @@ declare namespace OpenApiDiff {
         'method' |
         'request.body.scope' |
         'response.status-code' |
+        'response.body.scope' |
         'unclassified';
 
     export type DiffResultAction = 'add' | 'remove';

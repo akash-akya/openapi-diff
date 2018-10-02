@@ -7,7 +7,6 @@ import {
     DiffResultSource,
     DiffResultType
 } from '../../../lib/api-types';
-import {isDefined} from './builder-utils';
 import {DiffResultSpecEntityDetailsBuilder} from './diff-result-spec-entity-details-builder';
 
 interface DiffResultBuilderState<T extends DiffResultType> {
@@ -86,7 +85,7 @@ export class DiffResultBuilder<T extends DiffResultType> {
                 .map((builder) => builder.build()),
             type: this.state.type
         };
-        if (isDefined(this.state.details)) {
+        if (this.state.details) {
             diffResult.details = _.cloneDeep(this.state.details);
         }
         return diffResult;

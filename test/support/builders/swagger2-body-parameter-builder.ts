@@ -1,6 +1,5 @@
 import * as _ from 'lodash';
 import {Swagger2BodyParameter} from '../../../lib/openapi-diff/swagger2';
-import {isDefined} from './builder-utils';
 
 interface Swagger2BodyParameterBuilderState {
     name: string;
@@ -30,7 +29,7 @@ export class Swagger2BodyParameterBuilder {
             in: 'body',
             name: this.state.name
         };
-        if (isDefined(this.state.schema)) {
+        if (this.state.schema) {
             bodyParameter.schema = _.cloneDeep(this.state.schema);
         }
         return bodyParameter;

@@ -10,19 +10,18 @@ export interface ParsedOperations {
     [method: string]: ParsedOperation;
 }
 
-export interface ParsedRequestBody {
+export interface ParsedRequestBody extends ParsedScope {
     originalValue: ParsedProperty<any>;
-    jsonSchema?: ParsedProperty<any>;
 }
 
 export interface ParsedResponses {
     [statuscode: string]: ParsedResponse;
 }
 
-export interface ParsedResponse {
+export interface ParsedResponse extends ParsedScope {
     originalValue: ParsedProperty<any>;
-
 }
+
 export interface ParsedPathItems {
     [path: string]: ParsedPathItem;
 }
@@ -36,6 +35,10 @@ export interface ParsedPathItem {
 export interface ParsedProperty<T> {
     originalPath: Path;
     value?: T;
+}
+
+export interface ParsedScope {
+    jsonSchema?: ParsedProperty<any>;
 }
 
 export interface ParsedXProperties {

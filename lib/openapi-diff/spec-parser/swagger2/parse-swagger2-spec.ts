@@ -1,7 +1,8 @@
 import {
     ParsedOperations,
-    ParsedPathItems,
+    ParsedPathItems, ParsedProperty,
     ParsedRequestBody,
+    ParsedResponse,
     ParsedResponses,
     ParsedSpec
 } from '../../spec-parser-types';
@@ -12,7 +13,8 @@ import {
     Swagger2Parameter,
     Swagger2PathItem,
     Swagger2Paths,
-    Swagger2Responses
+    Swagger2Response,
+    Swagger2Responses, Swagger2Schema
 } from '../../swagger2';
 import {parseXPropertiesInObject} from '../common/parse-x-properties';
 import {PathBuilder} from '../common/path-builder';
@@ -69,15 +71,32 @@ const parseBodyParameter = (parameters: Swagger2Parameter[], pathBuilder: PathBu
     };
 };
 
+const parseResponseBodyJsonSchema = (
+    response: Swagger2Response, pathBuilder: PathBuilder
+): ParsedProperty<Swagger2Schema> | undefined => {
+    return response.schema
+        ? {
+            originalPath: pathBuilder.withChild('schema').build(),
+            value: response.schema
+        }
+        : undefined;
+};
+
+const parseResponse = (response: Swagger2Response, pathBuilder: PathBuilder): ParsedResponse => {
+    return {
+        jsonSchema: parseResponseBodyJsonSchema(response, pathBuilder),
+        originalValue: {
+            originalPath: pathBuilder.build(),
+            value: response
+        }
+    };
+};
+
 const parseResponses = (responses: Swagger2Responses, pathBuilder: PathBuilder): ParsedResponses => {
     return Object.keys(responses).reduce<ParsedResponses>((accumulator, statusCode) => {
         const originalPath = pathBuilder.withChild(statusCode);
-        accumulator[statusCode] = {
-            originalValue: {
-                originalPath: originalPath.build(),
-                value: responses[statusCode]
-            }
-        };
+        accumulator[statusCode] = parseResponse(responses[statusCode], originalPath);
+
         return accumulator;
     }, {});
 };

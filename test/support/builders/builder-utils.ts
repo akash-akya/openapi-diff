@@ -12,5 +12,3 @@ export const buildMapFromBuilders = <T extends Builder<U>, U>(mapOfBuilders: Map
         return accumulatorMap;
     }, {});
 };
-
-export const isDefined = <T>(target: T | undefined): target is T => target !== undefined;

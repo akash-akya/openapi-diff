@@ -137,6 +137,39 @@ describe('openapi-diff request-body', () => {
         ]);
     });
 
+    it('should return differences, when a request body schema did exist and was removed', async () => {
+        const sourceSpec = createSpecWithRequestBody(
+            openApi3RequestBodyBuilder.withJsonContentSchema(
+                {type: 'string'}));
+        const destinationSpec = openApi3SpecBuilder
+            .withPath(defaultPath, openApi3PathItemBuilder
+                .withOperation(defaultMethod, openApi3OperationBuilder
+                    .withNoRequestBody()));
+
+        const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
+
+        const baseNonBreakingDifference = nonBreakingDiffResultBuilder
+            .withAction('add')
+            .withCode('request.body.scope.add')
+            .withEntity('request.body.scope')
+            .withSource('json-schema-diff')
+            .withSourceSpecEntityDetails([
+                specEntityDetailsBuilder
+                    .withLocation(
+                        `paths.${defaultPath}.${defaultMethod}.requestBody.content.application/json.schema.type`)
+                    .withValue('string')
+            ])
+            .withDestinationSpecEntityDetails([]);
+        expect(outcome).toContainDifferences([
+            baseNonBreakingDifference.withDetails({value: 'boolean'}).build(),
+            baseNonBreakingDifference.withDetails({value: 'object'}).build(),
+            baseNonBreakingDifference.withDetails({value: 'integer'}).build(),
+            baseNonBreakingDifference.withDetails({value: 'number'}).build(),
+            baseNonBreakingDifference.withDetails({value: 'array'}).build(),
+            baseNonBreakingDifference.withDetails({value: 'null'}).build()
+        ]);
+    });
+
     it('should find differences in request bodies with references', async () => {
         const sourceSpec = openApi3SpecBuilder
             .withComponents(openApi3ComponentsBuilder
@@ -156,6 +189,6 @@ describe('openapi-diff request-body', () => {
         const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
 
         expect(outcome.nonBreakingDifferences.length).toBe(1);
-        expect((outcome as DiffOutcomeFailure).nonBreakingDifferences.length).toBe(1);
+        expect((outcome as DiffOutcomeFailure).breakingDifferences.length).toBe(1);
     });
 });

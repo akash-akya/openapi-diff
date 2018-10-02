@@ -94,8 +94,8 @@ This is a list of all the relevant field names in Swagger 2 and if the validatio
 
 | Field Name | Supported |
 | --- | --- |
-| {http status code} | partial (only adds and removals) |
-| default | no |
+| {http status code} | yes |
+| default | partial (tested against itself, not against other http status codes) |
 
 ## Response Object
 

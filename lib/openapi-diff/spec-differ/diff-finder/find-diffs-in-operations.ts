@@ -52,7 +52,7 @@ const findMatchingMethodsDifferences = async (
                 matchingDestinationOperation.requestBody
             );
 
-            const responsesDifferences = findDifferencesInResponses(
+            const responsesDifferences = await findDifferencesInResponses(
                 matchingSourceOperation.responses,
                 matchingDestinationOperation.responses
             );

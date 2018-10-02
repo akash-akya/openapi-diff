@@ -1,8 +1,10 @@
 import {ParsedResponses} from '../../spec-parser-types';
 import {getAddedKeysFromObjects} from './common/get-added-keys-from-objects';
+import {getCommonKeysFromObjects} from './common/get-common-keys-from-objects';
 import {getRemovedKeysFromObjects} from './common/get-removed-keys-from-objects';
 import {createDifference} from './create-difference';
 import {Difference} from './difference';
+import {findDifferencesInResponseBodies} from './find-diffs-in-response-bodies';
 
 const findAddedDifferencesInResponses = (
     sourceResponses: ParsedResponses, destinationResponses: ParsedResponses
@@ -38,11 +40,34 @@ const findRemovedDifferencesInResponses = (
     });
 };
 
-export const findDifferencesInResponses = (
+const findMatchingResponsesDifferences = async (
     sourceResponses: ParsedResponses, destinationResponses: ParsedResponses
-): Difference[] => {
+): Promise<Difference[]> => {
+    const whenDifferencesForAllMatchingResponses = getCommonKeysFromObjects(sourceResponses, destinationResponses)
+        .map(async (matchingResponse) => {
+            const matchingSourceResponse = sourceResponses[matchingResponse];
+            const matchingDestinationResponse = destinationResponses[matchingResponse];
+
+            return findDifferencesInResponseBodies(
+                matchingSourceResponse,
+                matchingDestinationResponse
+            );
+        });
+
+    const differencesByResponse = await Promise.all(whenDifferencesForAllMatchingResponses);
+
+    return differencesByResponse
+        .reduce<Difference[]>((allDifferences, responseDifferences) => [...allDifferences, ...responseDifferences], []);
+};
+
+export const findDifferencesInResponses = async (
+    sourceResponses: ParsedResponses, destinationResponses: ParsedResponses
+): Promise<Difference[]> => {
+    const matchingResponsesDifferences = await findMatchingResponsesDifferences(sourceResponses, destinationResponses);
+
     return [
         ...findAddedDifferencesInResponses(sourceResponses, destinationResponses),
-        ...findRemovedDifferencesInResponses(sourceResponses, destinationResponses)
+        ...findRemovedDifferencesInResponses(sourceResponses, destinationResponses),
+        ...matchingResponsesDifferences
     ];
 };
