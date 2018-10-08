@@ -1,3 +1,13 @@
+<a name="0.15.0"></a>
+# [0.15.0](https://bitbucket.org/atlassian/openapi-diff/compare/0.14.0...0.15.0) (2018-10-08)
+
+
+### Features
+
+* support finding differences in response bodies schemas ([f1b0cc9](https://bitbucket.org/atlassian/openapi-diff/commits/f1b0cc9))
+
+
+
 <a name="0.14.0"></a>
 # [0.14.0](https://bitbucket.org/atlassian/openapi-diff/compare/0.13.1...0.14.0) (2018-09-19)
 
