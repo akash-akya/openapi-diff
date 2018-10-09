@@ -1,3 +1,5 @@
+import * as _ from 'lodash';
+
 interface Builder<T> {
     build(): T;
 }
@@ -12,3 +14,21 @@ export const buildMapFromBuilders = <T extends Builder<U>, U>(mapOfBuilders: Map
         return accumulatorMap;
     }, {});
 };
+
+export const buildArrayFromBuilders = <T extends Builder<U>, U>(arrayOfBuilders: T[]): U[] => {
+    return arrayOfBuilders.map((builder) => builder.build());
+};
+
+export const setPropertyIfDefined =
+    <T, K extends keyof T>(target: T, propertyKey: K, propertyValue: T[K] | undefined): void => {
+        if (propertyValue) {
+            target[propertyKey] = _.cloneDeep(propertyValue);
+        }
+    };
+
+export const setPropertyFromBuilderIfDefined =
+    <T, K extends keyof T>(target: T, propertyKey: K, propertyValue: Builder<T[K]> | undefined): void => {
+        if (propertyValue) {
+            target[propertyKey] = propertyValue.build();
+        }
+    };

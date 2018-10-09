@@ -1,5 +1,5 @@
 import {OpenApi3Operation, OpenApi3Responses} from '../../../lib/openapi-diff/openapi3';
-import {buildMapFromBuilders} from './builder-utils';
+import {buildMapFromBuilders, setPropertyFromBuilderIfDefined} from './builder-utils';
 import {OpenApi3ContentBuilder} from './openapi3-content-builder';
 import {OpenApi3RequestBodyBuilder} from './openapi3-request-body-builder';
 import {RefObjectBuilder} from './ref-object-builder';
@@ -46,7 +46,9 @@ export class OpenApi3OperationBuilder {
             responses
         };
 
-        return this.state.requestBody ? {...operation, requestBody: this.state.requestBody.build()} : operation;
+        setPropertyFromBuilderIfDefined(operation, 'requestBody', this.state.requestBody);
+
+        return operation;
     }
 }
 

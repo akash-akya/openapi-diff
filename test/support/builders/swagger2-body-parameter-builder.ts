@@ -1,5 +1,6 @@
 import * as _ from 'lodash';
 import {Swagger2BodyParameter} from '../../../lib/openapi-diff/swagger2';
+import {setPropertyIfDefined} from './builder-utils';
 
 interface Swagger2BodyParameterBuilderState {
     name: string;
@@ -13,7 +14,8 @@ export class Swagger2BodyParameterBuilder {
         });
     }
 
-    private constructor(private readonly state: Swagger2BodyParameterBuilderState) {}
+    private constructor(private readonly state: Swagger2BodyParameterBuilderState) {
+    }
 
     public withName(name: string): Swagger2BodyParameterBuilder {
         return new Swagger2BodyParameterBuilder({...this.state, name});
@@ -29,9 +31,9 @@ export class Swagger2BodyParameterBuilder {
             in: 'body',
             name: this.state.name
         };
-        if (this.state.schema) {
-            bodyParameter.schema = _.cloneDeep(this.state.schema);
-        }
+
+        setPropertyIfDefined(bodyParameter, 'schema', this.state.schema);
+
         return bodyParameter;
     }
 }

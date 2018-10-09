@@ -7,6 +7,7 @@ import {
     DiffResultSource,
     DiffResultType
 } from '../../../lib/api-types';
+import {buildArrayFromBuilders, setPropertyIfDefined} from './builder-utils';
 import {DiffResultSpecEntityDetailsBuilder} from './diff-result-spec-entity-details-builder';
 
 interface DiffResultBuilderState<T extends DiffResultType> {
@@ -41,14 +42,16 @@ export class DiffResultBuilder<T extends DiffResultType> {
     }
 
     public withCode(code: DiffResultCode): DiffResultBuilder<T> {
-        return new DiffResultBuilder({...this.state, code});    }
+        return new DiffResultBuilder({...this.state, code});
+    }
 
     public withEntity(entity: DiffResultEntity): DiffResultBuilder<T> {
         return new DiffResultBuilder({...this.state, entity});
     }
 
     public withSource(source: DiffResultSource): DiffResultBuilder<T> {
-        return new DiffResultBuilder({...this.state, source});    }
+        return new DiffResultBuilder({...this.state, source});
+    }
 
     public withDestinationSpecEntityDetails(
         destinationSpecEntityDetails: DiffResultSpecEntityDetailsBuilder[]
@@ -74,20 +77,18 @@ export class DiffResultBuilder<T extends DiffResultType> {
     }
 
     public build(): DiffResult<T> {
-        const diffResult: DiffResult<T> =  {
+        const diffResult: DiffResult<T> = {
             action: this.state.action,
             code: this.state.code,
-            destinationSpecEntityDetails: this.state.destinationSpecEntityDetails
-                .map((builder) => builder.build()),
+            destinationSpecEntityDetails: buildArrayFromBuilders(this.state.destinationSpecEntityDetails),
             entity: this.state.entity,
             source: this.state.source,
-            sourceSpecEntityDetails: this.state.sourceSpecEntityDetails
-                .map((builder) => builder.build()),
+            sourceSpecEntityDetails: buildArrayFromBuilders(this.state.sourceSpecEntityDetails),
             type: this.state.type
         };
-        if (this.state.details) {
-            diffResult.details = _.cloneDeep(this.state.details);
-        }
+
+        setPropertyIfDefined(diffResult, 'details', this.state.details);
+
         return diffResult;
     }
 }

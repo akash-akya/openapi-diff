@@ -20,23 +20,6 @@ export class OpenApi3SpecBuilder {
         return new OpenApi3SpecBuilder({paths: {}, components: openApi3ComponentsBuilder, xProperties: {}});
     }
     private constructor(private readonly state: Openapi3SpecBuilderState) {}
-
-    public build(): OpenApi3 {
-        const paths: OpenApi3Paths = buildMapFromBuilders<OpenApi3PathItemBuilder, OpenApi3PathItem>(this.state.paths);
-        const copyOfXProperties = _.cloneDeep(this.state.xProperties);
-
-        return {
-            components: this.state.components.build(),
-            info: {
-                title: 'spec title',
-                version: 'spec version'
-            },
-            openapi: '3.0.0',
-            paths,
-            ...copyOfXProperties
-        };
-    }
-
     public withTopLevelXProperty(name: string, value: any): OpenApi3SpecBuilder {
         assert.ok(name.indexOf('x-') === 0, `Expected name '${name}' to start with x-`);
         const copyOfXproperties = {...this.state.xProperties};
@@ -60,6 +43,22 @@ export class OpenApi3SpecBuilder {
 
     public withNoPaths(): OpenApi3SpecBuilder {
         return new OpenApi3SpecBuilder({...this.state, paths: {}});
+    }
+
+    public build(): OpenApi3 {
+        const paths: OpenApi3Paths = buildMapFromBuilders<OpenApi3PathItemBuilder, OpenApi3PathItem>(this.state.paths);
+        const copyOfXProperties = _.cloneDeep(this.state.xProperties);
+
+        return {
+            components: this.state.components.build(),
+            info: {
+                title: 'spec title',
+                version: 'spec version'
+            },
+            openapi: '3.0.0',
+            paths,
+            ...copyOfXProperties
+        };
     }
 }
 

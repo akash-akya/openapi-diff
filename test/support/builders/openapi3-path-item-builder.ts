@@ -1,5 +1,5 @@
 import {OpenApi3MethodName, OpenApi3Operation, OpenApi3PathItem} from '../../../lib/openapi-diff/openapi3';
-import {buildMapFromBuilders} from './builder-utils';
+import {buildMapFromBuilders, setPropertyIfDefined} from './builder-utils';
 import {OpenApi3OperationBuilder} from './openapi3-operation-builder';
 
 interface OperationsBuilderState {
@@ -9,10 +9,6 @@ interface OperationsBuilderState {
 interface OpenApi3PathItemBuilderState {
     operations: OperationsBuilderState;
     description?: string;
-}
-
-interface OpenApi3Operations {
-    [key: string]: OpenApi3Operation;
 }
 
 export class OpenApi3PathItemBuilder {
@@ -42,10 +38,12 @@ export class OpenApi3PathItemBuilder {
     }
 
     public build(): OpenApi3PathItem {
-        const operations: OpenApi3Operations =
+        const operations: OpenApi3PathItem =
             buildMapFromBuilders<OpenApi3OperationBuilder, OpenApi3Operation>(this.state.operations);
 
-        return this.state.description ? {...operations, description: this.state.description} : operations;
+        setPropertyIfDefined(operations, 'description', this.state.description);
+
+        return operations;
     }
 }
 

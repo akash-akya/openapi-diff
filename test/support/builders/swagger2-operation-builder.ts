@@ -1,5 +1,5 @@
-import {Swagger2Operation, Swagger2Responses} from '../../../lib/openapi-diff/swagger2';
-import {buildMapFromBuilders} from './builder-utils';
+import {Swagger2Operation, Swagger2Parameter, Swagger2Responses} from '../../../lib/openapi-diff/swagger2';
+import {buildArrayFromBuilders, buildMapFromBuilders} from './builder-utils';
 import {RefObjectBuilder} from './ref-object-builder';
 import {Swagger2BodyParameterBuilder} from './swagger2-body-parameter-builder';
 import {swagger2ResponseBuilder, Swagger2ResponseBuilder} from './swagger2-response-builder';
@@ -39,7 +39,7 @@ export class Swagger2OperationBuilder {
     }
 
     public build(): Swagger2Operation {
-        const parameters = this.state.parameters.map((parameterBuilder) => parameterBuilder.build() as any);
+        const parameters: Swagger2Parameter[] = buildArrayFromBuilders(this.state.parameters as any);
         const responses: Swagger2Responses = buildMapFromBuilders(this.state.responses as any);
 
         return {

@@ -1,4 +1,5 @@
 import {OpenApi3Response} from '../../../lib/openapi-diff/openapi3';
+import {setPropertyFromBuilderIfDefined} from './builder-utils';
 import {OpenApi3ResponseContentBuilder} from './openapi3-response-content-builder';
 
 interface OpenApi3ContentBuilderState {
@@ -29,9 +30,7 @@ export class OpenApi3ContentBuilder {
             description: this.state.description
         };
 
-        if (this.state.content) {
-            response.content = this.state.content.build();
-        }
+        setPropertyFromBuilderIfDefined(response, 'content', this.state.content);
 
         return response;
     }

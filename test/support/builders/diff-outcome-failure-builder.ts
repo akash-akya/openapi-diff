@@ -1,4 +1,5 @@
 import {DiffOutcome} from '../../../lib/api-types';
+import {buildArrayFromBuilders} from './builder-utils';
 import {DiffResultBuilder} from './diff-result-builder';
 
 interface DiffOutcomeBuilderState {
@@ -17,15 +18,6 @@ export class DiffOutcomeFailureBuilder {
     }
 
     private constructor(private readonly state: DiffOutcomeBuilderState) {}
-
-    public build(): DiffOutcome {
-        return {
-            breakingDifferences: this.state.breakingDifferences.map((builder) => builder.build()),
-            breakingDifferencesFound: true,
-            nonBreakingDifferences: this.state.nonBreakingDifferences.map((builder) => builder.build()),
-            unclassifiedDifferences: this.state.unclassifiedDifferences.map((builder) => builder.build())
-        };
-    }
 
     public withNonBreakingDifferences(
         nonBreakingDifferences: Array<DiffResultBuilder<'non-breaking'>>
@@ -46,6 +38,15 @@ export class DiffOutcomeFailureBuilder {
     ): DiffOutcomeFailureBuilder {
         const copyOfUnclassifiedDifferences = Array.from(unclassifiedDifferences);
         return new DiffOutcomeFailureBuilder({...this.state, unclassifiedDifferences: copyOfUnclassifiedDifferences});
+    }
+
+    public build(): DiffOutcome {
+        return {
+            breakingDifferences: buildArrayFromBuilders(this.state.breakingDifferences),
+            breakingDifferencesFound: true,
+            nonBreakingDifferences: buildArrayFromBuilders(this.state.nonBreakingDifferences),
+            unclassifiedDifferences: buildArrayFromBuilders(this.state.unclassifiedDifferences)
+        };
     }
 }
 
