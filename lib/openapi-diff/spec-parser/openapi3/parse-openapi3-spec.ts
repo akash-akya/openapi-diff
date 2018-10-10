@@ -4,15 +4,20 @@ import {
     OpenApi3PathItem,
     OpenApi3Paths,
     OpenApi3Reference,
-    OpenApi3RequestBody, OpenApi3Response,
-    OpenApi3Responses,
-    OpenApi3Schema
+    OpenApi3RequestBody,
+    OpenApi3Response,
+    OpenApi3ResponseHeader,
+    OpenApi3ResponseHeaders,
+    OpenApi3Responses
 } from '../../openapi3';
 import {
+    ParsedHeader,
+    ParsedHeaders,
     ParsedOperations,
     ParsedPathItems,
     ParsedProperty,
-    ParsedRequestBody, ParsedResponse,
+    ParsedRequestBody,
+    ParsedResponse,
     ParsedResponses,
     ParsedSpec
 } from '../../spec-parser-types';
@@ -32,7 +37,7 @@ const typeCheckedOpenApi3Methods: { [method in OpenApi3MethodName]: undefined } 
 
 const parsedResponseBodyJsonSchema = (
     response: OpenApi3Response, pathBuilder: PathBuilder
-): ParsedProperty<OpenApi3Schema | OpenApi3Reference> | undefined => {
+): ParsedProperty | undefined => {
     return response.content && response.content['application/json']
         ? {
             originalPath: pathBuilder.withChild('content').withChild('application/json').withChild('schema').build(),
@@ -41,8 +46,44 @@ const parsedResponseBodyJsonSchema = (
         : undefined;
 };
 
+const parseHeader = (header: OpenApi3ResponseHeader, pathBuilder: PathBuilder): ParsedHeader => {
+    return {
+        originalValue: {
+            originalPath: pathBuilder.build(),
+            value: header
+        }
+    };
+};
+
+const filterOutContentTypeHeader = (responseHeaders: OpenApi3ResponseHeaders): OpenApi3ResponseHeaders => {
+    return Object.keys(responseHeaders)
+        .filter((header) => header.toLowerCase() !== 'content-type')
+        .reduce<OpenApi3ResponseHeaders>((accumulator, key) => {
+            accumulator[key] = responseHeaders[key];
+
+            return accumulator;
+        }, {});
+};
+
+const getHeadersFromResponse = (responseHeaders: OpenApi3ResponseHeaders | undefined): OpenApi3ResponseHeaders => {
+    return responseHeaders ? filterOutContentTypeHeader(responseHeaders) : {};
+};
+
+const parseHeaders = (response: OpenApi3Response, pathBuilder: PathBuilder): ParsedHeaders => {
+    const responseHeaders = getHeadersFromResponse(response.headers);
+    const parentPathBuilder = pathBuilder.withChild('headers');
+
+    return Object.keys(responseHeaders).reduce<ParsedHeaders>((accumulator, header) => {
+        const originalPath = parentPathBuilder.withChild(header);
+        accumulator[header] = parseHeader(responseHeaders[header], originalPath);
+
+        return accumulator;
+    }, {});
+};
+
 const parseResponse = (response: OpenApi3Response, pathBuilder: PathBuilder): ParsedResponse => {
     return {
+        headers: parseHeaders(response, pathBuilder),
         jsonSchema: parsedResponseBodyJsonSchema(response, pathBuilder),
         originalValue: {
             originalPath: pathBuilder.build(),
@@ -67,7 +108,7 @@ const isRequestBodyObject = (
 
 const parsedRequestBodyJsonSchema = (
     requestBodyObject: OpenApi3RequestBody | OpenApi3Reference | undefined, pathBuilder: PathBuilder
-): ParsedProperty<OpenApi3Schema | OpenApi3Reference> | undefined => {
+): ParsedProperty | undefined => {
     if (isRequestBodyObject(requestBodyObject) && requestBodyObject.content['application/json']) {
         return {
             originalPath: pathBuilder.withChild('content').withChild('application/json').withChild('schema').build(),

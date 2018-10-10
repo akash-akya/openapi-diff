@@ -1,8 +1,8 @@
 import {breakingDiffResultBuilder, nonBreakingDiffResultBuilder} from '../../support/builders/diff-result-builder';
 import {specEntityDetailsBuilder} from '../../support/builders/diff-result-spec-entity-details-builder';
-import {openapi3ContentBuilder} from '../../support/builders/openapi3-content-builder';
 import {openApi3OperationBuilder} from '../../support/builders/openapi3-operation-builder';
 import {openApi3PathItemBuilder} from '../../support/builders/openapi3-path-item-builder';
+import {openApi3ResponseBuilder} from '../../support/builders/openapi3-response-builder';
 import {openApi3SpecBuilder} from '../../support/builders/openapi3-spec-builder';
 import {CustomMatchers} from '../support/custom-matchers/custom-matchers';
 import {whenSpecsAreDiffed} from '../support/when-specs-are-diffed';
@@ -17,8 +17,8 @@ describe('openapi-diff response-codes', () => {
         const destinationSpec = openApi3SpecBuilder
             .withPath('/some/path', openApi3PathItemBuilder
                 .withOperation('post', openApi3OperationBuilder
-                    .withResponse('200', openapi3ContentBuilder)
-                    .withResponse('201', openapi3ContentBuilder)));
+                    .withResponse('200', openApi3ResponseBuilder)
+                    .withResponse('201', openApi3ResponseBuilder)));
 
         const baseNonBreakingAddDiffResultBuilder = nonBreakingDiffResultBuilder
             .withAction('add')
@@ -34,14 +34,14 @@ describe('openapi-diff response-codes', () => {
                 .withDestinationSpecEntityDetails([
                     specEntityDetailsBuilder
                         .withLocation('paths./some/path.post.responses.201')
-                        .withValue(openapi3ContentBuilder.build())
+                        .withValue(openApi3ResponseBuilder.build())
                 ])
                 .build(),
             baseNonBreakingAddDiffResultBuilder
                 .withDestinationSpecEntityDetails([
                     specEntityDetailsBuilder
                         .withLocation('paths./some/path.post.responses.200')
-                        .withValue(openapi3ContentBuilder.build())
+                        .withValue(openApi3ResponseBuilder.build())
                 ])
                 .build()
         ]);
@@ -51,12 +51,12 @@ describe('openapi-diff response-codes', () => {
         const sourceSpec = openApi3SpecBuilder
             .withPath('/some/path', openApi3PathItemBuilder
                 .withOperation('post', openApi3OperationBuilder
-                    .withResponse('200', openapi3ContentBuilder)
-                    .withResponse('201', openapi3ContentBuilder)));
+                    .withResponse('200', openApi3ResponseBuilder)
+                    .withResponse('201', openApi3ResponseBuilder)));
         const destinationSpec = openApi3SpecBuilder
             .withPath('/some/path', openApi3PathItemBuilder
                 .withOperation('post', openApi3OperationBuilder
-                    .withResponse('201', openapi3ContentBuilder)));
+                    .withResponse('201', openApi3ResponseBuilder)));
 
         const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
 
@@ -69,7 +69,7 @@ describe('openapi-diff response-codes', () => {
                 .withSourceSpecEntityDetails([
                     specEntityDetailsBuilder
                         .withLocation('paths./some/path.post.responses.200')
-                        .withValue(openapi3ContentBuilder.build())
+                        .withValue(openApi3ResponseBuilder.build())
                 ])
                 .withDestinationSpecEntityDetails([])
                 .build()

@@ -1,12 +1,12 @@
 import {OpenApi3Operation, OpenApi3Responses} from '../../../lib/openapi-diff/openapi3';
 import {buildMapFromBuilders, setPropertyFromBuilderIfDefined} from './builder-utils';
-import {OpenApi3ContentBuilder} from './openapi3-content-builder';
 import {OpenApi3RequestBodyBuilder} from './openapi3-request-body-builder';
+import {OpenApi3ResponseBuilder} from './openapi3-response-builder';
 import {RefObjectBuilder} from './ref-object-builder';
 
 interface OperationBuilders {
     responses: {
-        [statuscode: string]: OpenApi3ContentBuilder | RefObjectBuilder
+        [statuscode: string]: OpenApi3ResponseBuilder | RefObjectBuilder
     };
     requestBody?: OpenApi3RequestBodyBuilder | RefObjectBuilder;
 }
@@ -33,7 +33,7 @@ export class OpenApi3OperationBuilder {
 
     public withResponse(
         responseStatusCode: string,
-        responseBuilder: OpenApi3ContentBuilder | RefObjectBuilder
+        responseBuilder: OpenApi3ResponseBuilder | RefObjectBuilder
     ): OpenApi3OperationBuilder {
         const copyOfResponses = {...this.state.responses};
         copyOfResponses[responseStatusCode] = responseBuilder;

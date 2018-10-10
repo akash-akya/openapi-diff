@@ -12,7 +12,7 @@ This is a list of all the relevant field names in Swagger 2 and if the validatio
 | paths | yes |
 | definitions | partial (only for request bodies) |
 | parameters | partial (only for in: body parameters) |
-| responses | partial (only for response status codes) |
+| responses | partial (only for response bodies) |
 | securityDefinitions | no |
 | security | no |
 | ^x- | yes |
@@ -101,8 +101,8 @@ This is a list of all the relevant field names in Swagger 2 and if the validatio
 
 | Field Name | Supported |
 | --- | --- |
-| schema | no |
-| headers | no |
+| schema | yes |
+| headers | partial (add / remove only) |
 
 ## Header Object
 

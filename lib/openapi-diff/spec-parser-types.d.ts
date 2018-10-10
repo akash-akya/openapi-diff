@@ -1,7 +1,7 @@
 export type Path = Array<string | number>;
 
 export interface ParsedOperation {
-    originalValue: ParsedProperty<any>;
+    originalValue: ParsedProperty;
     requestBody: ParsedRequestBody;
     responses: ParsedResponses;
 }
@@ -11,7 +11,7 @@ export interface ParsedOperations {
 }
 
 export interface ParsedRequestBody extends ParsedScope {
-    originalValue: ParsedProperty<any>;
+    originalValue: ParsedProperty;
 }
 
 export interface ParsedResponses {
@@ -19,7 +19,16 @@ export interface ParsedResponses {
 }
 
 export interface ParsedResponse extends ParsedScope {
-    originalValue: ParsedProperty<any>;
+    headers: ParsedHeaders;
+    originalValue: ParsedProperty;
+}
+
+export interface ParsedHeaders {
+    [name: string]: ParsedHeader;
+}
+
+export interface ParsedHeader {
+    originalValue: ParsedProperty;
 }
 
 export interface ParsedPathItems {
@@ -27,22 +36,22 @@ export interface ParsedPathItems {
 }
 
 export interface ParsedPathItem {
-    originalValue: ParsedProperty<any>;
+    originalValue: ParsedProperty;
     pathName: string;
     operations: ParsedOperations;
 }
 
-export interface ParsedProperty<T> {
+export interface ParsedProperty {
     originalPath: Path;
-    value?: T;
+    value?: any;
 }
 
 export interface ParsedScope {
-    jsonSchema?: ParsedProperty<any>;
+    jsonSchema?: ParsedProperty;
 }
 
 export interface ParsedXProperties {
-    [name: string]: ParsedProperty<any>;
+    [name: string]: ParsedProperty;
 }
 
 export interface ParsedSpec {

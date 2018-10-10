@@ -12,6 +12,8 @@ declare namespace OpenApiDiff {
         'request.body.scope.remove' |
         'response.body.scope.add' |
         'response.body.scope.remove' |
+        'response.header.add' |
+        'response.header.remove' |
         'response.status-code.add' |
         'response.status-code.remove' |
         'unclassified.add' |
@@ -21,6 +23,7 @@ declare namespace OpenApiDiff {
         'path' |
         'method' |
         'request.body.scope' |
+        'response.header' |
         'response.status-code' |
         'response.body.scope' |
         'unclassified';

@@ -40,7 +40,7 @@ const toJsonSchemaDetails = (parsedScope: ParsedScope): JsonSchemaDetails => {
 
 const createSpecOrigin = (
     rootPathInSpec: Path, differenceValue: JsonSchemaDiff.DiffResultDifferenceValue
-): ParsedProperty<any> => {
+): ParsedProperty => {
     return {
         originalPath: [...rootPathInSpec, ...differenceValue.path],
         value: differenceValue.value
@@ -49,7 +49,7 @@ const createSpecOrigin = (
 
 const createSpecOrigins = (
     parsedScope: ParsedScope, differenceValues: JsonSchemaDiff.DiffResultDifferenceValue[]
-): Array<ParsedProperty<any>> => {
+): ParsedProperty[] => {
     const jsonSchemaDetails = toJsonSchemaDetails(parsedScope);
 
     return jsonSchemaDetails.isDefinedInOrigin

@@ -1,10 +1,17 @@
 import * as _ from 'lodash';
 import {Swagger2Response, Swagger2Schema} from '../../../lib/openapi-diff/swagger2';
+import {buildMapFromBuilders, setPropertyIfDefined} from './builder-utils';
+import {Swagger2ResponseHeaderBuilder} from './swagger2-response-header-builder';
+
+interface Swagger2ResponseHeadersBuilder {
+    [name: string]: Swagger2ResponseHeaderBuilder;
+}
 
 interface Swagger2ResponseBuilderState {
     description: string;
+    headers?: Swagger2ResponseHeadersBuilder;
     schema?: Swagger2Schema;
-    ref?: string;
+    ref?: { $ref: string };
 }
 
 export class Swagger2ResponseBuilder {
@@ -17,13 +24,19 @@ export class Swagger2ResponseBuilder {
     private constructor(private readonly state: Swagger2ResponseBuilderState) {
     }
 
+    public withHeader(name: string, definition: Swagger2ResponseHeaderBuilder): Swagger2ResponseBuilder {
+        const copyOfHeaders: Swagger2ResponseHeadersBuilder = {...this.state.headers};
+        copyOfHeaders[name] = definition;
+        return new Swagger2ResponseBuilder({...this.state, headers: copyOfHeaders});
+    }
+
     public withResponseBody(responseBody: Swagger2Schema): Swagger2ResponseBuilder {
         const copyOfResponseBody = _.cloneDeep(responseBody);
         return new Swagger2ResponseBuilder({...this.state, schema: copyOfResponseBody});
     }
 
-    public withSchemaRef(ref: string): Swagger2ResponseBuilder {
-        return new Swagger2ResponseBuilder({...this.state, ref, schema: undefined});
+    public withSchemaRef($ref: string): Swagger2ResponseBuilder {
+        return new Swagger2ResponseBuilder({...this.state, ref: { $ref }, schema: undefined});
     }
 
     public build(): Swagger2Response {
@@ -31,12 +44,11 @@ export class Swagger2ResponseBuilder {
             description: this.state.description
         };
 
-        if (this.state.schema) {
-            response.schema = _.cloneDeep(this.state.schema);
-        }
+        setPropertyIfDefined(response, 'schema', this.state.schema);
+        setPropertyIfDefined(response, 'schema', this.state.ref);
 
-        if (this.state.ref) {
-            response.schema = {$ref: this.state.ref};
+        if (this.state.headers) {
+            response.headers = buildMapFromBuilders(this.state.headers);
         }
 
         return response;

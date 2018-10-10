@@ -1,4 +1,6 @@
 import {
+    ParsedHeader,
+    ParsedHeaders,
     ParsedOperations,
     ParsedPathItems, ParsedProperty,
     ParsedRequestBody,
@@ -14,7 +16,8 @@ import {
     Swagger2PathItem,
     Swagger2Paths,
     Swagger2Response,
-    Swagger2Responses, Swagger2Schema
+    Swagger2ResponseHeader,
+    Swagger2Responses
 } from '../../swagger2';
 import {parseXPropertiesInObject} from '../common/parse-x-properties';
 import {PathBuilder} from '../common/path-builder';
@@ -73,7 +76,7 @@ const parseBodyParameter = (parameters: Swagger2Parameter[], pathBuilder: PathBu
 
 const parseResponseBodyJsonSchema = (
     response: Swagger2Response, pathBuilder: PathBuilder
-): ParsedProperty<Swagger2Schema> | undefined => {
+): ParsedProperty | undefined => {
     return response.schema
         ? {
             originalPath: pathBuilder.withChild('schema').build(),
@@ -82,8 +85,31 @@ const parseResponseBodyJsonSchema = (
         : undefined;
 };
 
+const parseHeader = (header: Swagger2ResponseHeader, pathBuilder: PathBuilder): ParsedHeader => {
+    return {
+        originalValue: {
+            originalPath: pathBuilder.build(),
+            value: header
+        }
+    };
+};
+
+const parseResponseHeaders = (response: Swagger2Response, pathBuilder: PathBuilder): ParsedHeaders => {
+    const responseHeaders = response.headers;
+    const parentPathBuilder = pathBuilder.withChild('headers');
+
+    return responseHeaders
+        ? Object.keys(responseHeaders).reduce<ParsedHeaders>((accumulator, header) => {
+            accumulator[header] = parseHeader(responseHeaders[header], parentPathBuilder.withChild(header));
+
+            return accumulator;
+        }, {})
+        : {};
+};
+
 const parseResponse = (response: Swagger2Response, pathBuilder: PathBuilder): ParsedResponse => {
     return {
+        headers: parseResponseHeaders(response, pathBuilder),
         jsonSchema: parseResponseBodyJsonSchema(response, pathBuilder),
         originalValue: {
             originalPath: pathBuilder.build(),

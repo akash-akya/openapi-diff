@@ -5,6 +5,7 @@ import {getRemovedKeysFromObjects} from './common/get-removed-keys-from-objects'
 import {createDifference} from './create-difference';
 import {Difference} from './difference';
 import {findDifferencesInResponseBodies} from './find-diffs-in-response-bodies';
+import {findDifferencesInResponseHeaders} from './find-diffs-in-response-headers';
 
 const findAddedDifferencesInResponses = (
     sourceResponses: ParsedResponses, destinationResponses: ParsedResponses
@@ -48,10 +49,17 @@ const findMatchingResponsesDifferences = async (
             const matchingSourceResponse = sourceResponses[matchingResponse];
             const matchingDestinationResponse = destinationResponses[matchingResponse];
 
-            return findDifferencesInResponseBodies(
+            const responseBodiesDifferences = await findDifferencesInResponseBodies(
                 matchingSourceResponse,
                 matchingDestinationResponse
             );
+
+            const responseHeadersDifferences = findDifferencesInResponseHeaders(
+                matchingSourceResponse.headers,
+                matchingDestinationResponse.headers
+            );
+
+            return [...responseBodiesDifferences, ...responseHeadersDifferences];
         });
 
     const differencesByResponse = await Promise.all(whenDifferencesForAllMatchingResponses);

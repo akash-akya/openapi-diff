@@ -31,11 +31,11 @@ This is a list of all the relevant field names in OpenApi 3 and if the validatio
 
 | Field Name | Supported |
 | --- | --- |
-| schemas | partial (only for request bodies) |
-| responses | no |
+| schemas | partial (only for request and response bodies) |
+| responses | yes |
 | parameters | no |
 | requestBodies | yes |
-| headers | no |
+| headers | partial (add / remove only) |
 | securitySchemes | no |
 | callbacks | no |
 
@@ -124,7 +124,7 @@ This is a list of all the relevant field names in OpenApi 3 and if the validatio
 
 | Field Name | Supported |
 | --- | --- |
-| headers | no |
+| headers | partial (add / remove only) |
 | content | no |
 | links | no |
 

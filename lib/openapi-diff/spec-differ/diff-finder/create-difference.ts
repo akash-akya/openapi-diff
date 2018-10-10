@@ -8,9 +8,9 @@ import {
 import {ParsedProperty} from '../../spec-parser-types';
 import {Difference} from './difference';
 
-interface CreateDifferenceOptions<T, U> {
-    sourceSpecOrigins: Array<ParsedProperty<T>>;
-    destinationSpecOrigins: Array<ParsedProperty<U>>;
+interface CreateDifferenceOptions {
+    sourceSpecOrigins: ParsedProperty[];
+    destinationSpecOrigins: ParsedProperty[];
     propertyName: string;
     action: DiffResultAction;
     details?: any;
@@ -23,16 +23,14 @@ const findEntityForDiff = (propertyName: string): DiffResultEntity => {
         : `${propertyName}` as DiffResultEntity;
 };
 
-const createSpecEntityDetails = <T>(parsedProperty: ParsedProperty<T>): DiffResultSpecEntityDetails => (
+const createSpecEntityDetails = (parsedProperty: ParsedProperty): DiffResultSpecEntityDetails => (
     {
         location: parsedProperty.originalPath.join('.'),
         value: parsedProperty.value
     }
 );
 
-export const createDifference = <T, U>(
-    options: CreateDifferenceOptions<T, U>
-): Difference => {
+export const createDifference = (options: CreateDifferenceOptions): Difference => {
     const entity = findEntityForDiff(options.propertyName);
     const difference: Difference = {
         action: options.action,

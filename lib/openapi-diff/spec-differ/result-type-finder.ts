@@ -11,6 +11,8 @@ const codeToTypeMap: CodeToTypeMap = {
     'request.body.scope.remove': 'breaking',
     'response.body.scope.add': 'breaking',
     'response.body.scope.remove': 'non-breaking',
+    'response.header.add': 'non-breaking',
+    'response.header.remove': 'breaking',
     'response.status-code.add': 'non-breaking',
     'response.status-code.remove': 'breaking',
     'unclassified.add': 'unclassified',

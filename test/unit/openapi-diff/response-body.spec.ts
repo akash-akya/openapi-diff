@@ -2,9 +2,9 @@ import {DiffOutcomeFailure} from '../../../lib/api-types';
 import {breakingDiffResultBuilder, nonBreakingDiffResultBuilder} from '../../support/builders/diff-result-builder';
 import {specEntityDetailsBuilder} from '../../support/builders/diff-result-spec-entity-details-builder';
 import {openApi3ComponentsBuilder} from '../../support/builders/openapi3-components-builder';
-import {openapi3ContentBuilder} from '../../support/builders/openapi3-content-builder';
 import {openApi3OperationBuilder} from '../../support/builders/openapi3-operation-builder';
 import {openApi3PathItemBuilder} from '../../support/builders/openapi3-path-item-builder';
+import {openApi3ResponseBuilder} from '../../support/builders/openapi3-response-builder';
 import {
     OpenApi3ResponseContentBuilder,
     openApi3ResponseContentBuilder
@@ -28,7 +28,7 @@ describe('openapi-diff response-body', () => {
         return openApi3SpecBuilder
             .withPath(defaultPath, openApi3PathItemBuilder
                 .withOperation(defaultMethod, openApi3OperationBuilder
-                    .withResponse(defaultStatusCode, openapi3ContentBuilder
+                    .withResponse(defaultStatusCode, openApi3ResponseBuilder
                         .withNoResponseBody())));
     };
 
@@ -36,7 +36,7 @@ describe('openapi-diff response-body', () => {
         return openApi3SpecBuilder
             .withPath(defaultPath, openApi3PathItemBuilder
                 .withOperation(defaultMethod, openApi3OperationBuilder
-                    .withResponse(defaultStatusCode, openapi3ContentBuilder
+                    .withResponse(defaultStatusCode, openApi3ResponseBuilder
                         .withResponseBody(responseBody))));
     };
 
@@ -157,19 +157,19 @@ describe('openapi-diff response-body', () => {
         const sourceSpec = openApi3SpecBuilder
             .withPath(defaultPath, openApi3PathItemBuilder
                 .withOperation(defaultMethod, openApi3OperationBuilder
-                    .withResponse('200', openapi3ContentBuilder
+                    .withResponse('200', openApi3ResponseBuilder
                         .withResponseBody(openApi3ResponseContentBuilder
                             .withJsonContentSchema({type: 'string'})))
-                    .withResponse('201', openapi3ContentBuilder
+                    .withResponse('201', openApi3ResponseBuilder
                         .withResponseBody(openApi3ResponseContentBuilder
                             .withJsonContentSchema({type: 'string'})))));
         const destinationSpec = openApi3SpecBuilder
             .withPath(defaultPath, openApi3PathItemBuilder
                 .withOperation(defaultMethod, openApi3OperationBuilder
-                    .withResponse('200', openapi3ContentBuilder
+                    .withResponse('200', openApi3ResponseBuilder
                         .withResponseBody(openApi3ResponseContentBuilder
                             .withJsonContentSchema({type: 'number'})))
-                    .withResponse('201', openapi3ContentBuilder
+                    .withResponse('201', openApi3ResponseBuilder
                         .withResponseBody(openApi3ResponseContentBuilder
                             .withJsonContentSchema({type: 'number'})))));
 
@@ -184,7 +184,7 @@ describe('openapi-diff response-body', () => {
             .withComponents(openApi3ComponentsBuilder
                 .withSchema('stringSchema', {type: 'string'})
                 .withSchema('responseBodySchema', {$ref: '#/components/schemas/stringSchema'})
-                .withResponse('aResponse', openapi3ContentBuilder
+                .withResponse('aResponse', openApi3ResponseBuilder
                     .withResponseBody(openApi3ResponseContentBuilder
                         .withSchemaRef('#/components/schemas/responseBodySchema'))))
             .withPath(defaultPath, openApi3PathItemBuilder

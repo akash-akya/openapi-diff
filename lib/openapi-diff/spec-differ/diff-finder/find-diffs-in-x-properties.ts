@@ -3,19 +3,19 @@ import {ParsedProperty} from '../../spec-parser-types';
 import {createDifference} from './create-difference';
 import {Difference} from './difference';
 
-const findDiffsInProperty = (
-    sourceObject: ParsedProperty<string>, destinationObject: ParsedProperty<string>, propertyName: string
+const findDiffsInXProperty = (
+    sourceObject: ParsedProperty, destinationObject: ParsedProperty, propertyName: string
 ): Difference[] => {
 
-    const additionDiffs = findAdditionDiffsInProperty(sourceObject, destinationObject, propertyName);
-    const deletionDiffs = findDeletionDiffsInProperty(sourceObject, destinationObject, propertyName);
-    const editionDiffs = findEditionDiffsInProperty(sourceObject, destinationObject, propertyName);
+    const additionDiffs = findAdditionDiffsInXProperty(sourceObject, destinationObject, propertyName);
+    const deletionDiffs = findDeletionDiffsInXProperty(sourceObject, destinationObject, propertyName);
+    const editionDiffs = findEditionDiffsInXProperty(sourceObject, destinationObject, propertyName);
 
     return _.concat<Difference>([], additionDiffs, deletionDiffs, editionDiffs);
 };
 
-const findAdditionDiffsInProperty = <T>(
-    sourceObject: ParsedProperty<T>, destinationObject: ParsedProperty<T>, propertyName: string
+const findAdditionDiffsInXProperty = (
+    sourceObject: ParsedProperty, destinationObject: ParsedProperty, propertyName: string
 ): Difference[] => {
     const isAddition = isUndefinedDeep(sourceObject) && isDefinedDeep(destinationObject);
 
@@ -32,8 +32,8 @@ const findAdditionDiffsInProperty = <T>(
     return [];
 };
 
-const findDeletionDiffsInProperty = <T>(
-    sourceObject: ParsedProperty<T>, destinationObject: ParsedProperty<T>, propertyName: string
+const findDeletionDiffsInXProperty = (
+    sourceObject: ParsedProperty, destinationObject: ParsedProperty, propertyName: string
 ): Difference[] => {
     const isDeletion = isDefinedDeep(sourceObject) && isUndefinedDeep(destinationObject);
 
@@ -50,8 +50,8 @@ const findDeletionDiffsInProperty = <T>(
     return [];
 };
 
-const findEditionDiffsInProperty = (
-    sourceObject: ParsedProperty<string>, destinationObject: ParsedProperty<string>, propertyName: string
+const findEditionDiffsInXProperty = (
+    sourceObject: ParsedProperty, destinationObject: ParsedProperty, propertyName: string
 ): Difference[] => {
     const isEdition = isDefinedDeep(sourceObject)
         && isDefinedDeep(destinationObject) && !_.isEqual(sourceObject.value, destinationObject.value);
@@ -91,8 +91,8 @@ const isDefined = (target: any): boolean => {
 };
 
 export const findDiffsInXProperties = (
-    sourceParsedXProperties: { [name: string]: ParsedProperty<any> },
-    destinationParsedXProperties: { [name: string]: ParsedProperty<any> },
+    sourceParsedXProperties: { [name: string]: ParsedProperty },
+    destinationParsedXProperties: { [name: string]: ParsedProperty },
     xPropertyContainerName: string): Difference[] => {
 
     const xPropertyUniqueNames = _(_.keys(sourceParsedXProperties))
@@ -102,7 +102,7 @@ export const findDiffsInXProperties = (
 
     const xPropertyDiffs = _(xPropertyUniqueNames)
         .map((xPropertyName) => {
-            return findDiffsInProperty(
+            return findDiffsInXProperty(
                 sourceParsedXProperties[xPropertyName],
                 destinationParsedXProperties[xPropertyName],
                 `${xPropertyContainerName}.${xPropertyName}`

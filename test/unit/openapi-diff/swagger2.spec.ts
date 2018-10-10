@@ -14,7 +14,8 @@ import {swagger2BodyParameterBuilder} from '../../support/builders/swagger2-body
 import {swagger2OperationBuilder} from '../../support/builders/swagger2-operation-builder';
 import {swagger2PathItemBuilder} from '../../support/builders/swagger2-path-item-builder';
 import {swagger2ResponseBuilder} from '../../support/builders/swagger2-response-builder';
-import {swagger2SpecBuilder} from '../../support/builders/swagger2-spec-builder';
+import {swagger2ResponseHeaderBuilder} from '../../support/builders/swagger2-response-header-builder';
+import {Swagger2SpecBuilder, swagger2SpecBuilder} from '../../support/builders/swagger2-spec-builder';
 import {expectToFail} from '../../support/expect-to-fail';
 import {createOpenApiDiffWithMocks} from '../support/create-openapi-diff';
 import {CustomMatchers} from '../support/custom-matchers/custom-matchers';
@@ -346,8 +347,8 @@ describe('openapi-diff swagger2', () => {
         const destinationSpec = swagger2SpecBuilder
             .withPath('/some/path', swagger2PathItemBuilder
                 .withOperation('post', swagger2OperationBuilder
-                        .withResponse('200', swagger2ResponseBuilder
-                            .withResponseBody({type: 'number'}))));
+                    .withResponse('200', swagger2ResponseBuilder
+                        .withResponseBody({type: 'number'}))));
 
         const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
 
@@ -413,4 +414,47 @@ describe('openapi-diff swagger2', () => {
         expect((outcome as DiffOutcomeFailure).breakingDifferences.length).toBe(1);
     });
 
+    describe('response headers', () => {
+        const createSpecWithHeader = (responseHeaderName: string): Swagger2SpecBuilder => {
+            return swagger2SpecBuilder
+                .withPath('/some/path', swagger2PathItemBuilder
+                    .withOperation('post', swagger2OperationBuilder
+                        .withResponse('200', swagger2ResponseBuilder
+                            .withHeader(responseHeaderName, swagger2ResponseHeaderBuilder))));
+        };
+
+        it('should return add and remove differences, when headers are added and removed', async () => {
+            const sourceSpec = createSpecWithHeader('x-some-header');
+            const destinationSpec = createSpecWithHeader('x-another-header');
+
+            const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
+
+            expect(outcome).toContainDifferences([
+                nonBreakingDiffResultBuilder
+                    .withAction('add')
+                    .withCode('response.header.add')
+                    .withEntity('response.header')
+                    .withSource('openapi-diff')
+                    .withSourceSpecEntityDetails([])
+                    .withDestinationSpecEntityDetails([
+                        specEntityDetailsBuilder
+                            .withLocation('paths./some/path.post.responses.200.headers.x-another-header')
+                            .withValue(swagger2ResponseHeaderBuilder.build())
+                    ])
+                    .build(),
+                breakingDiffResultBuilder
+                    .withAction('remove')
+                    .withCode('response.header.remove')
+                    .withEntity('response.header')
+                    .withSource('openapi-diff')
+                    .withSourceSpecEntityDetails([
+                        specEntityDetailsBuilder
+                            .withLocation('paths./some/path.post.responses.200.headers.x-some-header')
+                            .withValue(swagger2ResponseHeaderBuilder.build())
+                    ])
+                    .withDestinationSpecEntityDetails([])
+                    .build()
+            ]);
+        });
+    });
 });
