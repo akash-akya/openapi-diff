@@ -1,6 +1,6 @@
 import {OpenApi3Response} from '../../../lib/openapi-diff/openapi3';
 import {buildMapFromBuilders, setPropertyFromBuilderIfDefined} from './builder-utils';
-import {OpenApi3ResponseContentBuilder} from './openapi3-response-content-builder';
+import {OpenApi3ContentBuilder} from './openapi3-content-builder';
 import {OpenApi3ResponseHeaderBuilder} from './openapi3-response-header-builder';
 
 interface OpenApi3HeadersBuilder {
@@ -9,7 +9,7 @@ interface OpenApi3HeadersBuilder {
 
 interface OpenApi3ResponseBuilderState {
     description: string;
-    content?: OpenApi3ResponseContentBuilder;
+    content?: OpenApi3ContentBuilder;
     headers?: OpenApi3HeadersBuilder;
 }
 
@@ -30,12 +30,12 @@ export class OpenApi3ResponseBuilder {
         return new OpenApi3ResponseBuilder({...this.state, headers: copyOfHeaders});
     }
 
-    public withNoResponseBody(): OpenApi3ResponseBuilder {
+    public withNoContent(): OpenApi3ResponseBuilder {
         return new OpenApi3ResponseBuilder({...this.state, content: undefined});
     }
 
-    public withResponseBody(responseContent: OpenApi3ResponseContentBuilder): OpenApi3ResponseBuilder {
-        return new OpenApi3ResponseBuilder({...this.state, content: responseContent});
+    public withContent(content: OpenApi3ContentBuilder): OpenApi3ResponseBuilder {
+        return new OpenApi3ResponseBuilder({...this.state, content});
     }
 
     public build(): OpenApi3Response {

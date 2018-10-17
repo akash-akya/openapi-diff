@@ -1,43 +1,29 @@
-import * as _ from 'lodash';
-import {OpenApi3Content, OpenApi3RequestBody} from '../../../lib/openapi-diff/openapi3';
+import {OpenApi3RequestBody} from '../../../lib/openapi-diff/openapi3';
+import {openApi3ContentBuilder, OpenApi3ContentBuilder} from './openapi3-content-builder';
 
 interface OpenApi3RequestBodyBuilderState {
     required: boolean;
-    jsonContentSchema?: any;
-    ref?: string;
+    content: OpenApi3ContentBuilder;
 }
 
 export class OpenApi3RequestBodyBuilder {
     public static defaultOpenApi3RequestBodyBuilder(): OpenApi3RequestBodyBuilder {
         return new OpenApi3RequestBodyBuilder({
+            content: openApi3ContentBuilder,
             required: false
         });
     }
 
-    private constructor(private readonly state: OpenApi3RequestBodyBuilderState) {}
-
-    public withJsonContentSchema(jsonContentSchema: any) {
-        const copyOfJsonContentSchema = _.cloneDeep(jsonContentSchema);
-        return new OpenApi3RequestBodyBuilder(
-            {...this.state, jsonContentSchema: copyOfJsonContentSchema, ref: undefined}
-        );
+    private constructor(private readonly state: OpenApi3RequestBodyBuilderState) {
     }
 
-    public withSchemaRef(ref: string): OpenApi3RequestBodyBuilder {
-        return new OpenApi3RequestBodyBuilder({...this.state, ref, jsonContentSchema: undefined});
+    public withContent(content: OpenApi3ContentBuilder): OpenApi3RequestBodyBuilder {
+        return new OpenApi3RequestBodyBuilder({...this.state, content});
     }
 
     public build(): OpenApi3RequestBody {
-        const content: OpenApi3Content = {};
-        if (this.state.jsonContentSchema) {
-            content['application/json'] = {schema: _.cloneDeep(this.state.jsonContentSchema)};
-        }
-
-        if (this.state.ref) {
-            content['application/json'] = {schema: {$ref: this.state.ref}};
-        }
         return {
-            content,
+            content: this.state.content.build(),
             required: this.state.required
         };
     }
