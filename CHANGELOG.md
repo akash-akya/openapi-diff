@@ -1,3 +1,13 @@
+<a name="0.16.0"></a>
+# [0.16.0](https://bitbucket.org/atlassian/openapi-diff/compare/0.15.0...0.16.0) (2018-10-17)
+
+
+### Features
+
+* add support for diffing added and removed response headers ([1bfd09c](https://bitbucket.org/atlassian/openapi-diff/commits/1bfd09c))
+
+
+
 <a name="0.15.0"></a>
 # [0.15.0](https://bitbucket.org/atlassian/openapi-diff/compare/0.14.0...0.15.0) (2018-10-08)
 
