@@ -65,7 +65,7 @@ describe('openapi-diff', () => {
             expect(mockResultReporter.reportError).toHaveBeenCalledWith(
                 new OpenApiDiffErrorImpl(
                     'OPENAPI_DIFF_READ_ERROR',
-                    'Unable to read source-spec.json: Failed to load file'
+                    'Unable to read "source-spec.json": Failed to load file'
                 )
             );
         });
@@ -86,7 +86,7 @@ describe('openapi-diff', () => {
             expect(mockResultReporter.reportError).toHaveBeenCalledWith(
                 new OpenApiDiffErrorImpl(
                     'OPENAPI_DIFF_READ_ERROR',
-                    'Unable to read destination-spec.json: Failed to load file'
+                    'Unable to read "destination-spec.json": Failed to load file'
                 )
             );
         });
@@ -101,7 +101,7 @@ describe('openapi-diff', () => {
 
             expect(mockResultReporter.reportError).toHaveBeenCalledWith(new OpenApiDiffErrorImpl(
                 'OPENAPI_DIFF_READ_ERROR',
-                'Unable to load http://url.that.errors.out: test http client error'
+                'Unable to load "http://url.that.errors.out": test http client error'
             ));
         });
     });
@@ -119,7 +119,7 @@ describe('openapi-diff', () => {
             expect(mockResultReporter.reportError).toHaveBeenCalledWith(
                 new OpenApiDiffErrorImpl(
                     'OPENAPI_DIFF_PARSE_ERROR',
-                    'Unable to parse source-spec-invalid.json as a JSON or YAML file'
+                    'Unable to parse "source-spec-invalid.json" as a JSON or YAML file'
                 )
             );
         });
@@ -152,7 +152,7 @@ describe('openapi-diff', () => {
 
             expect(mockResultReporter.reportError).toHaveBeenCalledWith(new OpenApiDiffErrorImpl(
                 'OPENAPI_DIFF_PARSE_ERROR',
-                'Validation errors in source-spec-invalid.json: [object Object] is not a valid Openapi API definition'
+                'Validation errors in "source-spec-invalid.json": [object Object] is not a valid Openapi API definition'
             ));
         });
 
@@ -236,7 +236,7 @@ describe('openapi-diff', () => {
 
             expect(mockResultReporter.reportError).toHaveBeenCalledWith(new OpenApiDiffErrorImpl(
                 'OPENAPI_DIFF_PARSE_ERROR',
-                'Validation errors in source-spec-with-circular-refs.json: The API contains circular references'
+                'Validation errors in "source-spec-with-circular-refs.json": The API contains circular references'
             ));
         });
     });

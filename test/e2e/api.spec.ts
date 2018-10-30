@@ -28,7 +28,7 @@ describe('api', () => {
         expect(error).toEqual(
             new OpenApiDiffErrorImpl(
                 'OPENAPI_DIFF_PARSE_ERROR',
-                'Unable to parse source-spec-invalid.json as a JSON or YAML file')
+                'Unable to parse "source-spec-invalid.json" as a JSON or YAML file')
         );
     });
 

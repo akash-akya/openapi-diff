@@ -16,7 +16,7 @@ export class SpecDeserialiser {
             } catch (error) {
                 throw new OpenApiDiffErrorImpl(
                     'OPENAPI_DIFF_PARSE_ERROR',
-                    `Unable to parse ${location} as a JSON or YAML file`
+                    `Unable to parse "${location}" as a JSON or YAML file`
                 );
             }
         }

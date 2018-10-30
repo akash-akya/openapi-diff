@@ -14,7 +14,7 @@ export const validateAndDereferenceSpec = async <T extends Swagger2 | OpenApi3>(
     } catch (error) {
         throw new OpenApiDiffErrorImpl(
             'OPENAPI_DIFF_PARSE_ERROR',
-            `Validation errors in ${location}`,
+            `Validation errors in "${location}"`,
             error
         );
     }

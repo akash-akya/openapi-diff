@@ -54,7 +54,7 @@ describe('openapi-diff swagger2', () => {
 
             expect(mockResultReporter.reportError).toHaveBeenCalledWith(new OpenApiDiffErrorImpl(
                 'OPENAPI_DIFF_PARSE_ERROR',
-                'Validation errors in source-spec-invalid.json: [object Object] is not a valid Swagger API definition'
+                'Validation errors in "source-spec-invalid.json": [object Object] is not a valid Swagger API definition'
             ));
         });
 
@@ -123,7 +123,7 @@ describe('openapi-diff swagger2', () => {
 
             expect(mockResultReporter.reportError).toHaveBeenCalledWith(new OpenApiDiffErrorImpl(
                 'OPENAPI_DIFF_PARSE_ERROR',
-                'Validation errors in source-spec-with-circular-refs.json: The API contains circular references'
+                'Validation errors in "source-spec-with-circular-refs.json": The API contains circular references'
             ));
         });
     });

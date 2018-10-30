@@ -23,7 +23,7 @@ export class ContentLoader {
         } catch (error) {
             throw new OpenApiDiffErrorImpl(
                 'OPENAPI_DIFF_READ_ERROR',
-                `Unable to read ${filePath}`,
+                `Unable to read "${filePath}"`,
                 error
             );
         }
@@ -35,7 +35,7 @@ export class ContentLoader {
         } catch (error) {
             throw new OpenApiDiffErrorImpl(
                 'OPENAPI_DIFF_READ_ERROR',
-                `Unable to load ${fileUrl}`,
+                `Unable to load "${fileUrl}"`,
                 error
             );
         }

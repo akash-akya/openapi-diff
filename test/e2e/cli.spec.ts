@@ -66,7 +66,7 @@ describe('cli', () => {
         }));
 
         expect(error).toEqual(jasmine.stringMatching(
-            'Unable to parse test/e2e/fixtures/not-a-json-or-yaml.txt as a JSON or YAML file'));
+            'Unable to parse "test/e2e/fixtures/not-a-json-or-yaml.txt" as a JSON or YAML file'));
     });
 
     it('should succeed when no differences are found between openapi 3 specs', async () => {
