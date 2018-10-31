@@ -1,4 +1,3 @@
-
 export class PathBuilder {
     public static createRootPathBuilder(): PathBuilder {
         return new PathBuilder([]);

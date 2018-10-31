@@ -1,10 +1,10 @@
 import {DeserialisedSpec} from '../openapi-diff';
 import {ParsedSpec} from './spec-parser-types';
-import {parseOpenApi3Spec} from './spec-parser/openapi3/parse-openapi3-spec';
-import {validateAndDereferenceOpenapi3Spec} from './spec-parser/openapi3/validate-and-dereference-openapi3-spec';
+import {parseOpenApi3Spec} from './spec-parser/parse-openapi3-spec';
+import {parseSwagger2Spec} from './spec-parser/parse-swagger2-spec';
 import {resolveSpecFormat} from './spec-parser/resolve-spec-format';
-import {parseSwagger2Spec} from './spec-parser/swagger2/parse-swagger2-spec';
-import {validateAndDereferenceSwagger2Spec} from './spec-parser/swagger2/validate-and-dereference-swagger2-spec';
+import {validateAndDereferenceOpenapi3Spec} from './spec-parser/validate-and-dereference-openapi3-spec';
+import {validateAndDereferenceSwagger2Spec} from './spec-parser/validate-and-dereference-swagger2-spec';
 
 export class SpecParser {
     public static parse(spec: DeserialisedSpec): Promise<ParsedSpec> {
