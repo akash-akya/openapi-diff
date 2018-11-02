@@ -1,7 +1,11 @@
 import {OpenApi3Response} from '../../../lib/openapi-diff/openapi3';
-import {buildMapFromBuilders, setPropertyFromBuilderIfDefined} from './builder-utils';
-import {OpenApi3ContentBuilder} from './openapi3-content-builder';
+import {buildMapFromBuilders} from './builder-utils';
+import {OpenApi3MediaTypeBuilder} from './openapi3-media-type-builder';
 import {OpenApi3ResponseHeaderBuilder} from './openapi3-response-header-builder';
+
+interface OpenApi3ContentBuilder {
+    [mediaType: string]: OpenApi3MediaTypeBuilder;
+}
 
 interface OpenApi3HeadersBuilder {
     [name: string]: OpenApi3ResponseHeaderBuilder;
@@ -34,8 +38,11 @@ export class OpenApi3ResponseBuilder {
         return new OpenApi3ResponseBuilder({...this.state, content: undefined});
     }
 
-    public withContent(content: OpenApi3ContentBuilder): OpenApi3ResponseBuilder {
-        return new OpenApi3ResponseBuilder({...this.state, content});
+    public withMediaType(mediaType: string, definition: OpenApi3MediaTypeBuilder): OpenApi3ResponseBuilder {
+        const copyOfContent: OpenApi3ContentBuilder = {...this.state.content};
+        copyOfContent[mediaType] = definition;
+
+        return new OpenApi3ResponseBuilder({...this.state, content: copyOfContent});
     }
 
     public build(): OpenApi3Response {
@@ -43,7 +50,9 @@ export class OpenApi3ResponseBuilder {
             description: this.state.description
         };
 
-        setPropertyFromBuilderIfDefined(response, 'content', this.state.content);
+        if (this.state.content) {
+            response.content = buildMapFromBuilders(this.state.content);
+        }
 
         if (this.state.headers) {
             response.headers = buildMapFromBuilders(this.state.headers);

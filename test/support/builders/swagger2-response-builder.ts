@@ -11,7 +11,6 @@ interface Swagger2ResponseBuilderState {
     description: string;
     headers?: Swagger2ResponseHeadersBuilder;
     schema?: Swagger2Schema;
-    ref?: { $ref: string };
 }
 
 export class Swagger2ResponseBuilder {
@@ -36,7 +35,7 @@ export class Swagger2ResponseBuilder {
     }
 
     public withSchemaRef($ref: string): Swagger2ResponseBuilder {
-        return new Swagger2ResponseBuilder({...this.state, ref: { $ref }, schema: undefined});
+        return this.withResponseBody({$ref});
     }
 
     public build(): Swagger2Response {
@@ -45,7 +44,6 @@ export class Swagger2ResponseBuilder {
         };
 
         setPropertyIfDefined(response, 'schema', this.state.schema);
-        setPropertyIfDefined(response, 'schema', this.state.ref);
 
         if (this.state.headers) {
             response.headers = buildMapFromBuilders(this.state.headers);

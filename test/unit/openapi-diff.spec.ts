@@ -6,7 +6,7 @@ import {diffPathsOptionsBuilder} from '../support/builders/diff-paths-options-bu
 import {unclassifiedDiffResultBuilder} from '../support/builders/diff-result-builder';
 import {specEntityDetailsBuilder} from '../support/builders/diff-result-spec-entity-details-builder';
 import {openApi3ComponentsBuilder} from '../support/builders/openapi3-components-builder';
-import {openApi3ContentBuilder} from '../support/builders/openapi3-content-builder';
+import {openApi3MediaTypeBuilder} from '../support/builders/openapi3-media-type-builder';
 import {openApi3OperationBuilder} from '../support/builders/openapi3-operation-builder';
 import {openApi3PathItemBuilder} from '../support/builders/openapi3-path-item-builder';
 import {openApi3RequestBodyBuilder} from '../support/builders/openapi3-request-body-builder';
@@ -224,7 +224,7 @@ describe('openapi-diff', () => {
                 .withPath('/some/path', openApi3PathItemBuilder
                     .withOperation('post', openApi3OperationBuilder
                         .withRequestBody(openApi3RequestBodyBuilder
-                            .withContent(openApi3ContentBuilder
+                            .withMediaType('application/json', openApi3MediaTypeBuilder
                                 .withSchemaRef('#/components/schemas/stringSchema')))));
 
             mockFileSystem.givenReadFileReturnsContent(JSON.stringify(spec.build()));
