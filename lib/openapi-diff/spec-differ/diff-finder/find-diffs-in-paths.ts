@@ -61,7 +61,7 @@ const normalizePathItems = (parsedPathItems: ParsedPathItems): ParsedPathItems =
     Object.keys(parsedPathItems).reduce<ParsedPathItems>((normalizedParsedPathItems, pathName) => {
         const parsedPathItem = parsedPathItems[pathName];
         const normalizedPathName = normalizePath(pathName);
-        normalizedParsedPathItems[normalizedPathName] = {...parsedPathItem, pathName: normalizedPathName};
+        normalizedParsedPathItems[normalizedPathName] = parsedPathItem;
         return normalizedParsedPathItems;
     }, {});
 

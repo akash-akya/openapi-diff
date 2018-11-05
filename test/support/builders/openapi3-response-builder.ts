@@ -34,10 +34,6 @@ export class OpenApi3ResponseBuilder {
         return new OpenApi3ResponseBuilder({...this.state, headers: copyOfHeaders});
     }
 
-    public withNoContent(): OpenApi3ResponseBuilder {
-        return new OpenApi3ResponseBuilder({...this.state, content: undefined});
-    }
-
     public withMediaType(mediaType: string, definition: OpenApi3MediaTypeBuilder): OpenApi3ResponseBuilder {
         const copyOfContent: OpenApi3ContentBuilder = {...this.state.content};
         copyOfContent[mediaType] = definition;

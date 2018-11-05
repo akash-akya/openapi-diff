@@ -6,12 +6,11 @@ import {diffPathsOptionsBuilder} from '../support/builders/diff-paths-options-bu
 import {unclassifiedDiffResultBuilder} from '../support/builders/diff-result-builder';
 import {specEntityDetailsBuilder} from '../support/builders/diff-result-spec-entity-details-builder';
 import {openApi3ComponentsBuilder} from '../support/builders/openapi3-components-builder';
-import {openApi3MediaTypeBuilder} from '../support/builders/openapi3-media-type-builder';
 import {openApi3OperationBuilder} from '../support/builders/openapi3-operation-builder';
 import {openApi3PathItemBuilder} from '../support/builders/openapi3-path-item-builder';
-import {openApi3RequestBodyBuilder} from '../support/builders/openapi3-request-body-builder';
 import {openApi3SpecBuilder} from '../support/builders/openapi3-spec-builder';
 import {openapi3SpecsDifferenceBuilder} from '../support/builders/openapi3-specs-difference-builder';
+import {refObjectBuilder} from '../support/builders/ref-object-builder';
 import {specPathOptionBuilder} from '../support/builders/spec-path-option-builder';
 import {swagger2SpecBuilder} from '../support/builders/swagger2-spec-builder';
 import {expectToFail} from '../support/expect-to-fail';
@@ -213,30 +212,63 @@ describe('openapi-diff', () => {
             ));
         });
 
-        it('should fail when request body schema contains circular references', async () => {
-            const spec = openApi3SpecBuilder
+        it('should throw an error if the spec can not be parsed due to a component pointing to itself', async () => {
+            const specWithInvalidCircles = openApi3SpecBuilder
                 .withComponents(openApi3ComponentsBuilder
-                    .withSchema('stringSchema',
-                        {
-                            additionalProperties: {$ref: '#/components/schemas/stringSchema'},
-                            type: 'object'
-                        }))
+                    .withRequestBody('requestBodyReference', refObjectBuilder
+                        .withRef('#/components/requestBodies/requestBodyReference')))
                 .withPath('/some/path', openApi3PathItemBuilder
                     .withOperation('post', openApi3OperationBuilder
-                        .withRequestBody(openApi3RequestBodyBuilder
-                            .withMediaType('application/json', openApi3MediaTypeBuilder
-                                .withSchemaRef('#/components/schemas/stringSchema')))));
+                        .withRequestBody(refObjectBuilder
+                            .withRef('#/components/requestBodies/requestBodyReference'))));
 
-            mockFileSystem.givenReadFileReturnsContent(JSON.stringify(spec.build()));
+            const openApi3Content = JSON.stringify(specWithInvalidCircles.build());
+            mockFileSystem.givenReadFileReturnsContent(openApi3Content);
 
             await expectToFail(invokeDiffLocations(diffPathsOptionsBuilder
-                .withSourceSpec(specPathOptionBuilder.withLocation('source-spec-with-circular-refs.json'))
+                .withSourceSpec(
+                    specPathOptionBuilder
+                        .withLocation('source-spec.json')
+                        .withFormat('openapi3')
+                )
                 .build()
             ));
 
             expect(mockResultReporter.reportError).toHaveBeenCalledWith(new OpenApiDiffErrorImpl(
                 'OPENAPI_DIFF_PARSE_ERROR',
-                'Validation errors in "source-spec-with-circular-refs.json": The API contains circular references'
+                'the spec can not be parsed due to invalid circular references'
+            ));
+        });
+
+        // Needed until https://github.com/APIDevTools/json-schema-ref-parser/issues/36 is fixed
+        // When this issue is fixed, the expected error should be the same as the non-deep circle case in components
+        it('should throw an error if the spec can not be parsed due to a deep circle in components', async () => {
+            const specWithInvalidDeepCircles = openApi3SpecBuilder
+                .withComponents(openApi3ComponentsBuilder
+                    .withRequestBody('requestBodyReferenceA', refObjectBuilder
+                        .withRef('#/components/requestBodies/requestBodyReferenceB'))
+                    .withRequestBody('requestBodyReferenceB', refObjectBuilder
+                        .withRef('#/components/requestBodies/requestBodyReferenceA')))
+                .withPath('/some/path', openApi3PathItemBuilder
+                    .withOperation('post', openApi3OperationBuilder
+                        .withRequestBody(refObjectBuilder
+                            .withRef('#/components/requestBodies/requestBodyReferenceA'))));
+
+            const openApi3Content = JSON.stringify(specWithInvalidDeepCircles.build());
+            mockFileSystem.givenReadFileReturnsContent(openApi3Content);
+
+            await expectToFail(invokeDiffLocations(diffPathsOptionsBuilder
+                .withSourceSpec(
+                    specPathOptionBuilder
+                        .withLocation('source-spec.json')
+                        .withFormat('openapi3')
+                )
+                .build()
+            ));
+
+            expect(mockResultReporter.reportError).toHaveBeenCalledWith(new OpenApiDiffErrorImpl(
+                'OPENAPI_DIFF_PARSE_ERROR',
+                'Validation errors in "source-spec.json": Maximum call stack size exceeded'
             ));
         });
     });

@@ -2,7 +2,7 @@ import {openApi3PathItemBuilder} from './openapi3-path-item-builder';
 import {OpenApi3SpecBuilder, openApi3SpecBuilder} from './openapi3-spec-builder';
 
 export class OpenApi3SpecsDifferenceBuilder {
-    public static defaultSwagger2SpecsDifferenceBuilder(): OpenApi3SpecsDifferenceBuilder {
+    public static defaultOpenApi3SpecsDifferenceBuilder(): OpenApi3SpecsDifferenceBuilder {
         return new OpenApi3SpecsDifferenceBuilder(openApi3SpecBuilder, openApi3SpecBuilder);
     }
 
@@ -41,4 +41,4 @@ export class OpenApi3SpecsDifferenceBuilder {
     }
 }
 
-export const openapi3SpecsDifferenceBuilder = OpenApi3SpecsDifferenceBuilder.defaultSwagger2SpecsDifferenceBuilder();
+export const openapi3SpecsDifferenceBuilder = OpenApi3SpecsDifferenceBuilder.defaultOpenApi3SpecsDifferenceBuilder();

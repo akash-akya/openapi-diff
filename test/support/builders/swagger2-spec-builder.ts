@@ -3,25 +3,20 @@ import * as _ from 'lodash';
 import {
     Swagger2,
     Swagger2BodyParameter,
-    Swagger2PathItem,
-    Swagger2Paths, Swagger2Response,
-    Swagger2Responses
+    Swagger2Paths,
+    Swagger2ResponseDefinitions
 } from '../../../lib/openapi-diff/swagger2';
 import {buildMapFromBuilders} from './builder-utils';
 import {Swagger2BodyParameterBuilder} from './swagger2-body-parameter-builder';
 import {Swagger2PathItemBuilder} from './swagger2-path-item-builder';
 import {Swagger2ResponseBuilder} from './swagger2-response-builder';
 
-interface Paths {
-    [pathName: string]: Swagger2PathItemBuilder;
-}
-
 interface Swagger2Parameters {
     [parameterName: string]: Swagger2BodyParameter;
 }
 
 interface Swagger2SpecBuilderState {
-    paths: Paths;
+    paths: { [pathName: string]: Swagger2PathItemBuilder };
     definitions: { [definitionsName: string]: any };
     parameters: { [name: string]: Swagger2BodyParameterBuilder };
     responses: { [name: string]: Swagger2ResponseBuilder };
@@ -73,20 +68,15 @@ export class Swagger2SpecBuilder {
         return new Swagger2SpecBuilder({...this.state, responses: copyOfResponses});
     }
 
-    public withNoPaths(): Swagger2SpecBuilder {
-        return new Swagger2SpecBuilder({...this.state, paths: {}});
-    }
-
     public build(): Swagger2 {
-        const paths: Swagger2Paths = buildMapFromBuilders<Swagger2PathItemBuilder, Swagger2PathItem>(this.state.paths);
-        const parameters: Swagger2Parameters
-            = buildMapFromBuilders<Swagger2BodyParameterBuilder, Swagger2BodyParameter>(this.state.parameters);
-        const responses: Swagger2Responses
-            = buildMapFromBuilders<Swagger2ResponseBuilder, Swagger2Response>(this.state.responses);
-        const copyOfXProperties = _.cloneDeep(this.state.xProperties);
+        const definitions = _.cloneDeep(this.state.definitions);
+        const paths: Swagger2Paths = buildMapFromBuilders(this.state.paths);
+        const parameters: Swagger2Parameters = buildMapFromBuilders(this.state.parameters);
+        const responses: Swagger2ResponseDefinitions = buildMapFromBuilders(this.state.responses);
+        const xProperties = _.cloneDeep(this.state.xProperties);
 
         return {
-            definitions: _.cloneDeep(this.state.definitions),
+            definitions,
             info: {
                 title: '',
                 version: ''
@@ -95,7 +85,7 @@ export class Swagger2SpecBuilder {
             paths,
             responses,
             swagger: '2.0',
-            ...copyOfXProperties
+            ...xProperties
         };
     }
 }

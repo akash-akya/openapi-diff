@@ -8,9 +8,7 @@ interface OpenApi3MediaTypeBuilderState {
 
 export class OpenApi3MediaTypeBuilder {
     public static defaultOpenApi3MediaTypeBuilder(): OpenApi3MediaTypeBuilder {
-        return new OpenApi3MediaTypeBuilder({
-            schema: {}
-        });
+        return new OpenApi3MediaTypeBuilder({});
     }
 
     private constructor(private readonly state: OpenApi3MediaTypeBuilderState) {

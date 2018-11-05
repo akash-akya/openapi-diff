@@ -2,11 +2,13 @@ import {DiffResult} from '../../../lib/api-types';
 import {breakingDiffResultBuilder, nonBreakingDiffResultBuilder} from '../../support/builders/diff-result-builder';
 import {specEntityDetailsBuilder} from '../../support/builders/diff-result-spec-entity-details-builder';
 import {openApi3ComponentsBuilder} from '../../support/builders/openapi3-components-builder';
+import {openApi3MediaTypeBuilder} from '../../support/builders/openapi3-media-type-builder';
 import {openApi3OperationBuilder} from '../../support/builders/openapi3-operation-builder';
 import {openApi3PathItemBuilder} from '../../support/builders/openapi3-path-item-builder';
 import {openApi3ResponseBuilder} from '../../support/builders/openapi3-response-builder';
 import {openApi3ResponseHeaderBuilder} from '../../support/builders/openapi3-response-header-builder';
 import {OpenApi3SpecBuilder, openApi3SpecBuilder} from '../../support/builders/openapi3-spec-builder';
+import {refObjectBuilder} from '../../support/builders/ref-object-builder';
 import {CustomMatchers} from '../support/custom-matchers/custom-matchers';
 import {whenSpecsAreDiffed} from '../support/when-specs-are-diffed';
 
@@ -14,14 +16,15 @@ declare function expect<T>(actual: T): CustomMatchers<T>;
 
 describe('openapi-diff response headers', () => {
     const defaultPath = '/some/path';
-    const defaultOperation = 'post';
+    const defaultMethod = 'post';
     const defaultStatusCode = '200';
-    const defaultHeadersChangeLocation = 'paths./some/path.post.responses.200.headers';
+
+    const baseHeadersChangeLocation = `paths.${defaultPath}.${defaultMethod}.responses.${defaultStatusCode}.headers`;
 
     const createSpecWithHeader = (responseHeaderName: string): OpenApi3SpecBuilder => {
         return openApi3SpecBuilder
             .withPath(defaultPath, openApi3PathItemBuilder
-                .withOperation(defaultOperation, openApi3OperationBuilder
+                .withOperation(defaultMethod, openApi3OperationBuilder
                     .withResponse(defaultStatusCode, openApi3ResponseBuilder
                         .withHeader(responseHeaderName, openApi3ResponseHeaderBuilder))));
     };
@@ -29,7 +32,7 @@ describe('openapi-diff response headers', () => {
     const createSpecWithNoHeaders = (): OpenApi3SpecBuilder => {
         return openApi3SpecBuilder
             .withPath(defaultPath, openApi3PathItemBuilder
-                .withOperation(defaultOperation, openApi3OperationBuilder
+                .withOperation(defaultMethod, openApi3OperationBuilder
                     .withResponse(defaultStatusCode, openApi3ResponseBuilder)));
     };
 
@@ -42,7 +45,7 @@ describe('openapi-diff response headers', () => {
             .withSourceSpecEntityDetails([])
             .withDestinationSpecEntityDetails([
                 specEntityDetailsBuilder
-                    .withLocation(defaultHeadersChangeLocation.concat(`.${header}`))
+                    .withLocation(baseHeadersChangeLocation.concat(`.${header}`))
                     .withValue(openApi3ResponseHeaderBuilder.build())
             ])
             .build();
@@ -56,7 +59,7 @@ describe('openapi-diff response headers', () => {
             .withSource('openapi-diff')
             .withSourceSpecEntityDetails([
                 specEntityDetailsBuilder
-                    .withLocation(defaultHeadersChangeLocation.concat(`.${header}`))
+                    .withLocation(baseHeadersChangeLocation.concat(`.${header}`))
                     .withValue(openApi3ResponseHeaderBuilder.build())
             ])
             .withDestinationSpecEntityDetails([])
@@ -114,12 +117,12 @@ describe('openapi-diff response headers', () => {
     it('should return differences between response headers considering references', async () => {
         const sourceSpec = openApi3SpecBuilder
             .withComponents(openApi3ComponentsBuilder
-                .withHeader('basicHeader', openApi3ResponseHeaderBuilder))
+                .withHeader('headerReference', openApi3ResponseHeaderBuilder))
             .withPath(defaultPath, openApi3PathItemBuilder
-                .withOperation(defaultOperation, openApi3OperationBuilder
+                .withOperation(defaultMethod, openApi3OperationBuilder
                     .withResponse(defaultStatusCode, openApi3ResponseBuilder
                         .withHeader('x-some-ref-header', openApi3ResponseHeaderBuilder
-                            .withRef('#/components/headers/basicHeader')))));
+                            .withRef('#/components/headers/headerReference')))));
         const destinationSpec = createSpecWithHeader('x-another-header');
 
         const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
@@ -127,6 +130,45 @@ describe('openapi-diff response headers', () => {
         expect(outcome).toContainDifferences([
             createRemoveHeaderDiffResult('x-some-ref-header'),
             createAddHeaderDiffResult('x-another-header')
+        ]);
+    });
+
+    it('should return differences between headers when response is a reference with inline headers', async () => {
+        const sourceSpec = openApi3SpecBuilder
+            .withPath(defaultPath, openApi3PathItemBuilder
+                .withOperation(defaultMethod, openApi3OperationBuilder
+                    .withResponse(defaultStatusCode, openApi3ResponseBuilder)))
+            .withTopLevelXProperty('x-circular-schema', {
+                schemaThatPreventsDereferencing: {
+                    additionalProperties: {
+                        $ref: '#/x-circular-schema/schemaThatPreventsDereferencing'
+                    },
+                    type: 'object'
+                }
+            });
+        const destinationSpec = openApi3SpecBuilder
+            .withComponents(openApi3ComponentsBuilder
+                .withResponse('nonCircularReference', openApi3ResponseBuilder
+                    .withMediaType('application/xml', openApi3MediaTypeBuilder
+                        .withSchemaRef('#/x-circular-schema/schemaThatPreventsDereferencing'))
+                    .withHeader('x-some-header', openApi3ResponseHeaderBuilder)))
+            .withPath(defaultPath, openApi3PathItemBuilder
+                .withOperation(defaultMethod, openApi3OperationBuilder
+                    .withResponse(defaultStatusCode, refObjectBuilder
+                        .withRef('#/components/responses/nonCircularReference'))))
+            .withTopLevelXProperty('x-circular-schema', {
+                schemaThatPreventsDereferencing: {
+                    additionalProperties: {
+                        $ref: '#/x-circular-schema/schemaThatPreventsDereferencing'
+                    },
+                    type: 'object'
+                }
+            });
+
+        const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
+
+        expect(outcome).toContainDifferences([
+            createAddHeaderDiffResult('x-some-header')
         ]);
     });
 });

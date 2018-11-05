@@ -9,7 +9,7 @@ export const parseOpenApi3Spec = (spec: OpenApi3): ParsedSpec => {
 
     return {
         format: 'openapi3',
-        paths: parseOpenApi3Paths(spec.paths, pathBuilder.withChild('paths')),
+        paths: parseOpenApi3Paths(spec.paths, pathBuilder.withChild('paths'), spec),
         xProperties: parseXPropertiesInObject(spec, pathBuilder)
     };
 };

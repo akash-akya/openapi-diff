@@ -4,7 +4,7 @@ import {OpenApi3RequestBodyBuilder} from './openapi3-request-body-builder';
 import {OpenApi3ResponseBuilder} from './openapi3-response-builder';
 import {RefObjectBuilder} from './ref-object-builder';
 
-interface OperationBuilders {
+interface OperationBuilderState {
     responses: {
         [statuscode: string]: OpenApi3ResponseBuilder | RefObjectBuilder
     };
@@ -18,25 +18,21 @@ export class OpenApi3OperationBuilder {
         });
     }
 
-    private constructor(private readonly state: OperationBuilders) {
+    private constructor(private readonly state: OperationBuilderState) {
     }
 
     public withRequestBody(
-        requestBody: OpenApi3RequestBodyBuilder | RefObjectBuilder
+        definition: OpenApi3RequestBodyBuilder | RefObjectBuilder
     ): OpenApi3OperationBuilder {
-        return new OpenApi3OperationBuilder({...this.state, requestBody});
-    }
-
-    public withNoRequestBody(): OpenApi3OperationBuilder {
-        return new OpenApi3OperationBuilder({...this.state, requestBody: undefined});
+        return new OpenApi3OperationBuilder({...this.state, requestBody: definition});
     }
 
     public withResponse(
         responseStatusCode: string,
-        responseBuilder: OpenApi3ResponseBuilder | RefObjectBuilder
+        definition: OpenApi3ResponseBuilder | RefObjectBuilder
     ): OpenApi3OperationBuilder {
         const copyOfResponses = {...this.state.responses};
-        copyOfResponses[responseStatusCode] = responseBuilder;
+        copyOfResponses[responseStatusCode] = definition;
         return new OpenApi3OperationBuilder({...this.state, responses: copyOfResponses});
     }
 

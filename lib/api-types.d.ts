@@ -81,7 +81,8 @@ declare namespace OpenApiDiff {
 
     export type ErrorCode =
         'OPENAPI_DIFF_READ_ERROR' |
-        'OPENAPI_DIFF_PARSE_ERROR';
+        'OPENAPI_DIFF_PARSE_ERROR' |
+        'OPENAPI_DIFF_DIFF_ERROR';
 
     export interface OpenApiDiffError extends Error {
         code: ErrorCode;

@@ -1,4 +1,4 @@
-import {DiffOutcomeFailure} from '../../../lib/api-types';
+import {DiffOutcomeFailure, OpenApiDiffError} from '../../../lib/api-types';
 import {OpenApiDiffErrorImpl} from '../../../lib/common/open-api-diff-error-impl';
 import {DiffPathsOptions} from '../../../lib/openapi-diff';
 import {diffPathsOptionsBuilder} from '../../support/builders/diff-paths-options-builder';
@@ -36,6 +36,10 @@ describe('openapi-diff swagger2', () => {
         mockFileSystem = createMockFileSystem();
         mockResultReporter = createMockResultReporter();
     });
+
+    const defaultPath = '/some/path';
+    const defaultMethod = 'post';
+    const defaultStatusCode = '200';
 
     const invokeDiffLocations = (options: DiffPathsOptions): Promise<void> => {
         const openApiDiff = createOpenApiDiffWithMocks({mockFileSystem, mockResultReporter, mockHttpClient});
@@ -97,45 +101,16 @@ describe('openapi-diff swagger2', () => {
 
             expect(mockResultReporter.reportError).not.toHaveBeenCalled();
         });
-
-        it('should fail when request body parameter contains circular references', async () => {
-            const sourceSpec = swagger2SpecBuilder
-                .withDefinition('circularSchema',
-                    {
-                        additionalProperties: {$ref: '#/definitions/circularSchema'},
-                        type: 'object'
-                    })
-                .withPath('/some/path', swagger2PathItemBuilder
-                    .withOperation('post', swagger2OperationBuilder
-                        .withParameters([
-                            swagger2BodyParameterBuilder.withSchema({$ref: '#/definitions/circularSchema'})
-                        ])));
-
-            mockFileSystem.givenReadFileReturns(
-                Promise.resolve(JSON.stringify(sourceSpec.build())),
-                Promise.resolve(JSON.stringify(sourceSpec.build()))
-            );
-
-            await expectToFail(invokeDiffLocations(diffPathsOptionsBuilder
-                .withSourceSpec(specPathOptionBuilder.withLocation('source-spec-with-circular-refs.json'))
-                .build()
-            ));
-
-            expect(mockResultReporter.reportError).toHaveBeenCalledWith(new OpenApiDiffErrorImpl(
-                'OPENAPI_DIFF_PARSE_ERROR',
-                'Validation errors in "source-spec-with-circular-refs.json": The API contains circular references'
-            ));
-        });
     });
 
     it('should report an add and remove differences, when a method was changed', async () => {
         const sourceSpec = swagger2SpecBuilder
-            .withPath('/path', swagger2PathItemBuilder
+            .withPath(defaultPath, swagger2PathItemBuilder
                 .withOperation('get', swagger2OperationBuilder)
             );
         const destinationSpec = swagger2SpecBuilder
-            .withPath('/path', swagger2PathItemBuilder
-                .withOperation('post', swagger2OperationBuilder)
+            .withPath(defaultPath, swagger2PathItemBuilder
+                .withOperation(defaultMethod, swagger2OperationBuilder)
             );
 
         const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
@@ -144,7 +119,7 @@ describe('openapi-diff swagger2', () => {
             nonBreakingDiffResultBuilder
                 .withDestinationSpecEntityDetails([
                     specEntityDetailsBuilder
-                        .withLocation('paths./path.post')
+                        .withLocation(`paths.${defaultPath}.${defaultMethod}`)
                         .withValue(swagger2OperationBuilder.build())
                 ])
                 .withSourceSpecEntityDetails([])
@@ -158,7 +133,7 @@ describe('openapi-diff swagger2', () => {
                 .withDestinationSpecEntityDetails([])
                 .withSourceSpecEntityDetails([
                     specEntityDetailsBuilder
-                        .withLocation('paths./path.get')
+                        .withLocation(`paths.${defaultPath}.get`)
                         .withValue(swagger2OperationBuilder.build())
                 ])
                 .withCode('method.remove')
@@ -237,8 +212,41 @@ describe('openapi-diff swagger2', () => {
         ]);
     });
 
+    it('should return breaking differences when a request body parameter was not there and is added', async () => {
+        const sourceSpec = swagger2SpecBuilder
+            .withPath(defaultPath, swagger2PathItemBuilder
+                .withOperation(defaultMethod, swagger2OperationBuilder));
+        const destinationSpec = swagger2SpecBuilder
+            .withPath(defaultPath, swagger2PathItemBuilder
+                .withOperation(defaultMethod, swagger2OperationBuilder
+                    .withParameters([swagger2BodyParameterBuilder.withSchema({type: 'string'})])));
+
+        const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
+
+        const typeChangeLocation = `paths.${defaultPath}.${defaultMethod}.parameters.0.schema.type`;
+        const baseBeakingDifference = breakingDiffResultBuilder
+            .withAction('remove')
+            .withCode('request.body.scope.remove')
+            .withEntity('request.body.scope')
+            .withSource('json-schema-diff')
+            .withSourceSpecEntityDetails([])
+            .withDestinationSpecEntityDetails([
+                specEntityDetailsBuilder
+                    .withLocation(typeChangeLocation)
+                    .withValue('string')
+            ]);
+
+        expect(outcome).toContainDifferences([
+            baseBeakingDifference.withDetails({value: 'boolean'}).build(),
+            baseBeakingDifference.withDetails({value: 'object'}).build(),
+            baseBeakingDifference.withDetails({value: 'integer'}).build(),
+            baseBeakingDifference.withDetails({value: 'number'}).build(),
+            baseBeakingDifference.withDetails({value: 'array'}).build(),
+            baseBeakingDifference.withDetails({value: 'null'}).build()
+        ]);
+    });
+
     it('should find differences in request bodies with references', async () => {
-        const path = '/some/path';
         const sourceSpec = swagger2SpecBuilder
             .withDefinition('stringSchema', {type: 'string'})
             .withDefinition('requestBodySchema', {$ref: '#/definitions/stringSchema'})
@@ -246,18 +254,18 @@ describe('openapi-diff swagger2', () => {
                 'RequestBody',
                 swagger2BodyParameterBuilder.withSchema({$ref: '#/definitions/requestBodySchema'})
             )
-            .withPath(path, swagger2PathItemBuilder
-                .withOperation('post', swagger2OperationBuilder
+            .withPath(defaultPath, swagger2PathItemBuilder
+                .withOperation(defaultMethod, swagger2OperationBuilder
                     .withParameters([refObjectBuilder.withRef('#/parameters/RequestBody')])));
 
         const destinationSpec = swagger2SpecBuilder
-            .withPath(path, swagger2PathItemBuilder
-                .withOperation('post', swagger2OperationBuilder
+            .withPath(defaultPath, swagger2PathItemBuilder
+                .withOperation(defaultMethod, swagger2OperationBuilder
                     .withParameters([swagger2BodyParameterBuilder.withSchema({type: 'number'})])));
 
         const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
 
-        const typeChangeLocation = `paths.${path}.post.parameters.0.schema.type`;
+        const typeChangeLocation = `paths.${defaultPath}.${defaultMethod}.parameters.0.schema.type`;
         expect(outcome).toContainDifferences([
             nonBreakingDiffResultBuilder
                 .withAction('add')
@@ -296,16 +304,35 @@ describe('openapi-diff swagger2', () => {
         ]);
     });
 
+    it('should handle the case of a circular request bodyParameter schema', async () => {
+        const specWithSchemaCircles = swagger2SpecBuilder
+            .withDefinition('circularSchema',
+                {
+                    additionalProperties: {$ref: '#/definitions/circularSchema'},
+                    type: 'object'
+                })
+            .withPath(defaultPath, swagger2PathItemBuilder
+                .withOperation(defaultMethod, swagger2OperationBuilder
+                    .withParameters([
+                        swagger2BodyParameterBuilder.withSchema({$ref: '#/definitions/circularSchema'})
+                    ])));
+
+        const error = await expectToFail(whenSpecsAreDiffed(specWithSchemaCircles, specWithSchemaCircles));
+
+        expect(error.message).toContain('Circular $ref pointer found');
+        expect((error as OpenApiDiffError).code).toEqual('OPENAPI_DIFF_DIFF_ERROR');
+    });
+
     it('should return add and remove differences, when response status codes are added and removed', async () => {
         const sourceSpec = swagger2SpecBuilder
-            .withPath('/some/path', swagger2PathItemBuilder
-                .withOperation('post', swagger2OperationBuilder
-                    .withResponse('200', swagger2ResponseBuilder)
+            .withPath(defaultPath, swagger2PathItemBuilder
+                .withOperation(defaultMethod, swagger2OperationBuilder
+                    .withResponse(defaultStatusCode, swagger2ResponseBuilder)
                     .withResponse('202', swagger2ResponseBuilder)));
         const destinationSpec = swagger2SpecBuilder
-            .withPath('/some/path', swagger2PathItemBuilder
-                .withOperation('post', swagger2OperationBuilder
-                    .withResponse('200', swagger2ResponseBuilder)
+            .withPath(defaultPath, swagger2PathItemBuilder
+                .withOperation(defaultMethod, swagger2OperationBuilder
+                    .withResponse(defaultStatusCode, swagger2ResponseBuilder)
                     .withResponse('201', swagger2ResponseBuilder)));
 
         const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
@@ -338,22 +365,57 @@ describe('openapi-diff swagger2', () => {
         ]);
     });
 
+    it('should return non-breaking differences if a response schema was not there and is added', async () => {
+        const sourceSpec = swagger2SpecBuilder
+            .withPath(defaultPath, swagger2PathItemBuilder
+                .withOperation(defaultMethod, swagger2OperationBuilder
+                    .withResponse(defaultStatusCode, swagger2ResponseBuilder)));
+        const destinationSpec = swagger2SpecBuilder
+            .withPath(defaultPath, swagger2PathItemBuilder
+                .withOperation(defaultMethod, swagger2OperationBuilder
+                    .withResponse(defaultStatusCode, swagger2ResponseBuilder
+                        .withResponseBody({type: 'string'}))));
+
+        const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
+
+        const typeChangeLocation = `paths.${defaultPath}.${defaultMethod}.responses.${defaultStatusCode}.schema.type`;
+        const baseNonBreakingDifference = nonBreakingDiffResultBuilder
+            .withAction('remove')
+            .withCode('response.body.scope.remove')
+            .withEntity('response.body.scope')
+            .withSource('json-schema-diff')
+            .withSourceSpecEntityDetails([])
+            .withDestinationSpecEntityDetails([
+                specEntityDetailsBuilder
+                    .withLocation(typeChangeLocation)
+                    .withValue('string')
+            ]);
+
+        expect(outcome).toContainDifferences([
+            baseNonBreakingDifference.withDetails({value: 'boolean'}).build(),
+            baseNonBreakingDifference.withDetails({value: 'object'}).build(),
+            baseNonBreakingDifference.withDetails({value: 'integer'}).build(),
+            baseNonBreakingDifference.withDetails({value: 'number'}).build(),
+            baseNonBreakingDifference.withDetails({value: 'array'}).build(),
+            baseNonBreakingDifference.withDetails({value: 'null'}).build()
+        ]);
+    });
+
     it('should return a breaking and non-breaking differences if response schema scope is changed', async () => {
         const sourceSpec = swagger2SpecBuilder
-            .withPath('/some/path', swagger2PathItemBuilder
-                .withOperation('post', swagger2OperationBuilder
-                    .withResponse('200', swagger2ResponseBuilder
+            .withPath(defaultPath, swagger2PathItemBuilder
+                .withOperation(defaultMethod, swagger2OperationBuilder
+                    .withResponse(defaultStatusCode, swagger2ResponseBuilder
                         .withResponseBody({type: 'string'}))));
         const destinationSpec = swagger2SpecBuilder
-            .withPath('/some/path', swagger2PathItemBuilder
-                .withOperation('post', swagger2OperationBuilder
-                    .withResponse('200', swagger2ResponseBuilder
+            .withPath(defaultPath, swagger2PathItemBuilder
+                .withOperation(defaultMethod, swagger2OperationBuilder
+                    .withResponse(defaultStatusCode, swagger2ResponseBuilder
                         .withResponseBody({type: 'number'}))));
 
         const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
 
-        const typeChangeLocation = 'paths./some/path.post.responses.200.schema.type';
-
+        const typeChangeLocation = `paths.${defaultPath}.${defaultMethod}.responses.${defaultStatusCode}.schema.type`;
         const nonBreakingDifference = nonBreakingDiffResultBuilder
             .withAction('remove')
             .withCode('response.body.scope.remove')
@@ -398,14 +460,14 @@ describe('openapi-diff swagger2', () => {
             .withDefinition('stringSchema', {type: 'string'})
             .withResponse('aResponse', swagger2ResponseBuilder
                 .withSchemaRef('#/definitions/stringSchema'))
-            .withPath('/some/path', swagger2PathItemBuilder
-                .withOperation('post', swagger2OperationBuilder
-                    .withResponse('200', refObjectBuilder
+            .withPath(defaultPath, swagger2PathItemBuilder
+                .withOperation(defaultMethod, swagger2OperationBuilder
+                    .withResponse(defaultStatusCode, refObjectBuilder
                         .withRef('#/responses/aResponse'))));
         const destinationSpec = swagger2SpecBuilder
-            .withPath('/some/path', swagger2PathItemBuilder
-                .withOperation('post', swagger2OperationBuilder
-                    .withResponse('200', swagger2ResponseBuilder
+            .withPath(defaultPath, swagger2PathItemBuilder
+                .withOperation(defaultMethod, swagger2OperationBuilder
+                    .withResponse(defaultStatusCode, swagger2ResponseBuilder
                         .withResponseBody({type: 'number'}))));
 
         const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
@@ -414,12 +476,32 @@ describe('openapi-diff swagger2', () => {
         expect((outcome as DiffOutcomeFailure).breakingDifferences.length).toBe(1);
     });
 
+    it('should handle the case of a circular response body schema', async () => {
+        const specWithSchemaCircles = swagger2SpecBuilder
+            .withDefinition('stringSchema',
+                {
+                    additionalProperties: {$ref: '#/definitions/stringSchema'},
+                    type: 'object'
+                })
+            .withResponse('responseReference', swagger2ResponseBuilder
+                .withSchemaRef('#/definitions/stringSchema'))
+            .withPath(defaultPath, swagger2PathItemBuilder
+                .withOperation(defaultMethod, swagger2OperationBuilder
+                    .withResponse(defaultStatusCode, refObjectBuilder
+                        .withRef('#/responses/responseReference'))));
+
+        const error = await expectToFail(whenSpecsAreDiffed(specWithSchemaCircles, specWithSchemaCircles));
+
+        expect(error.message).toContain('Circular $ref pointer found');
+        expect((error as OpenApiDiffError).code).toEqual('OPENAPI_DIFF_DIFF_ERROR');
+    });
+
     describe('response headers', () => {
         const createSpecWithHeader = (responseHeaderName: string): Swagger2SpecBuilder => {
             return swagger2SpecBuilder
-                .withPath('/some/path', swagger2PathItemBuilder
-                    .withOperation('post', swagger2OperationBuilder
-                        .withResponse('200', swagger2ResponseBuilder
+                .withPath(defaultPath, swagger2PathItemBuilder
+                    .withOperation(defaultMethod, swagger2OperationBuilder
+                        .withResponse(defaultStatusCode, swagger2ResponseBuilder
                             .withHeader(responseHeaderName, swagger2ResponseHeaderBuilder))));
         };
 

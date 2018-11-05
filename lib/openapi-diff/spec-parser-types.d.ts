@@ -37,7 +37,6 @@ export interface ParsedPathItems {
 
 export interface ParsedPathItem {
     originalValue: ParsedProperty;
-    pathName: string;
     operations: ParsedOperations;
 }
 

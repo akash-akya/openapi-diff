@@ -1,13 +1,14 @@
-import {DiffOutcomeFailure} from '../../../lib/api-types';
+import {DiffOutcomeFailure, OpenApiDiffError} from '../../../lib/api-types';
 import {breakingDiffResultBuilder, nonBreakingDiffResultBuilder} from '../../support/builders/diff-result-builder';
 import {specEntityDetailsBuilder} from '../../support/builders/diff-result-spec-entity-details-builder';
 import {openApi3ComponentsBuilder} from '../../support/builders/openapi3-components-builder';
-import {openApi3MediaTypeBuilder, OpenApi3MediaTypeBuilder} from '../../support/builders/openapi3-media-type-builder';
+import {openApi3MediaTypeBuilder} from '../../support/builders/openapi3-media-type-builder';
 import {openApi3OperationBuilder} from '../../support/builders/openapi3-operation-builder';
 import {openApi3PathItemBuilder} from '../../support/builders/openapi3-path-item-builder';
 import {openApi3ResponseBuilder} from '../../support/builders/openapi3-response-builder';
-import {OpenApi3SpecBuilder, openApi3SpecBuilder} from '../../support/builders/openapi3-spec-builder';
+import {openApi3SpecBuilder, OpenApi3SpecBuilder} from '../../support/builders/openapi3-spec-builder';
 import {refObjectBuilder} from '../../support/builders/ref-object-builder';
+import {expectToFail} from '../../support/expect-to-fail';
 import {CustomMatchers} from '../support/custom-matchers/custom-matchers';
 import {whenSpecsAreDiffed} from '../support/when-specs-are-diffed';
 
@@ -17,38 +18,39 @@ describe('openapi-diff response-body', () => {
     const defaultPath = '/some/path';
     const defaultMethod = 'post';
     const defaultStatusCode = '200';
+    const defaultMediaType = 'application/json';
 
     const defaultTypeChangeLocation =
-        `paths.${defaultPath}.${defaultMethod}.responses.${defaultStatusCode}.content.application/json.schema.type`;
+        `paths.${defaultPath}.${defaultMethod}.responses.${defaultStatusCode}.content.${defaultMediaType}.schema.type`;
 
-    const createSpecWithNoResponseBodyContent = (): OpenApi3SpecBuilder => {
+    const createSpecWithResponseBodyWithoutSchema = (): OpenApi3SpecBuilder => {
         return openApi3SpecBuilder
             .withPath(defaultPath, openApi3PathItemBuilder
                 .withOperation(defaultMethod, openApi3OperationBuilder
                     .withResponse(defaultStatusCode, openApi3ResponseBuilder
-                        .withNoContent())));
+                        .withMediaType(defaultMediaType, openApi3MediaTypeBuilder))));
     };
 
-    const createSpecWithResponseBodyContent = (responseBodyContent: OpenApi3MediaTypeBuilder): OpenApi3SpecBuilder => {
+    const createSpecWithResponseBodySchemaType = (type: 'string' | 'number'): OpenApi3SpecBuilder => {
         return openApi3SpecBuilder
             .withPath(defaultPath, openApi3PathItemBuilder
                 .withOperation(defaultMethod, openApi3OperationBuilder
                     .withResponse(defaultStatusCode, openApi3ResponseBuilder
-                        .withMediaType('application/json', responseBodyContent))));
+                        .withMediaType(defaultMediaType, openApi3MediaTypeBuilder
+                            .withJsonContentSchema({type})))));
     };
 
     it('should return no differences for the same spec', async () => {
-        const aSpec = createSpecWithResponseBodyContent(openApi3MediaTypeBuilder);
+        const aSpec = createSpecWithResponseBodySchemaType('string');
 
         const outcome = await whenSpecsAreDiffed(aSpec, aSpec);
 
         expect(outcome).toContainDifferences([]);
     });
 
-    it('should return differences, when a response body schema did exist and was removed', async () => {
-        const sourceSpec = createSpecWithResponseBodyContent(openApi3MediaTypeBuilder
-            .withJsonContentSchema({type: 'string'}));
-        const destinationSpec = createSpecWithNoResponseBodyContent();
+    it('should return breaking differences, when a response body schema did exist and was removed', async () => {
+        const sourceSpec = createSpecWithResponseBodySchemaType('string');
+        const destinationSpec = createSpecWithResponseBodyWithoutSchema();
 
         const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
 
@@ -74,10 +76,9 @@ describe('openapi-diff response-body', () => {
         ]);
     });
 
-    it('should return differences, when a response body schema was added', async () => {
-        const sourceSpec = createSpecWithNoResponseBodyContent();
-        const destinationSpec = createSpecWithResponseBodyContent(openApi3MediaTypeBuilder
-            .withJsonContentSchema({type: 'string'}));
+    it('should return non-breaking differences, when a response body schema did not exist and was added', async () => {
+        const sourceSpec = createSpecWithResponseBodyWithoutSchema();
+        const destinationSpec = createSpecWithResponseBodySchemaType('string');
 
         const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
 
@@ -104,10 +105,8 @@ describe('openapi-diff response-body', () => {
     });
 
     it('should return a breaking and non-breaking differences if response schema scope is changed', async () => {
-        const sourceSpec = createSpecWithResponseBodyContent(openApi3MediaTypeBuilder
-            .withJsonContentSchema({type: 'string'}));
-        const destinationSpec = createSpecWithResponseBodyContent(openApi3MediaTypeBuilder
-            .withJsonContentSchema({type: 'number'}));
+        const sourceSpec = createSpecWithResponseBodySchemaType('string');
+        const destinationSpec = createSpecWithResponseBodySchemaType('number');
 
         const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
 
@@ -154,20 +153,20 @@ describe('openapi-diff response-body', () => {
         const sourceSpec = openApi3SpecBuilder
             .withPath(defaultPath, openApi3PathItemBuilder
                 .withOperation(defaultMethod, openApi3OperationBuilder
-                    .withResponse('200', openApi3ResponseBuilder
-                        .withMediaType('application/json', openApi3MediaTypeBuilder
+                    .withResponse(defaultStatusCode, openApi3ResponseBuilder
+                        .withMediaType(defaultMediaType, openApi3MediaTypeBuilder
                             .withJsonContentSchema({type: 'string'})))
                     .withResponse('201', openApi3ResponseBuilder
-                        .withMediaType('application/json', openApi3MediaTypeBuilder
+                        .withMediaType(defaultMediaType, openApi3MediaTypeBuilder
                             .withJsonContentSchema({type: 'string'})))));
         const destinationSpec = openApi3SpecBuilder
             .withPath(defaultPath, openApi3PathItemBuilder
                 .withOperation(defaultMethod, openApi3OperationBuilder
-                    .withResponse('200', openApi3ResponseBuilder
-                        .withMediaType('application/json', openApi3MediaTypeBuilder
+                    .withResponse(defaultStatusCode, openApi3ResponseBuilder
+                        .withMediaType(defaultMediaType, openApi3MediaTypeBuilder
                             .withJsonContentSchema({type: 'number'})))
                     .withResponse('201', openApi3ResponseBuilder
-                        .withMediaType('application/json', openApi3MediaTypeBuilder
+                        .withMediaType(defaultMediaType, openApi3MediaTypeBuilder
                             .withJsonContentSchema({type: 'number'})))));
 
         const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
@@ -182,18 +181,103 @@ describe('openapi-diff response-body', () => {
                 .withSchema('stringSchema', {type: 'string'})
                 .withSchema('responseBodySchema', {$ref: '#/components/schemas/stringSchema'})
                 .withResponse('aResponse', openApi3ResponseBuilder
-                    .withMediaType('application/json', openApi3MediaTypeBuilder
+                    .withMediaType(defaultMediaType, openApi3MediaTypeBuilder
                         .withSchemaRef('#/components/schemas/responseBodySchema'))))
             .withPath(defaultPath, openApi3PathItemBuilder
                 .withOperation(defaultMethod, openApi3OperationBuilder
                     .withResponse(defaultStatusCode, refObjectBuilder
                         .withRef('#/components/responses/aResponse'))));
-        const destinationSpec = createSpecWithResponseBodyContent(openApi3MediaTypeBuilder
-            .withJsonContentSchema({type: 'number'}));
+        const destinationSpec = createSpecWithResponseBodySchemaType('number');
 
         const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
 
         expect(outcome.nonBreakingDifferences.length).toBe(1);
+        expect((outcome as DiffOutcomeFailure).breakingDifferences.length).toBe(1);
+    });
+
+    it('should handle the case of a circular response body schema', async () => {
+        const spec = openApi3SpecBuilder
+            .withComponents(openApi3ComponentsBuilder
+                .withSchema('stringSchema',
+                    {
+                        additionalProperties: {$ref: '#/components/schemas/stringSchema'},
+                        type: 'object'
+                    }))
+            .withPath(defaultPath, openApi3PathItemBuilder
+                .withOperation(defaultMethod, openApi3OperationBuilder
+                    .withResponse(defaultStatusCode, openApi3ResponseBuilder
+                        .withMediaType(defaultMediaType, openApi3MediaTypeBuilder
+                            .withSchemaRef('#/components/schemas/stringSchema')))));
+
+        const error = await expectToFail(whenSpecsAreDiffed(spec, spec));
+
+        expect(error.message).toContain('Circular $ref pointer found');
+        expect((error as OpenApiDiffError).code).toEqual('OPENAPI_DIFF_DIFF_ERROR');
+    });
+
+    it('should handle the case of a circular response body schema when response is a reference itself', async () => {
+        const spec = openApi3SpecBuilder
+            .withComponents(openApi3ComponentsBuilder
+                .withSchema('stringSchema',
+                    {
+                        additionalProperties: {$ref: '#/components/schemas/stringSchema'},
+                        type: 'object'
+                    })
+                .withResponse('responseReference', openApi3ResponseBuilder
+                    .withMediaType(defaultMediaType, openApi3MediaTypeBuilder
+                        .withSchemaRef('#/components/schemas/stringSchema'))))
+            .withPath(defaultPath, openApi3PathItemBuilder
+                .withOperation(defaultMethod, openApi3OperationBuilder
+                    .withResponse(defaultStatusCode, refObjectBuilder
+                        .withRef('#/components/responses/responseReference'))));
+
+        const error = await expectToFail(whenSpecsAreDiffed(spec, spec));
+
+        expect(error.message).toContain('Circular $ref pointer found');
+        expect((error as OpenApiDiffError).code).toEqual('OPENAPI_DIFF_DIFF_ERROR');
+    });
+
+    it('should handle the case of a circular response body schema when response is a deep reference', async () => {
+        const sourceSpec = openApi3SpecBuilder
+            .withComponents(openApi3ComponentsBuilder
+                .withResponse('nonCircularReferenceA', refObjectBuilder
+                    .withRef('#/components/responses/nonCircularReferenceB'))
+                .withResponse('nonCircularReferenceB', openApi3ResponseBuilder
+                    .withMediaType(defaultMediaType, openApi3MediaTypeBuilder
+                        .withJsonContentSchema({type: 'number'}))
+                    .withMediaType('application/xml', openApi3MediaTypeBuilder
+                        .withSchemaRef('#/x-circular-schema/schemaThatPreventsDereferencing'))))
+            .withPath(defaultPath, openApi3PathItemBuilder
+                .withOperation(defaultMethod, openApi3OperationBuilder
+                    .withResponse(defaultStatusCode, refObjectBuilder
+                        .withRef('#/components/responses/nonCircularReferenceA'))))
+            .withTopLevelXProperty('x-circular-schema', {
+                schemaThatPreventsDereferencing: {
+                    additionalProperties: {
+                        $ref: '#/x-circular-schema/schemaThatPreventsDereferencing'
+                    },
+                    type: 'object'
+                }
+            });
+        const destinationSpec = openApi3SpecBuilder
+            .withPath(defaultPath, openApi3PathItemBuilder
+                .withOperation(defaultMethod, openApi3OperationBuilder
+                    .withResponse(defaultStatusCode, openApi3ResponseBuilder
+                        .withMediaType(defaultMediaType, openApi3MediaTypeBuilder
+                            .withJsonContentSchema({type: 'string'}))
+                        .withMediaType('application/xml', openApi3MediaTypeBuilder
+                            .withSchemaRef('#/x-circular-schema/schemaThatPreventsDereferencing')))))
+            .withTopLevelXProperty('x-circular-schema', {
+                schemaThatPreventsDereferencing: {
+                    additionalProperties: {
+                        $ref: '#/x-circular-schema/schemaThatPreventsDereferencing'
+                    },
+                    type: 'object'
+                }
+            });
+
+        const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
+
         expect((outcome as DiffOutcomeFailure).breakingDifferences.length).toBe(1);
     });
 });

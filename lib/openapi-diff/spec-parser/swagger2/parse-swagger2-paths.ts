@@ -1,25 +1,24 @@
 import {ParsedPathItem, ParsedPathItems} from '../../spec-parser-types';
-import {Swagger2PathItem, Swagger2Paths} from '../../swagger2';
+import {Swagger2, Swagger2PathItem, Swagger2Paths} from '../../swagger2';
 import {PathBuilder} from '../common/path-builder';
 import {parseSwagger2Operations} from './parse-swagger2-operations';
 
-const parsePath = (pathName: string, path: Swagger2PathItem, pathBuilder: PathBuilder): ParsedPathItem => {
+const parsePath = (path: Swagger2PathItem, pathBuilder: PathBuilder, spec: Swagger2): ParsedPathItem => {
     return {
-        operations: parseSwagger2Operations(path, pathBuilder),
+        operations: parseSwagger2Operations(path, pathBuilder, spec),
         originalValue: {
             originalPath: pathBuilder.build(),
             value: path
-        },
-        pathName
+        }
     };
 };
 
-export const parseSwagger2Paths = (paths: Swagger2Paths, pathBuilder: PathBuilder): ParsedPathItems =>
+export const parseSwagger2Paths = (paths: Swagger2Paths, pathBuilder: PathBuilder, spec: Swagger2): ParsedPathItems =>
     Object.keys(paths).reduce<ParsedPathItems>((accumulator, pathName) => {
         const pathItemObject = paths[pathName];
         const originalPath = pathBuilder.withChild(pathName);
 
-        accumulator[pathName] = parsePath(pathName, pathItemObject, originalPath);
+        accumulator[pathName] = parsePath(pathItemObject, originalPath, spec);
 
         return accumulator;
     }, {});
