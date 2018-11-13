@@ -1,3 +1,8 @@
+<a name="0.17.0"></a>
+# [0.17.0](https://bitbucket.org/atlassian/openapi-diff/compare/0.16.0...0.17.0) (2018-11-13)
+
+
+
 <a name="0.16.0"></a>
 # [0.16.0](https://bitbucket.org/atlassian/openapi-diff/compare/0.15.0...0.16.0) (2018-10-17)
 
