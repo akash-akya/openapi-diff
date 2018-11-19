@@ -1,4 +1,4 @@
-import {ParsedProperty, ParsedRequestBody} from '../../spec-parser-types';
+import {ParsedJsonSchema, ParsedRequestBody} from '../../spec-parser-types';
 import {
     Swagger2,
     Swagger2BodyParameter,
@@ -11,7 +11,7 @@ import {parseSwagger2BodyObjectJsonSchema} from './parse-swagger2-body-object-js
 
 const parseBodyParameterJsonSchema = (
     bodyParameter: Swagger2BodyParameter | undefined, pathBuilder: PathBuilder, spec: Swagger2
-): ParsedProperty | undefined => {
+): ParsedJsonSchema | undefined => {
     return bodyParameter
         ? parseSwagger2BodyObjectJsonSchema(bodyParameter, pathBuilder, spec)
         : undefined;

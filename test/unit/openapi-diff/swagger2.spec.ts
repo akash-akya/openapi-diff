@@ -1,6 +1,7 @@
 import {DiffOutcomeFailure, OpenApiDiffError} from '../../../lib/api-types';
 import {OpenApiDiffErrorImpl} from '../../../lib/common/open-api-diff-error-impl';
 import {DiffPathsOptions} from '../../../lib/openapi-diff';
+import {Swagger2Schema} from '../../../lib/openapi-diff/swagger2';
 import {diffPathsOptionsBuilder} from '../../support/builders/diff-paths-options-builder';
 import {
     breakingDiffResultBuilder,
@@ -44,6 +45,24 @@ describe('openapi-diff swagger2', () => {
     const invokeDiffLocations = (options: DiffPathsOptions): Promise<void> => {
         const openApiDiff = createOpenApiDiffWithMocks({mockFileSystem, mockResultReporter, mockHttpClient});
         return openApiDiff.diffPaths(options);
+    };
+
+    const createSpecWithRequestBodySchema = (schema: Swagger2Schema): Swagger2SpecBuilder => {
+        return swagger2SpecBuilder
+            .withPath(defaultPath, swagger2PathItemBuilder
+                .withOperation(defaultMethod, swagger2OperationBuilder
+                    .withParameters([swagger2BodyParameterBuilder
+                        .withSchema(schema)
+                    ])));
+    };
+
+    const createSpecWithResponseBodySchema = (schema: Swagger2Schema): Swagger2SpecBuilder => {
+        return swagger2SpecBuilder
+            .withPath(defaultPath, swagger2PathItemBuilder
+                .withOperation(defaultMethod, swagger2OperationBuilder
+                    .withResponse(defaultStatusCode, swagger2ResponseBuilder
+                        .withResponseBody(schema)
+                    )));
     };
 
     describe('content parsing', () => {
@@ -224,7 +243,7 @@ describe('openapi-diff swagger2', () => {
         const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
 
         const typeChangeLocation = `paths.${defaultPath}.${defaultMethod}.parameters.0.schema.type`;
-        const baseBeakingDifference = breakingDiffResultBuilder
+        const baseBreakingDifference = breakingDiffResultBuilder
             .withAction('remove')
             .withCode('request.body.scope.remove')
             .withEntity('request.body.scope')
@@ -237,12 +256,12 @@ describe('openapi-diff swagger2', () => {
             ]);
 
         expect(outcome).toContainDifferences([
-            baseBeakingDifference.withDetails({value: 'boolean'}).build(),
-            baseBeakingDifference.withDetails({value: 'object'}).build(),
-            baseBeakingDifference.withDetails({value: 'integer'}).build(),
-            baseBeakingDifference.withDetails({value: 'number'}).build(),
-            baseBeakingDifference.withDetails({value: 'array'}).build(),
-            baseBeakingDifference.withDetails({value: 'null'}).build()
+            baseBreakingDifference.withDetails({value: 'boolean'}).build(),
+            baseBreakingDifference.withDetails({value: 'object'}).build(),
+            baseBreakingDifference.withDetails({value: 'integer'}).build(),
+            baseBreakingDifference.withDetails({value: 'number'}).build(),
+            baseBreakingDifference.withDetails({value: 'array'}).build(),
+            baseBreakingDifference.withDetails({value: 'null'}).build()
         ]);
     });
 
@@ -494,6 +513,45 @@ describe('openapi-diff swagger2', () => {
 
         expect(error.message).toContain('Circular $ref pointer found');
         expect((error as OpenApiDiffError).code).toEqual('OPENAPI_DIFF_DIFF_ERROR');
+    });
+
+    it('should convert swagger2 request body schemas to a valid JSON schema to diff', async () => {
+        const spec = createSpecWithRequestBodySchema({
+            exclusiveMinimum: true,
+            minimum: 0,
+            type: 'number'
+        });
+
+        const outcome = await whenSpecsAreDiffed(spec, spec);
+
+        expect(outcome).toContainDifferences([]);
+    });
+
+    // Can't be properly tested until json-schema-diff can detect differences in array schemas
+    it('should convert requestBodies with incompatible items array to a valid schema by json-schema-diff', async () => {
+        const spec = createSpecWithRequestBodySchema({
+            items: [{
+                exclusiveMinimum: true,
+                type: 'number'
+            }],
+            type: 'array'
+        });
+
+        const outcome = await whenSpecsAreDiffed(spec, spec);
+
+        expect(outcome).toContainDifferences([]);
+    });
+
+    it('should convert swagger2 response body schemas to a valid JSON schema to diff', async () => {
+        const spec = createSpecWithResponseBodySchema({
+            exclusiveMinimum: true,
+            minimum: 0,
+            type: 'number'
+        });
+
+        const outcome = await whenSpecsAreDiffed(spec, spec);
+
+        expect(outcome).toContainDifferences([]);
     });
 
     describe('response headers', () => {

@@ -4,7 +4,7 @@ import {ParsedScope} from '../../spec-parser-types';
 
 export const getJsonSchemaForDiffing = (parsedScope: ParsedScope) => {
     return parsedScope.jsonSchema
-        ? parsedScope.jsonSchema.value
+        ? parsedScope.jsonSchema.schema
         : {};
 };
 

@@ -1,4 +1,5 @@
 import {DiffOutcomeFailure, OpenApiDiffError} from '../../../lib/api-types';
+import {OpenApi3Schema} from '../../../lib/openapi-diff/openapi3';
 import {breakingDiffResultBuilder, nonBreakingDiffResultBuilder} from '../../support/builders/diff-result-builder';
 import {specEntityDetailsBuilder} from '../../support/builders/diff-result-spec-entity-details-builder';
 import {openApi3ComponentsBuilder} from '../../support/builders/openapi3-components-builder';
@@ -31,14 +32,17 @@ describe('openapi-diff response-body', () => {
                         .withMediaType(defaultMediaType, openApi3MediaTypeBuilder))));
     };
 
-    const createSpecWithResponseBodySchemaType = (type: 'string' | 'number'): OpenApi3SpecBuilder => {
+    const createSpecWithResponseBodySchema = (schema: OpenApi3Schema): OpenApi3SpecBuilder => {
         return openApi3SpecBuilder
             .withPath(defaultPath, openApi3PathItemBuilder
                 .withOperation(defaultMethod, openApi3OperationBuilder
                     .withResponse(defaultStatusCode, openApi3ResponseBuilder
                         .withMediaType(defaultMediaType, openApi3MediaTypeBuilder
-                            .withJsonContentSchema({type})))));
+                            .withJsonContentSchema(schema)))));
     };
+
+    const createSpecWithResponseBodySchemaType = (type: 'string' | 'number'): OpenApi3SpecBuilder =>
+        createSpecWithResponseBodySchema({type});
 
     it('should return no differences for the same spec', async () => {
         const aSpec = createSpecWithResponseBodySchemaType('string');
@@ -279,5 +283,17 @@ describe('openapi-diff response-body', () => {
         const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
 
         expect((outcome as DiffOutcomeFailure).breakingDifferences.length).toBe(1);
+    });
+
+    it('should convert response body schemas to a valid JSON schema to diff', async () => {
+        const spec = createSpecWithResponseBodySchema({
+            exclusiveMinimum: true,
+            minimum: 0,
+            type: 'number'
+        });
+
+        const outcome = await whenSpecsAreDiffed(spec, spec);
+
+        expect(outcome).toContainDifferences([]);
     });
 });

@@ -10,12 +10,6 @@ import {
     Spec
 } from 'swagger-schema-official';
 
-export interface ExtendedSwagger2Schema extends Swagger2Schema {
-    definitions: {
-        [schema: string]: Swagger2Schema | undefined
-    };
-}
-
 export type Swagger2 = Spec & Swagger2XProperties;
 export type Swagger2BodyParameter = BodyParameter;
 export type Swagger2Parameter = Parameter;
@@ -44,6 +38,10 @@ export interface Swagger2ResponseDefinitions {
 
 export interface Swagger2Responses {
     [responseName: string]: Swagger2Response | Swagger2Reference;
+}
+
+export interface Swagger2SchemaDefinitions {
+    [definitionsName: string]: Schema;
 }
 
 interface Swagger2XProperties {

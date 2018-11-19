@@ -1,14 +1,17 @@
 import {OpenApi3, OpenApi3RequestBody, OpenApi3Response, OpenApi3Schema} from '../../openapi3';
-import {ParsedProperty} from '../../spec-parser-types';
+import {ParsedJsonSchema} from '../../spec-parser-types';
 import {PathBuilder} from '../common/path-builder';
-import {extendOpenApi3SchemaWithReferenceSources} from './extend-open-api3-schema-with-reference-sources';
+import {toDiffReadyOpenApi3Schema} from './to-diff-ready-openapi3-schema';
 
-const toParsedProperty = (
+const toParsedJsonSchema = (
     bodyObjectSchema: OpenApi3Schema, pathBuilder: PathBuilder, spec: OpenApi3
-): ParsedProperty => {
+): ParsedJsonSchema => {
     return {
-        originalPath: pathBuilder.build(),
-        value: extendOpenApi3SchemaWithReferenceSources(bodyObjectSchema, spec)
+        originalValue: {
+            originalPath: pathBuilder.build(),
+            value: bodyObjectSchema
+        },
+        schema: toDiffReadyOpenApi3Schema(bodyObjectSchema, spec)
     };
 };
 
@@ -26,11 +29,11 @@ const getPathForBodyObject = (pathBuilder: PathBuilder): PathBuilder => {
 
 export const parseOpenApi3BodyObjectJsonSchema = (
     bodyObject: OpenApi3RequestBody | OpenApi3Response, pathBuilder: PathBuilder, spec: OpenApi3
-): ParsedProperty | undefined => {
+): ParsedJsonSchema | undefined => {
     const bodyObjectSchema = getSchemaFromBodyObject(bodyObject);
     const bodyObjectPath = getPathForBodyObject(pathBuilder);
 
     return bodyObjectSchema
-        ? toParsedProperty(bodyObjectSchema, bodyObjectPath, spec)
+        ? toParsedJsonSchema(bodyObjectSchema, bodyObjectPath, spec)
         : undefined;
 };

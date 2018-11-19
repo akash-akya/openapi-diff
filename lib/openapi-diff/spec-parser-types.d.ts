@@ -1,3 +1,5 @@
+import {CoreSchemaMetaSchema} from 'json-schema-spec-types';
+
 export type Path = Array<string | number>;
 
 export interface ParsedOperation {
@@ -10,7 +12,9 @@ export interface ParsedOperations {
     [method: string]: ParsedOperation;
 }
 
-export interface ParsedRequestBody extends ParsedScope {
+export type ParsedRequestBody = ParsedSpecRequestBody & ParsedScope;
+
+interface ParsedSpecRequestBody {
     originalValue: ParsedProperty;
 }
 
@@ -18,7 +22,9 @@ export interface ParsedResponses {
     [statuscode: string]: ParsedResponse;
 }
 
-export interface ParsedResponse extends ParsedScope {
+export type ParsedResponse = ParsedSpecResponse & ParsedScope;
+
+interface ParsedSpecResponse {
     headers: ParsedHeaders;
     originalValue: ParsedProperty;
 }
@@ -52,7 +58,12 @@ export interface ParsedProperty {
 }
 
 export interface ParsedScope {
-    jsonSchema?: ParsedProperty;
+    jsonSchema?: ParsedJsonSchema;
+}
+
+export interface ParsedJsonSchema {
+    originalValue: ParsedProperty;
+    schema: CoreSchemaMetaSchema;
 }
 
 export interface ParsedXProperties {

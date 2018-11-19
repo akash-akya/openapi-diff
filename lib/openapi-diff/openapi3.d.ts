@@ -13,14 +13,6 @@ import {
     SchemaObject
 } from 'openapi3-ts';
 
-export interface ExtendedOpenApi3Schema extends OpenApi3Schema {
-    components: {
-        schemas?: {
-            [schema: string]: OpenApi3Schema
-        }
-    };
-}
-
 export type OpenApi3 = OpenAPIObject;
 export type OpenApi3Components = ComponentsObject;
 export type OpenApi3MediaType = MediaTypeObject;
@@ -39,4 +31,8 @@ export type OpenApi3MethodName = 'get' | 'put' | 'post' | 'delete' | 'options' |
 
 export interface OpenApi3RequestBodies {
     [request: string]: OpenApi3RequestBody | OpenApi3Reference;
+}
+
+export interface OpenApi3ComponentSchemas {
+    [name: string]: OpenApi3Schema | OpenApi3Reference;
 }

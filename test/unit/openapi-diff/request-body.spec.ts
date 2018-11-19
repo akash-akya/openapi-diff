@@ -1,4 +1,5 @@
 import {DiffOutcomeFailure, OpenApiDiffError} from '../../../lib/api-types';
+import {OpenApi3Schema} from '../../../lib/openapi-diff/openapi3';
 import {breakingDiffResultBuilder, nonBreakingDiffResultBuilder} from '../../support/builders/diff-result-builder';
 import {specEntityDetailsBuilder} from '../../support/builders/diff-result-spec-entity-details-builder';
 import {openApi3ComponentsBuilder} from '../../support/builders/openapi3-components-builder';
@@ -6,7 +7,7 @@ import {openApi3MediaTypeBuilder} from '../../support/builders/openapi3-media-ty
 import {openApi3OperationBuilder} from '../../support/builders/openapi3-operation-builder';
 import {openApi3PathItemBuilder} from '../../support/builders/openapi3-path-item-builder';
 import {openApi3RequestBodyBuilder} from '../../support/builders/openapi3-request-body-builder';
-import {openApi3SpecBuilder} from '../../support/builders/openapi3-spec-builder';
+import {OpenApi3SpecBuilder, openApi3SpecBuilder} from '../../support/builders/openapi3-spec-builder';
 import {refObjectBuilder} from '../../support/builders/ref-object-builder';
 import {expectToFail} from '../../support/expect-to-fail';
 import {CustomMatchers} from '../support/custom-matchers/custom-matchers';
@@ -36,14 +37,17 @@ describe('openapi-diff request-body', () => {
                         .withMediaType(defaultMediaType, openApi3MediaTypeBuilder))));
     };
 
-    const createSpecWithRequestBodySchemaType = (type: 'string' | 'number') => {
+    const createSpecWithRequestBodySchema = (schema: OpenApi3Schema): OpenApi3SpecBuilder => {
         return openApi3SpecBuilder
             .withPath(defaultPath, openApi3PathItemBuilder
                 .withOperation(defaultMethod, openApi3OperationBuilder
                     .withRequestBody(openApi3RequestBodyBuilder
                         .withMediaType(defaultMediaType, openApi3MediaTypeBuilder
-                            .withJsonContentSchema({type})))));
+                            .withJsonContentSchema(schema)))));
     };
+
+    const createSpecWithRequestBodySchemaType = (type: 'string' | 'number') =>
+        createSpecWithRequestBodySchema({type});
 
     it('should return no differences for the same spec', async () => {
         const aSpec = createSpecWithRequestBodySchemaType('string');
@@ -336,5 +340,198 @@ describe('openapi-diff request-body', () => {
         const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
 
         expect((outcome as DiffOutcomeFailure).breakingDifferences.length).toBe(1);
+    });
+
+    // Can't be properly tested until json-schema-diff can detect differences in number schemas
+    it('should convert requestBodies with falsy exclusiveMinimum to a valid JSON schema to diff', async () => {
+        const spec = createSpecWithRequestBodySchema({
+            exclusiveMinimum: false,
+            minimum: 0,
+            type: 'number'
+        });
+
+        const outcome = await whenSpecsAreDiffed(spec, spec);
+
+        expect(outcome).toContainDifferences([]);
+    });
+
+    // Can't be properly tested until json-schema-diff can detect differences in number schemas
+    it('should convert requestBodies with truthy exclusiveMinimum to a valid JSON schema to diff', async () => {
+        const spec = createSpecWithRequestBodySchema({
+            exclusiveMinimum: true,
+            minimum: 0,
+            type: 'number'
+        });
+
+        const outcome = await whenSpecsAreDiffed(spec, spec);
+
+        expect(outcome).toContainDifferences([]);
+    });
+
+    // Can't be properly tested until json-schema-diff can detect differences in number schemas
+    it('should convert requestBodies with falsy exclusiveMaximum to a valid JSON schema to diff', async () => {
+        const spec = createSpecWithRequestBodySchema({
+            exclusiveMaximum: false,
+            maximum: 10,
+            type: 'number'
+        });
+
+        const outcome = await whenSpecsAreDiffed(spec, spec);
+
+        expect(outcome).toContainDifferences([]);
+    });
+
+    // Can't be properly tested until json-schema-diff can detect differences in number schemas
+    it('should convert requestBodies with truthy exclusiveMaximum to a valid JSON schema to diff', async () => {
+        const spec = createSpecWithRequestBodySchema({
+            exclusiveMaximum: true,
+            minimum: 0,
+            type: 'number'
+        });
+
+        const outcome = await whenSpecsAreDiffed(spec, spec);
+
+        expect(outcome).toContainDifferences([]);
+    });
+
+    it('should convert schemas with incompatible additionalProperties to a valid JSON schema to diff', async () => {
+        const spec = createSpecWithRequestBodySchema({
+            additionalProperties: {
+                exclusiveMinimum: true,
+                type: 'number'
+            },
+            type: 'object'
+        });
+
+        const outcome = await whenSpecsAreDiffed(spec, spec);
+
+        expect(outcome).toContainDifferences([]);
+    });
+
+    it('should not modify schemas with boolean additionalProperties when sending them to diff', async () => {
+        const aSpecWithFalseAdditionalProperties = createSpecWithRequestBodySchema({
+            additionalProperties: false,
+            type: 'object'
+        });
+
+        const aSpecWithTrueAdditionalProperties = createSpecWithRequestBodySchema({
+            additionalProperties: true,
+            type: 'object'
+        });
+
+        const outcome = await whenSpecsAreDiffed(aSpecWithFalseAdditionalProperties, aSpecWithTrueAdditionalProperties);
+
+        expect(outcome.nonBreakingDifferences.length).toBeGreaterThan(0);
+    });
+
+    it('should convert schemas with incompatible allOf to a valid JSON schema by json-schema-diff', async () => {
+        const spec = createSpecWithRequestBodySchema({
+            allOf: [{
+                exclusiveMinimum: true,
+                type: 'number'
+            }]
+        });
+
+        const outcome = await whenSpecsAreDiffed(spec, spec);
+
+        expect(outcome).toContainDifferences([]);
+    });
+
+    it('should convert schemas with incompatible anyOf to a valid JSON schema by json-schema-diff', async () => {
+        const spec = createSpecWithRequestBodySchema({
+            anyOf: [{
+                exclusiveMinimum: true,
+                type: 'number'
+            }]
+        });
+
+        const outcome = await whenSpecsAreDiffed(spec, spec);
+
+        expect(outcome).toContainDifferences([]);
+    });
+
+    it('should convert schemas with incompatible items to a valid JSON schema by json-schema-diff', async () => {
+        const spec = createSpecWithRequestBodySchema({
+            items: {
+                exclusiveMinimum: true,
+                type: 'number'
+            },
+            type: 'array'
+        });
+
+        const outcome = await whenSpecsAreDiffed(spec, spec);
+
+        expect(outcome).toContainDifferences([]);
+    });
+
+    it('should convert schemas with incompatible "not" to a valid JSON schema by json-schema-diff', async () => {
+        const spec = createSpecWithRequestBodySchema({
+            not: {
+                exclusiveMinimum: true,
+                type: 'number'
+            },
+            type: 'object'
+        });
+
+        const outcome = await whenSpecsAreDiffed(spec, spec);
+
+        expect(outcome).toContainDifferences([]);
+    });
+
+    it('should convert schemas with incompatible oneOf to a valid JSON schema by json-schema-diff', async () => {
+        const spec = createSpecWithRequestBodySchema({
+            oneOf: [{
+                exclusiveMinimum: true,
+                type: 'number'
+            }]
+        });
+
+        const outcome = await whenSpecsAreDiffed(spec, spec);
+
+        expect(outcome).toContainDifferences([]);
+    });
+
+    it('should convert schemas with incompatible properties to a valid JSON schema by json-schema-diff', async () => {
+        const spec = createSpecWithRequestBodySchema({
+            properties: {
+                property: {
+                    exclusiveMinimum: true,
+                    type: 'number'
+                }
+            },
+            type: 'object'
+        });
+
+        const outcome = await whenSpecsAreDiffed(spec, spec);
+
+        expect(outcome).toContainDifferences([]);
+    });
+
+    // This test always passes as references are generally dereferenced, and json-schema validation ignores "components"
+    it('should convert schemas with incompatible schema reference sources to a valid schema to diff', async () => {
+        const spec = openApi3SpecBuilder
+            .withComponents(openApi3ComponentsBuilder
+                .withSchema('numberSchema', {
+                    exclusiveMaximum: false,
+                    maximum: 1,
+                    type: 'number'
+                }))
+            .withPath(defaultPath, openApi3PathItemBuilder
+                .withOperation(defaultMethod, openApi3OperationBuilder
+                    .withRequestBody(openApi3RequestBodyBuilder
+                        .withMediaType(defaultMediaType, openApi3MediaTypeBuilder
+                            .withJsonContentSchema({
+                                properties: {
+                                    numberProperty: {
+                                        $ref: '#/components/schemas/numberSchema'
+                                    }
+                                },
+                                type: 'object'
+                            })))));
+
+        const outcome =
+            await whenSpecsAreDiffed(spec, spec);
+
+        expect(outcome).toContainDifferences([]);
     });
 });

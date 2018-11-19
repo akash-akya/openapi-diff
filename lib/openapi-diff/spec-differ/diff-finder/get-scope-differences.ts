@@ -34,7 +34,7 @@ const toJsonSchemaDetails = (parsedScope: ParsedScope): JsonSchemaDetails => {
         ? defaultJsonSchemaDetails()
         : {
             isDefinedInOrigin: true,
-            path: parsedScope.jsonSchema.originalPath
+            path: parsedScope.jsonSchema.originalValue.originalPath
         };
 };
 
