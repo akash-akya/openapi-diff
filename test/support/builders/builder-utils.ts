@@ -21,14 +21,14 @@ export const buildArrayFromBuilders = <T extends Builder<U>, U>(arrayOfBuilders:
 
 export const setPropertyIfDefined =
     <T, K extends keyof T>(target: T, propertyKey: K, propertyValue: T[K] | undefined): void => {
-        if (propertyValue) {
+        if (propertyValue !== undefined) {
             target[propertyKey] = _.cloneDeep(propertyValue);
         }
     };
 
 export const setPropertyFromBuilderIfDefined =
     <T, K extends keyof T>(target: T, propertyKey: K, propertyValue: Builder<T[K]> | undefined): void => {
-        if (propertyValue) {
+        if (propertyValue !== undefined) {
             target[propertyKey] = propertyValue.build();
         }
     };

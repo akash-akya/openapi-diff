@@ -1,13 +1,27 @@
 import {OpenApi3Response, OpenApi3ResponseHeader, OpenApi3ResponseHeaders} from '../../openapi3';
-import {ParsedHeader, ParsedHeaders} from '../../spec-parser-types';
+import {ParsedHeader, ParsedHeaders, ParsedRequired} from '../../spec-parser-types';
 import {PathBuilder} from '../common/path-builder';
+
+const parseHeaderRequiredProperty = (header: OpenApi3ResponseHeader, pathBuilder: PathBuilder): ParsedRequired => {
+    const requiredOriginalValue = header.required;
+    const requiredParsedValue = requiredOriginalValue || false;
+
+    return {
+        originalValue: {
+            originalPath: pathBuilder.withChild('required').build(),
+            value: requiredOriginalValue
+        },
+        value: requiredParsedValue
+    };
+};
 
 const parseHeader = (header: OpenApi3ResponseHeader, pathBuilder: PathBuilder): ParsedHeader => {
     return {
         originalValue: {
             originalPath: pathBuilder.build(),
             value: header
-        }
+        },
+        required: parseHeaderRequiredProperty(header, pathBuilder)
     };
 };
 

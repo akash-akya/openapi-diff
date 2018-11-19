@@ -41,7 +41,7 @@ const findRemovedDifferencesInResponses = (
     });
 };
 
-const findMatchingResponsesDifferences = async (
+const findDifferencesInMatchingResponses = async (
     sourceResponses: ParsedResponses, destinationResponses: ParsedResponses
 ): Promise<Difference[]> => {
     const whenDifferencesForAllMatchingResponses = getCommonKeysFromObjects(sourceResponses, destinationResponses)
@@ -71,7 +71,8 @@ const findMatchingResponsesDifferences = async (
 export const findDifferencesInResponses = async (
     sourceResponses: ParsedResponses, destinationResponses: ParsedResponses
 ): Promise<Difference[]> => {
-    const matchingResponsesDifferences = await findMatchingResponsesDifferences(sourceResponses, destinationResponses);
+    const matchingResponsesDifferences
+        = await findDifferencesInMatchingResponses(sourceResponses, destinationResponses);
 
     return [
         ...findAddedDifferencesInResponses(sourceResponses, destinationResponses),

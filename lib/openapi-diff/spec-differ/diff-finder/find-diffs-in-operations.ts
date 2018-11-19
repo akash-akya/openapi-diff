@@ -39,7 +39,7 @@ const findRemovedMethodDifferences = (
         });
 };
 
-const findMatchingMethodsDifferences = async (
+const findDifferencesInMatchingMethods = async (
     sourceOperations: ParsedOperations, destinationOperations: ParsedOperations
 ): Promise<Difference[]> => {
     const whenDifferencesForAllMatchingMethods = getCommonKeysFromObjects(sourceOperations, destinationOperations)
@@ -71,7 +71,7 @@ const findMatchingMethodsDifferences = async (
 export const findDifferencesInOperations = async (
     sourceOperations: ParsedOperations, destinationOperations: ParsedOperations
 ): Promise<Difference[]> => {
-    const matchingMethodsDifferences = await findMatchingMethodsDifferences(sourceOperations, destinationOperations);
+    const matchingMethodsDifferences = await findDifferencesInMatchingMethods(sourceOperations, destinationOperations);
     return [
         ...findAddedMethodDifferences(sourceOperations, destinationOperations),
         ...findRemovedMethodDifferences(sourceOperations, destinationOperations),

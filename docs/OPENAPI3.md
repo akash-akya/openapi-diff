@@ -147,7 +147,7 @@ Not supported
 
 | Field Name | Supported |
 | --- | --- |
-| required | no |
+| required | yes |
 | deprecated | no |
 | allowEmptyValue | no |
 | style | no |

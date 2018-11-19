@@ -39,7 +39,7 @@ const findRemovedPathDifferences = (
         });
 };
 
-const findMatchingPathDifferences = async (
+const findDifferencesInMatchingPaths = async (
     sourcePathItems: ParsedPathItems, destinationPathItems: ParsedPathItems
 ): Promise<Difference[]> => {
     const matchingPaths = getCommonKeysFromObjects(sourcePathItems, destinationPathItems);
@@ -73,7 +73,8 @@ export const findDiffsInPaths = async (
 
     const addedPaths = findAddedPathDifferences(normalizedSourcePathItems, normalizedDestinationPathItems);
     const removedPaths = findRemovedPathDifferences(normalizedSourcePathItems, normalizedDestinationPathItems);
-    const matchingPaths = await findMatchingPathDifferences(normalizedSourcePathItems, normalizedDestinationPathItems);
+    const matchingPaths
+        = await findDifferencesInMatchingPaths(normalizedSourcePathItems, normalizedDestinationPathItems);
 
     return [...addedPaths, ...removedPaths, ...matchingPaths];
 };

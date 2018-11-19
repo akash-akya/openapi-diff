@@ -28,7 +28,13 @@ export interface ParsedHeaders {
 }
 
 export interface ParsedHeader {
+    required: ParsedRequired;
     originalValue: ParsedProperty;
+}
+
+interface ParsedRequired {
+    originalValue: ParsedProperty;
+    value: boolean;
 }
 
 export interface ParsedPathItems {

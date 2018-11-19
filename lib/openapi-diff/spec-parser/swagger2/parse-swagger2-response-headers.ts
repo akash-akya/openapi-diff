@@ -7,6 +7,12 @@ const parseHeader = (header: Swagger2ResponseHeader, pathBuilder: PathBuilder): 
         originalValue: {
             originalPath: pathBuilder.build(),
             value: header
+        },
+        required: {
+            originalValue: {
+                originalPath: pathBuilder.withChild('required').build()
+            },
+            value: true
         }
     };
 };

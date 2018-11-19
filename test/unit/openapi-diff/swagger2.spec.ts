@@ -505,7 +505,7 @@ describe('openapi-diff swagger2', () => {
                             .withHeader(responseHeaderName, swagger2ResponseHeaderBuilder))));
         };
 
-        it('should return add and remove differences, when headers are added and removed', async () => {
+        it('should return add/remove differences for required headers, when these are added and removed', async () => {
             const sourceSpec = createSpecWithHeader('x-some-header');
             const destinationSpec = createSpecWithHeader('x-another-header');
 
@@ -514,8 +514,8 @@ describe('openapi-diff swagger2', () => {
             expect(outcome).toContainDifferences([
                 nonBreakingDiffResultBuilder
                     .withAction('add')
-                    .withCode('response.header.add')
-                    .withEntity('response.header')
+                    .withCode('response.required.header.add')
+                    .withEntity('response.required.header')
                     .withSource('openapi-diff')
                     .withSourceSpecEntityDetails([])
                     .withDestinationSpecEntityDetails([
@@ -526,8 +526,8 @@ describe('openapi-diff swagger2', () => {
                     .build(),
                 breakingDiffResultBuilder
                     .withAction('remove')
-                    .withCode('response.header.remove')
-                    .withEntity('response.header')
+                    .withCode('response.required.header.remove')
+                    .withEntity('response.required.header')
                     .withSource('openapi-diff')
                     .withSourceSpecEntityDetails([
                         specEntityDetailsBuilder
