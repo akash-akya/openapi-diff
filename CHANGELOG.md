@@ -1,3 +1,13 @@
+<a name="0.18.0"></a>
+# [0.18.0](https://bitbucket.org/atlassian/openapi-diff/compare/0.17.0...0.18.0) (2018-11-23)
+
+
+### Features
+
+* support required property in response headers ([9c09292](https://bitbucket.org/atlassian/openapi-diff/commits/9c09292))
+
+
+
 <a name="0.17.0"></a>
 # [0.17.0](https://bitbucket.org/atlassian/openapi-diff/compare/0.16.0...0.17.0) (2018-11-13)
 
