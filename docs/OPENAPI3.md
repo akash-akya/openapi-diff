@@ -159,7 +159,7 @@ Not supported
 
 ## Schema Object
 
-(Check supported functionality for the used version of the json-schema-diff package)
+Check supported functionality for the used version of the [json-schema-diff](https://bitbucket.org/atlassian/json-schema-diff) package.
 
 ## Discriminator Object
 

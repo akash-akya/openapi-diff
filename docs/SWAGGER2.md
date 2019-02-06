@@ -127,7 +127,7 @@ This is a list of all the relevant field names in Swagger 2 and if the validatio
 
 ## Schema Object
 
-(Check supported functionality for the used version of the json-schema-diff package)
+Check supported functionality for the used version of the [json-schema-diff](https://bitbucket.org/atlassian/json-schema-diff) package.
 
 ## XML Object
 
