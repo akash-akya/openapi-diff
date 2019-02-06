@@ -9,9 +9,12 @@ export const findDifferencesInResponseBodies = async (
     const diffResults = await getSchemaDifferences(sourceResponseBody, destinationResponseBody);
 
     const responseBodyScopeOptions = {
+        addedJsonSchema: diffResults.addedJsonSchema,
+        additionsFound: diffResults.additionsFound,
         destinationScope: destinationResponseBody,
-        differences: diffResults.differences,
         propertyName: 'response.body.scope',
+        removalsFound: diffResults.removalsFound,
+        removedJsonSchema: diffResults.removedJsonSchema,
         sourceScope: sourceResponseBody
     };
 

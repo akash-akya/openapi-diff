@@ -1,5 +1,10 @@
 import * as _ from 'lodash';
 import {DiffOutcome, DiffResult, DiffResultType} from '../../../../lib/api-types';
+import MatchersUtil = jasmine.MatchersUtil;
+import CustomMatcherResult = jasmine.CustomMatcherResult;
+
+type EqualityTester = (first: any, second: any) => boolean;
+const isString = (target: any): target is string => typeof target === 'string';
 
 const getActualBreakingDifferences = (actualDiffOutcome: DiffOutcome): Array<DiffResult<'breaking'>> => {
     return actualDiffOutcome.breakingDifferencesFound ? actualDiffOutcome.breakingDifferences : [];
@@ -13,16 +18,18 @@ const getAllActualDifferences = (actualDiffOutcome: DiffOutcome): Array<DiffResu
     ];
 
 const createMessage = (unmatchedDifferences: Array<DiffResult<DiffResultType>>, headline: string) => {
-   const allUnmatchedDifferences = unmatchedDifferences
-       .map((difference) => JSON.stringify(difference, null, 4))
-       .join('\n');
-   return `${headline}:\n${allUnmatchedDifferences}`;
+    const allUnmatchedDifferences = unmatchedDifferences
+        .map((difference) => JSON.stringify(difference, null, 4))
+        .join('\n');
+    return `${headline}:\n${allUnmatchedDifferences}`;
 };
 
 const compareExpectedToActualDifferences = (
-    actualDifferences: Array<DiffResult<DiffResultType>>, expectedDifferences: Array<DiffResult<DiffResultType>>
+    actualDifferences: Array<DiffResult<DiffResultType>>,
+    expectedDifferences: Array<DiffResult<DiffResultType>>,
+    equalityTester: EqualityTester
 ): jasmine.CustomMatcherResult => {
-    const unmatchedExpectedDifferences = _.differenceWith(expectedDifferences, actualDifferences, _.isEqual);
+    const unmatchedExpectedDifferences = _.differenceWith(expectedDifferences, actualDifferences, equalityTester);
     return {
         message: unmatchedExpectedDifferences.length === 0
             ? undefined
@@ -32,9 +39,11 @@ const compareExpectedToActualDifferences = (
 };
 
 const compareActualToExpectedDifferences = (
-    actualDifferences: Array<DiffResult<DiffResultType>>, expectedDifferences: Array<DiffResult<DiffResultType>>
+    actualDifferences: Array<DiffResult<DiffResultType>>,
+    expectedDifferences: Array<DiffResult<DiffResultType>>,
+    equalityTester: EqualityTester
 ): jasmine.CustomMatcherResult => {
-    const unmatchedActualDifferences = _.differenceWith(actualDifferences, expectedDifferences, _.isEqual);
+    const unmatchedActualDifferences = _.differenceWith(actualDifferences, expectedDifferences, equalityTester);
     return {
         message: unmatchedActualDifferences.length === 0
             ? undefined
@@ -57,14 +66,17 @@ const compareBreakingDifferencesFoundFlag = (
     };
 };
 
-export const compare = (actualDiffOutcome: DiffOutcome,
-                        expectedDifferences: Array<DiffResult<DiffResultType>>): jasmine.CustomMatcherResult => {
+const toContainDifferencesCompare = (
+    actualDiffOutcome: DiffOutcome,
+    expectedDifferences: Array<DiffResult<DiffResultType>>,
+    util: MatchersUtil
+): jasmine.CustomMatcherResult => {
 
     const allActualDifferences = getAllActualDifferences(actualDiffOutcome);
 
     const allCompareResults: jasmine.CustomMatcherResult[] = [
-        compareActualToExpectedDifferences(allActualDifferences, expectedDifferences),
-        compareExpectedToActualDifferences(allActualDifferences, expectedDifferences),
+        compareActualToExpectedDifferences(allActualDifferences, expectedDifferences, util.equals),
+        compareExpectedToActualDifferences(allActualDifferences, expectedDifferences, util.equals),
         compareBreakingDifferencesFoundFlag(actualDiffOutcome, expectedDifferences)
     ];
 
@@ -77,4 +89,14 @@ export const compare = (actualDiffOutcome: DiffOutcome,
     return {message, pass};
 };
 
-const isString = (target: any): target is string => typeof target === 'string';
+type DiffCustomMatcherFunc = (
+    actualDiffOutcome: DiffOutcome,
+    expectedDifferences: Array<DiffResult<DiffResultType>>
+) => CustomMatcherResult;
+
+export const createDiffCustomMatcher = (util: MatchersUtil): DiffCustomMatcherFunc =>
+    (
+        actualDiffOutcome: DiffOutcome,
+        expectedDifferences: Array<DiffResult<DiffResultType>>
+    ): CustomMatcherResult =>
+        toContainDifferencesCompare(actualDiffOutcome, expectedDifferences, util);

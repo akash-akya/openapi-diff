@@ -1,9 +1,10 @@
 import {DiffResult, DiffResultType} from '../../../../lib/api-types';
-import {compare as toContainDifferencesCompare} from './diff-custom-matcher';
+import {createDiffCustomMatcher} from './diff-custom-matcher';
+import MatchersUtil = jasmine.MatchersUtil;
 
 export const customMatchers = {
-    toContainDifferences: (): jasmine.CustomMatcher => ({
-        compare: toContainDifferencesCompare
+    toContainDifferences: (util: MatchersUtil): jasmine.CustomMatcher => ({
+        compare: createDiffCustomMatcher(util)
     })
 };
 

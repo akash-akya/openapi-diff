@@ -21,7 +21,7 @@ describe('openapi-diff request-body', () => {
     const defaultMediaType = 'application/json';
 
     const defaultTypeChangeLocation =
-        `paths.${defaultPath}.${defaultMethod}.requestBody.content.${defaultMediaType}.schema.type`;
+        `paths.${defaultPath}.${defaultMethod}.requestBody.content.${defaultMediaType}.schema`;
 
     const createSpecWithNoRequestBody = () => {
         return openApi3SpecBuilder
@@ -46,11 +46,8 @@ describe('openapi-diff request-body', () => {
                             .withJsonContentSchema(schema)))));
     };
 
-    const createSpecWithRequestBodySchemaType = (type: 'string' | 'number') =>
-        createSpecWithRequestBodySchema({type});
-
     it('should return no differences for the same spec', async () => {
-        const aSpec = createSpecWithRequestBodySchemaType('string');
+        const aSpec = createSpecWithRequestBodySchema({type: 'string'});
 
         const outcome = await whenSpecsAreDiffed(aSpec, aSpec);
 
@@ -58,8 +55,8 @@ describe('openapi-diff request-body', () => {
     });
 
     it('should return a breaking and non-breaking differences if request schema scope is changed', async () => {
-        const sourceSpec = createSpecWithRequestBodySchemaType('string');
-        const destinationSpec = createSpecWithRequestBodySchemaType('number');
+        const sourceSpec = createSpecWithRequestBodySchema({type: 'string'});
+        const destinationSpec = createSpecWithRequestBodySchema({type: 'number'});
 
         const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
 
@@ -72,14 +69,14 @@ describe('openapi-diff request-body', () => {
                 .withSourceSpecEntityDetails([
                     specEntityDetailsBuilder
                         .withLocation(defaultTypeChangeLocation)
-                        .withValue('string')
+                        .withValue({type: 'string'})
                 ])
                 .withDestinationSpecEntityDetails([
                     specEntityDetailsBuilder
                         .withLocation(defaultTypeChangeLocation)
-                        .withValue('number')
+                        .withValue({type: 'number'})
                 ])
-                .withDetails({value: 'number'})
+                .withDetails({differenceSchema: jasmine.any(Object)})
                 .build(),
             breakingDiffResultBuilder
                 .withAction('remove')
@@ -89,14 +86,14 @@ describe('openapi-diff request-body', () => {
                 .withSourceSpecEntityDetails([
                     specEntityDetailsBuilder
                         .withLocation(defaultTypeChangeLocation)
-                        .withValue('string')
+                        .withValue({type: 'string'})
                 ])
                 .withDestinationSpecEntityDetails([
                     specEntityDetailsBuilder
                         .withLocation(defaultTypeChangeLocation)
-                        .withValue('number')
+                        .withValue({type: 'number'})
                 ])
-                .withDetails({value: 'string'})
+                .withDetails({differenceSchema: jasmine.any(Object)})
                 .build()
         ]);
     });
@@ -130,109 +127,93 @@ describe('openapi-diff request-body', () => {
 
     it('should return breaking differences, when a request body was added', async () => {
         const sourceSpec = createSpecWithNoRequestBody();
-        const destinationSpec = createSpecWithRequestBodySchemaType('string');
+        const destinationSpec = createSpecWithRequestBodySchema({type: 'string'});
 
         const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
 
-        const baseBreakingDifference = breakingDiffResultBuilder
-            .withAction('remove')
-            .withCode('request.body.scope.remove')
-            .withEntity('request.body.scope')
-            .withSource('json-schema-diff')
-            .withSourceSpecEntityDetails([])
-            .withDestinationSpecEntityDetails([
-                specEntityDetailsBuilder
-                    .withLocation(defaultTypeChangeLocation)
-                    .withValue('string')
-            ]);
         expect(outcome).toContainDifferences([
-            baseBreakingDifference.withDetails({value: 'boolean'}).build(),
-            baseBreakingDifference.withDetails({value: 'object'}).build(),
-            baseBreakingDifference.withDetails({value: 'integer'}).build(),
-            baseBreakingDifference.withDetails({value: 'number'}).build(),
-            baseBreakingDifference.withDetails({value: 'array'}).build(),
-            baseBreakingDifference.withDetails({value: 'null'}).build()
+            breakingDiffResultBuilder
+                .withAction('remove')
+                .withCode('request.body.scope.remove')
+                .withEntity('request.body.scope')
+                .withSource('json-schema-diff')
+                .withSourceSpecEntityDetails([])
+                .withDestinationSpecEntityDetails([
+                    specEntityDetailsBuilder
+                        .withLocation(defaultTypeChangeLocation)
+                        .withValue({type: 'string'})
+                ])
+                .withDetails({differenceSchema: jasmine.any(Object)})
+                .build()
         ]);
     });
 
     it('should return non-breaking differences, when a request body was removed', async () => {
-        const sourceSpec = createSpecWithRequestBodySchemaType('string');
+        const sourceSpec = createSpecWithRequestBodySchema({type: 'string'});
         const destinationSpec = createSpecWithNoRequestBody();
 
         const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
 
-        const baseNonBreakingDifference = nonBreakingDiffResultBuilder
-            .withAction('add')
-            .withCode('request.body.scope.add')
-            .withEntity('request.body.scope')
-            .withSource('json-schema-diff')
-            .withSourceSpecEntityDetails([
-                specEntityDetailsBuilder
-                    .withLocation(defaultTypeChangeLocation)
-                    .withValue('string')
-            ])
-            .withDestinationSpecEntityDetails([]);
         expect(outcome).toContainDifferences([
-            baseNonBreakingDifference.withDetails({value: 'boolean'}).build(),
-            baseNonBreakingDifference.withDetails({value: 'object'}).build(),
-            baseNonBreakingDifference.withDetails({value: 'integer'}).build(),
-            baseNonBreakingDifference.withDetails({value: 'number'}).build(),
-            baseNonBreakingDifference.withDetails({value: 'array'}).build(),
-            baseNonBreakingDifference.withDetails({value: 'null'}).build()
+            nonBreakingDiffResultBuilder
+                .withAction('add')
+                .withCode('request.body.scope.add')
+                .withEntity('request.body.scope')
+                .withSource('json-schema-diff')
+                .withSourceSpecEntityDetails([
+                    specEntityDetailsBuilder
+                        .withLocation(defaultTypeChangeLocation)
+                        .withValue({type: 'string'})
+                ])
+                .withDestinationSpecEntityDetails([])
+                .withDetails({differenceSchema: jasmine.any(Object)})
+                .build()
         ]);
     });
 
     it('should return breaking differences, when a schema was added onto a request body', async () => {
         const sourceSpec = createSpecWithRequestBodyWithoutSchema();
-        const destinationSpec = createSpecWithRequestBodySchemaType('string');
+        const destinationSpec = createSpecWithRequestBodySchema({type: 'string'});
 
         const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
 
-        const baseBreakingDifference = breakingDiffResultBuilder
-            .withAction('remove')
-            .withCode('request.body.scope.remove')
-            .withEntity('request.body.scope')
-            .withSource('json-schema-diff')
-            .withSourceSpecEntityDetails([])
-            .withDestinationSpecEntityDetails([
-                specEntityDetailsBuilder
-                    .withLocation(defaultTypeChangeLocation)
-                    .withValue('string')
-            ]);
         expect(outcome).toContainDifferences([
-            baseBreakingDifference.withDetails({value: 'boolean'}).build(),
-            baseBreakingDifference.withDetails({value: 'object'}).build(),
-            baseBreakingDifference.withDetails({value: 'integer'}).build(),
-            baseBreakingDifference.withDetails({value: 'number'}).build(),
-            baseBreakingDifference.withDetails({value: 'array'}).build(),
-            baseBreakingDifference.withDetails({value: 'null'}).build()
+            breakingDiffResultBuilder
+                .withAction('remove')
+                .withCode('request.body.scope.remove')
+                .withEntity('request.body.scope')
+                .withSource('json-schema-diff')
+                .withSourceSpecEntityDetails([])
+                .withDestinationSpecEntityDetails([
+                    specEntityDetailsBuilder
+                        .withLocation(defaultTypeChangeLocation)
+                        .withValue({type: 'string'})
+                ])
+                .withDetails({differenceSchema: jasmine.any(Object)})
+                .build()
         ]);
     });
 
     it('should return non-breaking differences, when the schema was removed from a request body', async () => {
-        const sourceSpec = createSpecWithRequestBodySchemaType('string');
+        const sourceSpec = createSpecWithRequestBodySchema({type: 'string'});
         const destinationSpec = createSpecWithRequestBodyWithoutSchema();
 
         const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
 
-        const baseNonBreakingDifference = nonBreakingDiffResultBuilder
-            .withAction('add')
-            .withCode('request.body.scope.add')
-            .withEntity('request.body.scope')
-            .withSource('json-schema-diff')
-            .withSourceSpecEntityDetails([
-                specEntityDetailsBuilder
-                    .withLocation(defaultTypeChangeLocation)
-                    .withValue('string')
-            ])
-            .withDestinationSpecEntityDetails([]);
         expect(outcome).toContainDifferences([
-            baseNonBreakingDifference.withDetails({value: 'boolean'}).build(),
-            baseNonBreakingDifference.withDetails({value: 'object'}).build(),
-            baseNonBreakingDifference.withDetails({value: 'integer'}).build(),
-            baseNonBreakingDifference.withDetails({value: 'number'}).build(),
-            baseNonBreakingDifference.withDetails({value: 'array'}).build(),
-            baseNonBreakingDifference.withDetails({value: 'null'}).build()
+            nonBreakingDiffResultBuilder
+                .withAction('add')
+                .withCode('request.body.scope.add')
+                .withEntity('request.body.scope')
+                .withSource('json-schema-diff')
+                .withSourceSpecEntityDetails([
+                    specEntityDetailsBuilder
+                        .withLocation(defaultTypeChangeLocation)
+                        .withValue({type: 'string'})
+                ])
+                .withDestinationSpecEntityDetails([])
+                .withDetails({differenceSchema: jasmine.any(Object)})
+                .build()
         ]);
     });
 
@@ -248,7 +229,7 @@ describe('openapi-diff request-body', () => {
             .withPath(defaultPath, openApi3PathItemBuilder
                 .withOperation(defaultMethod, openApi3OperationBuilder
                     .withRequestBody(refObjectBuilder.withRef('#/components/requestBodies/RequestBody'))));
-        const destinationSpec = createSpecWithRequestBodySchemaType('number');
+        const destinationSpec = createSpecWithRequestBodySchema({type: 'number'});
 
         const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
 

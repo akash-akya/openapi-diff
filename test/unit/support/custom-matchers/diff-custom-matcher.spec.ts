@@ -13,7 +13,7 @@ describe('toContainDifferences', () => {
     const whenToContainDifferencesIsCalledWith = (actualDiffResult: DiffOutcome,
                                                   expectedDifferences: Array<DiffResult<DiffResultType>>
     ): CustomMatcherResult => {
-        const matcher = customMatchers.toContainDifferences();
+        const matcher = customMatchers.toContainDifferences(jasmine.matchersUtil);
         return matcher.compare(actualDiffResult, expectedDifferences);
     };
 
@@ -84,6 +84,17 @@ describe('toContainDifferences', () => {
             const result = whenToContainDifferencesIsCalledWith(actualDiffOutcome, [
                 nonBreakingDifference.build(), breakingDifference.build(), unclassifiedDifference.build()
             ]);
+
+            expect(result.pass).toBe(true, 'matcher result');
+        });
+
+        it('should support jasmine\'s equality matchers', async () => {
+            const actualDiffOutcome = diffOutcomeSuccessBuilder
+                .withNonBreakingDifferences([nonBreakingDiffResultBuilder.withDetails({foo: true})])
+                .build();
+            const expectedDifference = nonBreakingDiffResultBuilder.withDetails(jasmine.any(Object)).build();
+
+            const result = whenToContainDifferencesIsCalledWith(actualDiffOutcome, [expectedDifference]);
 
             expect(result.pass).toBe(true, 'matcher result');
         });

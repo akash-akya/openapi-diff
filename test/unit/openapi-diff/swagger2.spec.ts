@@ -242,26 +242,21 @@ describe('openapi-diff swagger2', () => {
 
         const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
 
-        const typeChangeLocation = `paths.${defaultPath}.${defaultMethod}.parameters.0.schema.type`;
-        const baseBreakingDifference = breakingDiffResultBuilder
-            .withAction('remove')
-            .withCode('request.body.scope.remove')
-            .withEntity('request.body.scope')
-            .withSource('json-schema-diff')
-            .withSourceSpecEntityDetails([])
-            .withDestinationSpecEntityDetails([
-                specEntityDetailsBuilder
-                    .withLocation(typeChangeLocation)
-                    .withValue('string')
-            ]);
-
+        const typeChangeLocation = `paths.${defaultPath}.${defaultMethod}.parameters.0.schema`;
         expect(outcome).toContainDifferences([
-            baseBreakingDifference.withDetails({value: 'boolean'}).build(),
-            baseBreakingDifference.withDetails({value: 'object'}).build(),
-            baseBreakingDifference.withDetails({value: 'integer'}).build(),
-            baseBreakingDifference.withDetails({value: 'number'}).build(),
-            baseBreakingDifference.withDetails({value: 'array'}).build(),
-            baseBreakingDifference.withDetails({value: 'null'}).build()
+            breakingDiffResultBuilder
+                .withAction('remove')
+                .withCode('request.body.scope.remove')
+                .withEntity('request.body.scope')
+                .withSource('json-schema-diff')
+                .withSourceSpecEntityDetails([])
+                .withDestinationSpecEntityDetails([
+                    specEntityDetailsBuilder
+                        .withLocation(typeChangeLocation)
+                        .withValue({type: 'string'})
+                ])
+                .withDetails({differenceSchema: jasmine.any(Object)})
+                .build()
         ]);
     });
 
@@ -284,7 +279,7 @@ describe('openapi-diff swagger2', () => {
 
         const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
 
-        const typeChangeLocation = `paths.${defaultPath}.${defaultMethod}.parameters.0.schema.type`;
+        const typeChangeLocation = `paths.${defaultPath}.${defaultMethod}.parameters.0.schema`;
         expect(outcome).toContainDifferences([
             nonBreakingDiffResultBuilder
                 .withAction('add')
@@ -294,14 +289,14 @@ describe('openapi-diff swagger2', () => {
                 .withSourceSpecEntityDetails([
                     specEntityDetailsBuilder
                         .withLocation(typeChangeLocation)
-                        .withValue('string')
+                        .withValue({type: 'string'})
                 ])
                 .withDestinationSpecEntityDetails([
                     specEntityDetailsBuilder
                         .withLocation(typeChangeLocation)
-                        .withValue('number')
+                        .withValue({type: 'number'})
                 ])
-                .withDetails({value: 'number'})
+                .withDetails({differenceSchema: jasmine.any(Object)})
                 .build(),
             breakingDiffResultBuilder
                 .withAction('remove')
@@ -311,14 +306,14 @@ describe('openapi-diff swagger2', () => {
                 .withSourceSpecEntityDetails([
                     specEntityDetailsBuilder
                         .withLocation(typeChangeLocation)
-                        .withValue('string')
+                        .withValue({type: 'string'})
                 ])
                 .withDestinationSpecEntityDetails([
                     specEntityDetailsBuilder
                         .withLocation(typeChangeLocation)
-                        .withValue('number')
+                        .withValue({type: 'number'})
                 ])
-                .withDetails({value: 'string'})
+                .withDetails({differenceSchema: jasmine.any(Object)})
                 .build()
         ]);
     });
@@ -397,26 +392,21 @@ describe('openapi-diff swagger2', () => {
 
         const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
 
-        const typeChangeLocation = `paths.${defaultPath}.${defaultMethod}.responses.${defaultStatusCode}.schema.type`;
-        const baseNonBreakingDifference = nonBreakingDiffResultBuilder
-            .withAction('remove')
-            .withCode('response.body.scope.remove')
-            .withEntity('response.body.scope')
-            .withSource('json-schema-diff')
-            .withSourceSpecEntityDetails([])
-            .withDestinationSpecEntityDetails([
-                specEntityDetailsBuilder
-                    .withLocation(typeChangeLocation)
-                    .withValue('string')
-            ]);
-
+        const typeChangeLocation = `paths.${defaultPath}.${defaultMethod}.responses.${defaultStatusCode}.schema`;
         expect(outcome).toContainDifferences([
-            baseNonBreakingDifference.withDetails({value: 'boolean'}).build(),
-            baseNonBreakingDifference.withDetails({value: 'object'}).build(),
-            baseNonBreakingDifference.withDetails({value: 'integer'}).build(),
-            baseNonBreakingDifference.withDetails({value: 'number'}).build(),
-            baseNonBreakingDifference.withDetails({value: 'array'}).build(),
-            baseNonBreakingDifference.withDetails({value: 'null'}).build()
+            nonBreakingDiffResultBuilder
+                .withAction('remove')
+                .withCode('response.body.scope.remove')
+                .withEntity('response.body.scope')
+                .withSource('json-schema-diff')
+                .withSourceSpecEntityDetails([])
+                .withDestinationSpecEntityDetails([
+                    specEntityDetailsBuilder
+                        .withLocation(typeChangeLocation)
+                        .withValue({type: 'string'})
+                ])
+                .withDetails({differenceSchema: jasmine.any(Object)})
+                .build()
         ]);
     });
 
@@ -434,40 +424,40 @@ describe('openapi-diff swagger2', () => {
 
         const outcome = await whenSpecsAreDiffed(sourceSpec, destinationSpec);
 
-        const typeChangeLocation = `paths.${defaultPath}.${defaultMethod}.responses.${defaultStatusCode}.schema.type`;
+        const typeChangeLocation = `paths.${defaultPath}.${defaultMethod}.responses.${defaultStatusCode}.schema`;
         const nonBreakingDifference = nonBreakingDiffResultBuilder
             .withAction('remove')
             .withCode('response.body.scope.remove')
-            .withDetails({value: 'string'})
+            .withDetails({differenceSchema: jasmine.any(Object)})
             .withEntity('response.body.scope')
             .withSource('json-schema-diff')
             .withSourceSpecEntityDetails([
                 specEntityDetailsBuilder
                     .withLocation(typeChangeLocation)
-                    .withValue('string')
+                    .withValue({type: 'string'})
             ])
             .withDestinationSpecEntityDetails([
                 specEntityDetailsBuilder
                     .withLocation(typeChangeLocation)
-                    .withValue('number')
+                    .withValue({type: 'number'})
             ])
             .build();
 
         const breakingDifference = breakingDiffResultBuilder
             .withAction('add')
             .withCode('response.body.scope.add')
-            .withDetails({value: 'number'})
+            .withDetails({differenceSchema: jasmine.any(Object)})
             .withEntity('response.body.scope')
             .withSource('json-schema-diff')
             .withSourceSpecEntityDetails([
                 specEntityDetailsBuilder
                     .withLocation(typeChangeLocation)
-                    .withValue('string')
+                    .withValue({type: 'string'})
             ])
             .withDestinationSpecEntityDetails([
                 specEntityDetailsBuilder
                     .withLocation(typeChangeLocation)
-                    .withValue('number')
+                    .withValue({type: 'number'})
             ])
             .build();
 
