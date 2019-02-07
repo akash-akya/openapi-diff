@@ -1,3 +1,13 @@
+<a name="0.20.0"></a>
+# [0.20.0](https://bitbucket.org/atlassian/openapi-diff/compare/0.19.0...0.20.0) (2019-02-07)
+
+
+### Features
+
+* add support for the required keyword in request and response body schemas ([ecc0e48](https://bitbucket.org/atlassian/openapi-diff/commits/ecc0e48))
+
+
+
 <a name="0.19.0"></a>
 # [0.19.0](https://bitbucket.org/atlassian/openapi-diff/compare/0.18.0...0.19.0) (2019-01-04)
 
