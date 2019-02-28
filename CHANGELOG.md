@@ -1,3 +1,13 @@
+<a name="0.21.0"></a>
+# [0.21.0](https://bitbucket.org/atlassian/openapi-diff/compare/0.20.0...0.21.0) (2019-02-28)
+
+
+### Features
+
+* add support for the items keyword in request and response body schemas ([8636fa3](https://bitbucket.org/atlassian/openapi-diff/commits/8636fa3))
+
+
+
 <a name="0.20.0"></a>
 # [0.20.0](https://bitbucket.org/atlassian/openapi-diff/compare/0.19.0...0.20.0) (2019-02-07)
 

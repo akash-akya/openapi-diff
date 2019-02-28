@@ -1,6 +1,6 @@
 {
   "name": "openapi-diff",
-  "version": "0.20.0",
+  "version": "0.21.0",
   "description": "A CLI tool to identify differences between Swagger/OpenAPI specs.",
   "bin": {
     "openapi-diff": "./bin/openapi-diff"
