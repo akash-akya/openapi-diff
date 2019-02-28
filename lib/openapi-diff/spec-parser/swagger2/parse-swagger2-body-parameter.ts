@@ -29,7 +29,7 @@ const findBodyParameterAndIndex = (parameters: Swagger2Parameters, spec: Swagger
     const resolvedParameters: Swagger2Parameter[] = resolveParameters(parameters, spec);
     const index = resolvedParameters.findIndex((resolvedParameter) => resolvedParameter.in === 'body');
 
-    return {bodyParameter: resolvedParameters[index], index};
+    return {bodyParameter: resolvedParameters[index] as Swagger2BodyParameter, index};
 };
 
 export const parseSwagger2BodyParameter = (
