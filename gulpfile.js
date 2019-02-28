@@ -49,7 +49,7 @@ function bumpVersion(callback) {
 }
 
 function changelog() {
-    return gulp.src('CHANGELOG.md', {buffer: false})
+    return gulp.src('CHANGELOG.md')
         .pipe(conventionalChangelog({preset: 'angular'}))
         .pipe(gulp.dest('./'));
 }
