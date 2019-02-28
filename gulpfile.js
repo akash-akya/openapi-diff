@@ -92,7 +92,7 @@ function commitChanges() {
         .pipe(git.commit(`chore: release ${utilities.getPackageJsonVersion()}`));
 }
 
-function createNewTag() {
+function createNewTag(callback) {
     const version = utilities.getPackageJsonVersion();
     git.tag(version, `Created Tag for version: ${version}`, callback);
 }
