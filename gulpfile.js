@@ -139,6 +139,10 @@ exports.default = gulp.series(
     gulp.parallel(lintTypeScript, test)
 );
 
+exports.build = gulp.series(
+  gulp.parallel(cleanCopyAndCompileBuildOutput, cleanDist, compileDist)
+);
+
 exports.release = gulp.series(
     exports.default,
     cleanDist,
