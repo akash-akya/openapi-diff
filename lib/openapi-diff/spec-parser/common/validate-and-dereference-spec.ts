@@ -8,7 +8,7 @@ export const validateAndDereferenceSpec = async <T extends Swagger2 | OpenApi3>(
 ): Promise<T> => {
     try {
         const options: any = {
-            dereference: {circular: 'ignore'}
+            dereference: {circular: 'true'}
         };
         return await SwaggerParser.validate(spec as any, options);
     } catch (error) {
