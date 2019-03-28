@@ -45,9 +45,9 @@ export class OpenApiDiff {
 
             this.resultReporter.reportOutcome(diffOutcome);
 
-            if (diffOutcome.breakingDifferencesFound) {
-                return Promise.reject(new Error('Breaking differences found'));
-            }
+            // if (diffOutcome.breakingDifferencesFound) {
+            //     return Promise.reject(new Error('Breaking differences found'));
+            // }
         } catch (error) {
             this.resultReporter.reportError(error);
             throw error;

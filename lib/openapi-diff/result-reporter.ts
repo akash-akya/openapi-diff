@@ -28,17 +28,17 @@ export class ResultReporter {
 
     private reportFailure(outcome: DiffOutcomeFailure): void {
         this.consoleLogger.info(
-            `Breaking changes found between the two specifications:\n${ResultReporter.outcomeToString(outcome)}`
+            ResultReporter.outcomeToString(outcome)
         );
     }
 
     private reportSuccessWithDifferences(outcome: DiffOutcomeSuccess): void {
         this.consoleLogger.info(
-            `Non breaking changes found between the two specifications:\n${ResultReporter.outcomeToString(outcome)}`
+            ResultReporter.outcomeToString(outcome)
         );
     }
 
     private reportNoChangesFound(): void {
-        this.consoleLogger.info('No changes found between the two specifications');
+        ''
     }
 }
